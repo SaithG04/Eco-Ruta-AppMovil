@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class MySQLService {
 
-    private static final String URL = "http://192.168.1.110:80/reciperu/insertar_.php";
+    private static final String URL = "https://apireciperu.000webhostapp.com/insertar_.php";
 
     public static void insertData(Context context, String nombre, String correo, String contrasena) {
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {

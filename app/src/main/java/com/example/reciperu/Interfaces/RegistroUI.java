@@ -6,6 +6,10 @@ import android.widget.*;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
+import com.example.reciperu.DAO.UsuarioDAO;
+import com.example.reciperu.Entity.DataAccessUtilities;
+import com.example.reciperu.Entity.Usuario;
 import com.example.reciperu.R;
 
 public class RegistroUI extends AppCompatActivity {
@@ -31,9 +35,13 @@ public class RegistroUI extends AppCompatActivity {
     }
 
     private void registrarUsuario() {
+
+        DataAccessUtilities dau = new DataAccessUtilities();
+
         String nombre = edtUsuario.getText().toString();
         String correo = edtCorreo.getText().toString();
         String contrasena = edtContrasena.getText().toString();
+
 
         if (nombre.isEmpty()) {
             Toast.makeText(this, "Ingrese nombre", Toast.LENGTH_SHORT).show();
@@ -42,8 +50,21 @@ public class RegistroUI extends AppCompatActivity {
         } else if (contrasena.isEmpty()) {
             Toast.makeText(this, "Ingrese contraseña", Toast.LENGTH_SHORT).show();
         } else {
-            // Ejecutar la tarea de inserción de usuario en segundo plano
-            MySQLService.insertData(getApplicationContext(), nombre, correo, contrasena);
+
+            byte[] salt = dau.generateSalt();
+            byte[] hashedPassword = dau.hashPassword(contrasena, salt);
+
+            Usuario usuario = new Usuario(nombre, correo, hashedPassword, salt, "logued out");
+            UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, this.getApplicationContext());
+            boolean insertar = usuarioDAO.insertar();
+
+            if (insertar) {
+                Toast.makeText(this.getApplicationContext(), "Usuario registrado", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this.getApplicationContext(), "Usuario no registrado", Toast.LENGTH_SHORT).show();
+
+            }
+
         }
     }
 }
