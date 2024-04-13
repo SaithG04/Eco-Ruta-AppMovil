@@ -3,15 +3,20 @@ package com.example.reciperu.Interfaces;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.android.volley.*;
-import com.android.volley.toolbox.*;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class MySQLService {
 
-    private static final String URL = "http://192.168.1.110:80/reciperu/insertar_.php";
+    private static final String URL = "https://apireciperu.000webhostapp.com/insertar_.php";
 
     public static void insertData(Context context, String nombre, String correo, String contrasena) {
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
@@ -39,4 +44,5 @@ public class MySQLService {
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
     }
+
 }

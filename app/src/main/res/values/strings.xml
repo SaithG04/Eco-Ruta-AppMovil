@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ReciPeru</string>
+    <string name="title_activity_reci_maps">ReciMaps</string>
 </resources>

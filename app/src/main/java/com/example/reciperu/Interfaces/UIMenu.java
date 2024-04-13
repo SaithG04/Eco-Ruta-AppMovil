@@ -2,6 +2,8 @@ package com.example.reciperu.Interfaces;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -9,18 +11,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.reciperu.MainActivity;
 import com.example.reciperu.R;
+import com.example.reciperu.ReciMaps;
 
 public class UIMenu extends AppCompatActivity {
+    private Button VerMapa;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +27,20 @@ public class UIMenu extends AppCompatActivity {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+
+                    VerMapa = findViewById(R.id.btnVerMapa);
+
+                    // Configura un listener para el botón
+                    VerMapa.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // Crea un Intent para abrir otra actividad
+                            Intent intent = new Intent(UIMenu.this, ReciMaps.class);
+
+                            // Inicia la segunda actividad
+                            startActivity(intent);
+                        }
+                    });
             return insets;
         });
 
@@ -50,6 +61,7 @@ public class UIMenu extends AppCompatActivity {
                 cerrarSesion();
             }
         });
+
     }
 
     // Método para manejar el cierre de sesión
@@ -61,4 +73,5 @@ public class UIMenu extends AppCompatActivity {
         // Finaliza la actividad actual
         finish();
     }
+
 }
