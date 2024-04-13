@@ -1,6 +1,7 @@
 package com.example.reciperu.Interfaces;
 
-import android.database.Cursor;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -8,22 +9,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.reciperu.DbHelper.DbHelper;
+import com.android.volley.*;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.reciperu.MainActivity;
 import com.example.reciperu.R;
-import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegistroUI extends AppCompatActivity {
     private EditText edtUsuario, edtCorreo, edtContrasena;
     private Button registrarButton;
-    private DbHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,16 +38,11 @@ public class RegistroUI extends AppCompatActivity {
             return insets;
         });
 
-        // Inicializa las vistas
         edtUsuario = findViewById(R.id.edtUsuarioREG);
         edtCorreo = findViewById(R.id.edtCorreoREG);
         edtContrasena = findViewById(R.id.edtContrasenaREG);
         registrarButton = findViewById(R.id.btnREG);
 
-        // Crea una instancia de la base de datos
-        dbHelper = new DbHelper(this);
-
-        // Establece el OnClickListener para el botón de registro
         registrarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,78 +52,134 @@ public class RegistroUI extends AppCompatActivity {
 
     }
 
+   /* private void registrarUsuario() {
+
+        String nombre=edtUsuario.getText().toString().trim();
+        String correo=edtCorreo.getText().toString().trim();
+        String contrasena=edtContrasena.getText().toString().trim();
+
+        ProgressDialog progressDialog =new ProgressDialog(this);
+        progressDialog.setMessage("cargando");
+
+
+        if (nombre.isEmpty()){
+            Toast.makeText(this,"ingrese nombre",Toast.LENGTH_SHORT).show();
+        }else if (correo.isEmpty()){
+            Toast.makeText(this,"ingrese correo",Toast.LENGTH_SHORT).show();
+        }else if (contrasena.isEmpty()){
+            Toast.makeText(this,"ingrese contrasena",Toast.LENGTH_SHORT).show();
+        }else {
+            try {
+                progressDialog.show();
+                StringRequest request = new StringRequest(Request.Method.POST, "http://10.0.2.2:3306/ReciPeru/insertar_.php",
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                if (response.equalsIgnoreCase("datas insertados")) {
+                                    Toast.makeText(RegistroUI.this, "registrado correctamente", Toast.LENGTH_SHORT).show();
+                                    progressDialog.dismiss();
+                                    //   startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                                    finish();
+                                } else {
+                                    Toast.makeText(RegistroUI.this, "Error no se puede registrar", Toast.LENGTH_SHORT).show();
+                                    progressDialog.dismiss();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(RegistroUI.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                        System.out.println(error.getMessage());
+                    }
+                }
+
+                ) {
+
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+
+                        Map<String, String> params = new HashMap<>();
+                        params.put("nombre", nombre);
+                        params.put("correo", correo);
+                        params.put("contrasena", contrasena);
+
+                        return params;
+                    }
+                };
+                RequestQueue requestQueue = Volley.newRequestQueue(RegistroUI.this);
+                requestQueue.add(request);
+                //
+            }catch(Exception e){
+                e.printStackTrace(System.out);
+            }
+        }
+    }*/
+
+
+
+
     private void registrarUsuario() {
-        // Obtiene los valores de los EditText
-        String usuario = edtUsuario.getText().toString();
-        String correo = edtCorreo.getText().toString();
-        String contrasena = edtContrasena.getText().toString();
+        String nombre = edtUsuario.getText().toString().trim();
+        String correo = edtCorreo.getText().toString().trim();
+        String contrasena = edtContrasena.getText().toString().trim();
 
-        // Verifica que los campos no estén vacíos
-        if (usuario.isEmpty() || correo.isEmpty() || contrasena.isEmpty()) {
-            Toast.makeText(this, "Por favor, rellena todos los campos.", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Cargando");
 
-        // Obtiene una instancia de la base de datos en modo lectura para verificar si el usuario existe
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        // Consulta para verificar si el nombre de usuario ya existe
-        String[] columnas = {"usuario"};
-        String seleccion = "usuario = ?";
-        String[] seleccionArgs = {usuario};
-
-        Cursor cursor = db.query(
-                "usuarios",  // Nombre de la tabla donde se almacenan los datos
-                columnas,
-                seleccion,
-                seleccionArgs,
-                null,
-                null,
-                null
-        );
-
-        // Verifica si el usuario ya existe
-        if (cursor.moveToFirst()) {
-            // Cierra el cursor y la base de datos
-            cursor.close();
-            db.close();
-
-            // Muestra un mensaje de advertencia
-            Toast.makeText(this, "El nombre de usuario ya existe. Por favor, elige otro.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Cierra el cursor
-        cursor.close();
-
-        // Obtiene una instancia de la base de datos en modo escritura para insertar el nuevo usuario
-        db = dbHelper.getWritableDatabase();
-
-        // Inserta los datos en la tabla
-        ContentValues values = new ContentValues();
-        values.put("usuario", usuario);
-        values.put("correo", correo);
-        values.put("contrasena", contrasena);
-
-        long newRowId = db.insert("usuarios", null, values);
-
-        // Cierra la base de datos
-        db.close();
-
-        // Verifica si la inserción fue exitosa
-        if (newRowId != -1) {
-            Toast.makeText(this, "Usuario registrado con éxito.", Toast.LENGTH_SHORT).show();
-            // Limpia los campos de texto
-            edtUsuario.setText("");
-            edtCorreo.setText("");
-            edtContrasena.setText("");
+        if (nombre.isEmpty()) {
+            Toast.makeText(this, "Ingrese nombre", Toast.LENGTH_SHORT).show();
+        } else if (correo.isEmpty()) {
+            Toast.makeText(this, "Ingrese correo", Toast.LENGTH_SHORT).show();
+        } else if (contrasena.isEmpty()) {
+            Toast.makeText(this, "Ingrese contraseña", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Error al registrar el usuario.", Toast.LENGTH_SHORT).show();
-            // Limpia los campos de texto
-            edtUsuario.setText("");
-            edtCorreo.setText("");
-            edtContrasena.setText("");
-        }
+            try {
+                progressDialog.show();
 
+                // Cambia la URL según sea necesario:
+                String url = "http://10.0.2.2:3306/ReciPeru/insertar_.php";
+
+                StringRequest request = new StringRequest(Request.Method.POST, url,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                if (response.equalsIgnoreCase("datos insertados")) {
+                                    Toast.makeText(RegistroUI.this, "Registrado correctamente", Toast.LENGTH_SHORT).show();
+                                    progressDialog.dismiss();
+                                    finish();
+                                } else {
+                                    Toast.makeText(RegistroUI.this, "Error: No se puede registrar", Toast.LENGTH_SHORT).show();
+                                    progressDialog.dismiss();
+                                }
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(RegistroUI.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                                progressDialog.dismiss();
+                                System.out.println(error.getMessage());
+                            }
+                        }) {
+
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("nombre", nombre);
+                        params.put("correo", correo);
+                        params.put("contrasena", contrasena);
+                        return params;
+                    }
+                };
+
+                RequestQueue requestQueue = Volley.newRequestQueue(RegistroUI.this);
+                requestQueue.add(request);
+
+            } catch (Exception e) {
+                e.printStackTrace(System.out);
+            }
+        }
     }
+
 }
