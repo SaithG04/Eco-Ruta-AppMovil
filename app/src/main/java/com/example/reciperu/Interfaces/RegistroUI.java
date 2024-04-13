@@ -1,7 +1,6 @@
 package com.example.reciperu.Interfaces;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -14,14 +13,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.volley.*;
+
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.reciperu.MainActivity;
+
 import com.example.reciperu.R;
+
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 
 import java.util.HashMap;
 import java.util.Map;
+
+
 
 public class RegistroUI extends AppCompatActivity {
     private EditText edtUsuario, edtCorreo, edtContrasena;
@@ -52,77 +61,10 @@ public class RegistroUI extends AppCompatActivity {
 
     }
 
-   /* private void registrarUsuario() {
-
-        String nombre=edtUsuario.getText().toString().trim();
-        String correo=edtCorreo.getText().toString().trim();
-        String contrasena=edtContrasena.getText().toString().trim();
-
-        ProgressDialog progressDialog =new ProgressDialog(this);
-        progressDialog.setMessage("cargando");
-
-
-        if (nombre.isEmpty()){
-            Toast.makeText(this,"ingrese nombre",Toast.LENGTH_SHORT).show();
-        }else if (correo.isEmpty()){
-            Toast.makeText(this,"ingrese correo",Toast.LENGTH_SHORT).show();
-        }else if (contrasena.isEmpty()){
-            Toast.makeText(this,"ingrese contrasena",Toast.LENGTH_SHORT).show();
-        }else {
-            try {
-                progressDialog.show();
-                StringRequest request = new StringRequest(Request.Method.POST, "http://10.0.2.2:3306/ReciPeru/insertar_.php",
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                if (response.equalsIgnoreCase("datas insertados")) {
-                                    Toast.makeText(RegistroUI.this, "registrado correctamente", Toast.LENGTH_SHORT).show();
-                                    progressDialog.dismiss();
-                                    //   startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                                    finish();
-                                } else {
-                                    Toast.makeText(RegistroUI.this, "Error no se puede registrar", Toast.LENGTH_SHORT).show();
-                                    progressDialog.dismiss();
-                                }
-                            }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(RegistroUI.this, error.getMessage(), Toast.LENGTH_LONG).show();
-                        progressDialog.dismiss();
-                        System.out.println(error.getMessage());
-                    }
-                }
-
-                ) {
-
-                    @Override
-                    protected Map<String, String> getParams() throws AuthFailureError {
-
-                        Map<String, String> params = new HashMap<>();
-                        params.put("nombre", nombre);
-                        params.put("correo", correo);
-                        params.put("contrasena", contrasena);
-
-                        return params;
-                    }
-                };
-                RequestQueue requestQueue = Volley.newRequestQueue(RegistroUI.this);
-                requestQueue.add(request);
-                //
-            }catch(Exception e){
-                e.printStackTrace(System.out);
-            }
-        }
-    }*/
-
-
-
-
     private void registrarUsuario() {
-        String nombre = edtUsuario.getText().toString().trim();
-        String correo = edtCorreo.getText().toString().trim();
-        String contrasena = edtContrasena.getText().toString().trim();
+        String nombre = edtUsuario.getText().toString();
+        String correo = edtCorreo.getText().toString();
+        String contrasena = edtContrasena.getText().toString();
 
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Cargando");
@@ -138,12 +80,13 @@ public class RegistroUI extends AppCompatActivity {
                 progressDialog.show();
 
                 // Cambia la URL según sea necesario:
-                String url = "http://10.0.2.2:3306/ReciPeru/insertar_.php";
+                String url = "http://10.0.2.2/ReciPeru/insertar_.php";
 
                 StringRequest request = new StringRequest(Request.Method.POST, url,
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
+                                System.out.println("Respuesta del servidor: " + response);
                                 if (response.equalsIgnoreCase("datos insertados")) {
                                     Toast.makeText(RegistroUI.this, "Registrado correctamente", Toast.LENGTH_SHORT).show();
                                     progressDialog.dismiss();
@@ -154,13 +97,20 @@ public class RegistroUI extends AppCompatActivity {
                                 }
                             }
                         },
+
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(RegistroUI.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                                error.printStackTrace();  // Muestra el rastreo de la pila del error para obtener más información
+                                String errorMessage = error.getMessage();
+                                if (errorMessage == null || errorMessage.isEmpty()) {
+                                    errorMessage = "Ha ocurrido un error desconocido";
+                                }
+                                Toast.makeText(RegistroUI.this, errorMessage, Toast.LENGTH_LONG).show();
                                 progressDialog.dismiss();
-                                System.out.println(error.getMessage());
+                                System.out.println("Error: " + errorMessage);
                             }
+
                         }) {
 
                     @Override
@@ -173,6 +123,13 @@ public class RegistroUI extends AppCompatActivity {
                     }
                 };
 
+                // Configurar el tiempo de espera de la solicitud
+                request.setRetryPolicy(new DefaultRetryPolicy(
+                        10000,  // Tiempo de espera en milisegundos (ajusta según sea necesario)
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+                ));
+
                 RequestQueue requestQueue = Volley.newRequestQueue(RegistroUI.this);
                 requestQueue.add(request);
 
@@ -183,3 +140,4 @@ public class RegistroUI extends AppCompatActivity {
     }
 
 }
+
