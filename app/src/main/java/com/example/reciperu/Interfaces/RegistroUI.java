@@ -13,6 +13,7 @@ import com.example.reciperu.DAO.UsuarioDAO;
 import com.example.reciperu.Entity.Usuario;
 import com.example.reciperu.R;
 import com.example.reciperu.Utilities.CommonServiceUtilities;
+import com.example.reciperu.Utilities.DataAccessUtilities;
 
 public class RegistroUI extends AppCompatActivity {
 
@@ -58,12 +59,9 @@ public class RegistroUI extends AppCompatActivity {
             byte[] salt = csu.generateSalt();
             byte[] hashedPassword = csu.hashPassword(contrasena, salt);
 
-            Usuario usuario = new Usuario(nombre, correo, hashedPassword, salt, "logued out");
+            Usuario usuario = new Usuario(nombre, correo, hashedPassword, salt);
             UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, this.getApplicationContext());
             usuarioDAO.insertar();
-
-//            Toast.makeText(this.getApplicationContext(), insertar ? "Usuario Registrado" : "Usuario no registrado", Toast.LENGTH_SHORT).show();
-
 
             edtUsuario.setText("");
             edtContrasena.setText("");

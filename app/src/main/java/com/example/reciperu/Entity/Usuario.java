@@ -1,5 +1,7 @@
 package com.example.reciperu.Entity;
 
+import java.util.Arrays;
+
 public class Usuario {
     private int id;
     private String nombre;
@@ -17,12 +19,13 @@ public class Usuario {
         this.status = status;
     }
 
-    public Usuario(String nombre, String correo, byte[] hashedPassword, byte[] salt, String status) {
+    public Usuario(String nombre, String correo, byte[] hashedPassword, byte[] salt) {
+        id = 0;
         this.nombre = nombre;
         this.correo = correo;
         this.hashedPassword = hashedPassword;
         this.salt = salt;
-        this.status = status;
+        status = "logued out";
     }
 
     public Usuario() {
@@ -74,5 +77,17 @@ public class Usuario {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "id=" + id +
+                ", nombre='" + nombre + '\'' +
+                ", correo='" + correo + '\'' +
+                ", hashedPassword=" + hashedPassword +
+                ", salt=" + salt +
+                ", status='" + status + '\'' +
+                '}';
     }
 }
