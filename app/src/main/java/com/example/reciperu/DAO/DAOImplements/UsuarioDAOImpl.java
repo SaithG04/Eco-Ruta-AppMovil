@@ -2,6 +2,8 @@ package com.example.reciperu.DAO.DAOImplements;
 
 import android.content.Context;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.example.reciperu.DAO.UsuarioDAO;
 import com.example.reciperu.Entity.Usuario;
 import com.example.reciperu.Utilities.DataAccessUtilities;
@@ -24,8 +26,13 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
 
     @Override
     public boolean insertar() {
+        // Crear la cola de solicitudes de Volley
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
 
-        return insertarGeneric("insertar_.php", new Object[]
+// Llamar al método insertarGeneric
+//        dataAccessUtilities.insertarGeneric(requestQueue, script_php, datos, context);
+
+        return insertarGeneric(requestQueue,"insertar_.php", new Object[]
                 {0, usuario.getNombre(), usuario.getCorreo(), usuario.getHashedPassword(),
                         usuario.getSalt(), usuario.getStatus()}, context);
 
