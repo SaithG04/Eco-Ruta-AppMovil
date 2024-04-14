@@ -1,12 +1,10 @@
-package com.example.reciperu.Entity;
+package com.example.reciperu.Utilities;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-public class DataAccessUtilities {
-
-    public static final String URL = "https://apireciperu.000webhostapp.com/";
+public class CommonServiceUtilities {
 
     public byte[] generateSalt() {
         SecureRandom random = new SecureRandom();

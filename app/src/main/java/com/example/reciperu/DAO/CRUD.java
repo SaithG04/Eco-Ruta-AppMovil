@@ -1,4 +1,4 @@
-package com.example.reciperu.Interfaces;
+package com.example.reciperu.DAO;
 
 public interface CRUD <T> {
     T listar();
