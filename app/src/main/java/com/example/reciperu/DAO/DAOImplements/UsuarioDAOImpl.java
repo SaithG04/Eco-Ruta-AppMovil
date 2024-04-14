@@ -32,9 +32,7 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
 // Llamar al método insertarGeneric
 //        dataAccessUtilities.insertarGeneric(requestQueue, script_php, datos, context);
 
-        return insertarGeneric(requestQueue,"insertar_.php", new Object[]
-                {0, usuario.getNombre(), usuario.getCorreo(), usuario.getHashedPassword(),
-                        usuario.getSalt(), usuario.getStatus()}, context);
+        return insertarGeneric(requestQueue,"insertar_.php", usuario, context);
 
     }
 

@@ -25,7 +25,7 @@ public class DataAccessUtilities {
         return null;
     }
 
-    public boolean insertarGeneric(RequestQueue requestQueue, String script_php, Object[] datos, Context context) {
+    public <T> boolean insertarGeneric(RequestQueue requestQueue, String script_php, T entity, Context context) {
         // Asigna el nombre de la tabla según el script
         String tableName = "";
         switch (script_php){
@@ -42,8 +42,9 @@ public class DataAccessUtilities {
             public void onColumnasObtenidas(ArrayList<String> columnas) {
                 // Aquí puedes construir el mapa de parámetros para la solicitud
                 Map<String, String> parametros = new HashMap<>();
+                String[] strings = new CommonServiceUtilities().entityToString(entity);
                 for (int i = 0; i < columnas.size(); i++){
-                    parametros.put(columnas.get(i), (String) datos[i]);
+                    parametros.put(columnas.get(i), strings[i]);
                 }
 
                 // Crea la solicitud para insertar los datos en la tabla
