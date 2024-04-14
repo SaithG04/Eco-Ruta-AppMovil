@@ -3,13 +3,18 @@ package com.example.reciperu.DAO.DAOImplements;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.os.Build;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.example.reciperu.DAO.UsuarioDAO;
 import com.example.reciperu.Entity.Usuario;
 import com.example.reciperu.Utilities.DataAccessUtilities;
+
+import java.util.ArrayList;
 
 public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
 
@@ -20,49 +25,44 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
         this.usuario = usuario;
         this.context = context;
     }
-
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
-    public Usuario listar() {
-
-        return null;
-    }
-
-    @Override
-    public boolean insertar() {
-        boolean[] succe = {false};
-        // Crear la cola de solicitudes de Volley
+    public void listar(OnDataRetrievedListener<Usuario> listener) {
+        // Crear una cola de solicitudes
         RequestQueue requestQueue = Volley.newRequestQueue(context);
 
-        // Si estás mostrando un diálogo, asegúrate de que `context` sea una actividad activa
-        if (context instanceof Activity) {
-            // Mostrar un diálogo de progreso (opcional) para indicar que se está realizando la operación
-            ProgressDialog progressDialog = new ProgressDialog(context);
-            progressDialog.setMessage("Registrando usuario...");
-            progressDialog.show();
+        // Realizar la solicitud de manera síncrona
+        listarGeneric(requestQueue, "usuarios", Usuario.class, new OnDataRetrievedListener<Usuario>() {
+            @Override
+            public void onDataRetrieved(ArrayList<Usuario> data) {
+                // Notificar al listener que se han recuperado los datos
+                listener.onDataRetrieved(data);
+            }
 
-            // Llamar a insertarGeneric con el callback
-            insertarGeneric(requestQueue, "insertar_usuario.php", usuario, context, new DataAccessUtilities.InsertarGenericCallback() {
-                @Override
-                public void onInsertarComplete(boolean success) {
-                    // Ocultar el diálogo de progreso
-                    progressDialog.dismiss();
+            @Override
+            public void onError(String errorMessage) {
+                // Notificar al listener en caso de error
+                listener.onError(errorMessage);
+            }
+        });
+    }
 
-                    if (success) {
-                        // El usuario se registró correctamente
-                        Toast.makeText(context, "Usuario registrado con éxito", Toast.LENGTH_LONG).show();
-                    } else {
-                        // Hubo un error al registrar al usuario
-                        Toast.makeText(context, "Error al registrar usuario", Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
-        } else {
-            // Manejar el caso en el que `context` no sea una actividad activa
-            // Por ejemplo, podrías lanzar una excepción o manejar el error de otra forma
-            throw new IllegalArgumentException("Context must be an instance of Activity");
-        }
-        return succe[0];
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public void insertar() {
+        // Crear la cola de solicitudes de Volley
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        insertarGeneric(requestQueue, "insertar_usuario.php", usuario, new OnInsertionListener() {
+            @Override
+            public void onInsertionSuccess() {
+                Toast.makeText(context, "Usuario registrado.", Toast.LENGTH_LONG).show();
+            }
 
+            @Override
+            public void onInsertionError(String errorMessage) {
+                Toast.makeText(context, "Usuario no registrado. [" + errorMessage + "]", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override

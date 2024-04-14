@@ -2,19 +2,30 @@ package com.example.reciperu;
 
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.view.View;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
+
 import android.content.Intent;
+
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 
+import com.example.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
+import com.example.reciperu.DAO.UsuarioDAO;
+import com.example.reciperu.Entity.Usuario;
 import com.example.reciperu.Interfaces.RegistroUI;
+import com.example.reciperu.Utilities.DataAccessUtilities;
 
 import android.widget.EditText;
+import android.widget.Toast;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -40,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         btnRegistrarse = findViewById(R.id.btnRegistrar);
         edtusuario = findViewById(R.id.edtUsuarioLOGIN);
         edtContrasena = findViewById(R.id.edtContraLOGIN);
+        btnLogin = findViewById(R.id.btnLoginLOG);
 
         // Configurar el listener del botón
         btnRegistrarse.setOnClickListener(new View.OnClickListener() {
@@ -54,7 +66,33 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                UsuarioDAO usuarioDAO = new UsuarioDAOImpl(new Usuario(), getApplicationContext());
+                usuarioDAO.listar(new DataAccessUtilities.OnDataRetrievedListener<Usuario>() {
+                    @Override
+                    public void onDataRetrieved(ArrayList<Usuario> data) {
+                        if (!data.isEmpty()) {
+                            // Si la lista de usuarios no está vacía, mostrar cada usuario en un Toast
+                            for (Usuario usuario : data) {
+                                // Mostrar el mensaje en un Toast corto
+                                Toast.makeText(getApplicationContext(), usuario.toString(), Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            // Si la lista de usuarios está vacía, mostrar un mensaje indicando esto
+                            Toast.makeText(getApplicationContext(), "No se encontraron usuarios", Toast.LENGTH_SHORT).show();
+                        }
+                    }
 
+                    @Override
+                    public void onError(String errorMessage) {
+                        // Manejar el error en caso de problemas con la solicitud
+                        Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
 
     }
 }
