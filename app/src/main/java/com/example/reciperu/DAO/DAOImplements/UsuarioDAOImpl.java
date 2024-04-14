@@ -18,6 +18,7 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
 
     @Override
     public Usuario listar() {
+
         return null;
     }
 
@@ -25,7 +26,7 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
     public boolean insertar() {
 
         return insertarGeneric("insertar_.php", new Object[]
-                {usuario.getNombre(), usuario.getCorreo(), usuario.getHashedPassword(),
+                {0, usuario.getNombre(), usuario.getCorreo(), usuario.getHashedPassword(),
                         usuario.getSalt(), usuario.getStatus()}, context);
 
     }
