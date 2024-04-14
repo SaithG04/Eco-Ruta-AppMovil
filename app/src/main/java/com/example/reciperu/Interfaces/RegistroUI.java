@@ -2,17 +2,22 @@ package com.example.reciperu.Interfaces;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.example.reciperu.DAO.UsuarioDAO;
-import com.example.reciperu.Entity.DataAccessUtilities;
 import com.example.reciperu.Entity.Usuario;
 import com.example.reciperu.R;
+import com.example.reciperu.Utilities.CommonServiceUtilities;
 
 public class RegistroUI extends AppCompatActivity {
+
+    private final CommonServiceUtilities csu = new CommonServiceUtilities();
+
     private EditText edtUsuario, edtCorreo, edtContrasena;
     private Button registrarButton;
 
@@ -36,7 +41,6 @@ public class RegistroUI extends AppCompatActivity {
 
     private void registrarUsuario() {
 
-        DataAccessUtilities dau = new DataAccessUtilities();
 
         String nombre = edtUsuario.getText().toString();
         String correo = edtCorreo.getText().toString();
@@ -51,20 +55,23 @@ public class RegistroUI extends AppCompatActivity {
             Toast.makeText(this, "Ingrese contraseña", Toast.LENGTH_SHORT).show();
         } else {
 
-            byte[] salt = dau.generateSalt();
-            byte[] hashedPassword = dau.hashPassword(contrasena, salt);
+            byte[] salt = csu.generateSalt();
+            byte[] hashedPassword = csu.hashPassword(contrasena, salt);
 
             Usuario usuario = new Usuario(nombre, correo, hashedPassword, salt, "logued out");
             UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, this.getApplicationContext());
             boolean insertar = usuarioDAO.insertar();
 
-            if (insertar) {
-                Toast.makeText(this.getApplicationContext(), "Usuario registrado", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this.getApplicationContext(), "Usuario no registrado", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.getApplicationContext(), insertar ? "Usuario Registrado" : "Usuario no registrado", Toast.LENGTH_SHORT).show();
 
-            }
+
+            edtUsuario.setText("");
+            edtContrasena.setText("");
+            edtCorreo.setText("");
 
         }
+
+
+
     }
 }

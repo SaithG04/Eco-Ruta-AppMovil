@@ -46,5 +46,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-
+    implementation(libs.okhttp) // OkHttp para realizar solicitudes HTTP
+    implementation(libs.json) // org.json para trabajar con JSON
+    implementation(libs.gson)
 }
