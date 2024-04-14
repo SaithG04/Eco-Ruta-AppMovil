@@ -60,9 +60,9 @@ public class RegistroUI extends AppCompatActivity {
 
             Usuario usuario = new Usuario(nombre, correo, hashedPassword, salt, "logued out");
             UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, this.getApplicationContext());
-            boolean insertar = usuarioDAO.insertar();
+            usuarioDAO.insertar();
 
-            Toast.makeText(this.getApplicationContext(), insertar ? "Usuario Registrado" : "Usuario no registrado", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this.getApplicationContext(), insertar ? "Usuario Registrado" : "Usuario no registrado", Toast.LENGTH_SHORT).show();
 
 
             edtUsuario.setText("");
