@@ -20,10 +20,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.example.reciperu.DAO.UsuarioDAO;
 import com.example.reciperu.Entity.Usuario;
-import com.example.reciperu.Interfaces.RegistroUI;
-import com.example.reciperu.Utilities.CommonServiceUtilities;
-import com.example.reciperu.Utilities.DataAccessUtilities;
-
+import com.example.reciperu.Interfaces.*;
+import com.example.reciperu.Utilities.*;
 
 import android.widget.EditText;
 import android.widget.Toast;
@@ -84,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
+
             public void onClick(View view) {
                 String username = edtusuario.getText().toString();
                 String password = edtContrasena.getText().toString();
@@ -104,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                                 return; // Finalizar el método si la contraseña es incorrecta
                             }
                             // Crear un Intent para iniciar la nueva actividad
-                            Intent intent = new Intent(MainActivity.this, ReciMaps.class);
+                            Intent intent = new Intent(MainActivity.this, UIMenu.class);
                             edtusuario.setText("");
                             edtContrasena.setText("");
 
