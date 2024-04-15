@@ -1,5 +1,7 @@
 package com.example.reciperu.DAO.DAOImplements;
 
+import static com.example.reciperu.Utilities.CommonServiceUtilities.*;
+
 import android.content.Context;
 import android.os.Build;
 import android.widget.Toast;
@@ -10,9 +12,13 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.example.reciperu.DAO.UsuarioDAO;
 import com.example.reciperu.Entity.Usuario;
+import com.example.reciperu.Utilities.CommonServiceUtilities;
 import com.example.reciperu.Utilities.DataAccessUtilities;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
 
@@ -64,7 +70,7 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
 
             @Override
             public void onInsertionError(String errorMessage) {
-                Toast.makeText(context, "Usuario no registrado. [" + errorMessage + "]", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Error. Usuario no registrado.", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -78,13 +84,21 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
     public boolean eliminar() {
         return false;
     }
+
     @Override
-    public void getByUsername(OnDataRetrievedOneListener<Usuario> listener){
+    public void getUserBy(Object parameter, OnDataRetrievedOneListener<Usuario> listener) {
         // Crear una cola de solicitudes
         RequestQueue requestQueue = Volley.newRequestQueue(context);
 
+        // Llamar al método para obtener la clase, y el nombre del atributo
+        String[] infoAtributo = obtenerInfoAtributo(usuario, parameter);
+
+        // Asignar la clase y el nombre del atributo
+        String parameterType = infoAtributo[0];
+        String parameterName = infoAtributo[1];
+
         // Realizar la solicitud de manera síncrona
-        getEntityByParameter(requestQueue, TABLE_NAME, "usuario", usuario.getUsuario(), "String", new OnDataRetrievedOneListener<Usuario>() {
+        getEntityByParameter(requestQueue, TABLE_NAME, parameterName, parameter, parameterType, new OnDataRetrievedOneListener<Usuario>() {
             @Override
             public void onDataRetrieved(Usuario usuario) {
                 // Notificar al listener que se han recuperado los datos
@@ -98,25 +112,4 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
             }
         });
     }
-    @Override
-    public void getByEmail(OnDataRetrievedOneListener<Usuario> listener){
-        // Crear una cola de solicitudes
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
-
-        // Realizar la solicitud de manera síncrona
-        getEntityByParameter(requestQueue, TABLE_NAME, "correo", usuario.getCorreo(), "String", new OnDataRetrievedOneListener<Usuario>() {
-            @Override
-            public void onDataRetrieved(Usuario usuario) {
-                // Notificar al listener que se han recuperado los datos
-                listener.onDataRetrieved(usuario);
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                // Notificar al listener en caso de error
-                listener.onError(errorMessage);
-            }
-        });
-    }
-
 }

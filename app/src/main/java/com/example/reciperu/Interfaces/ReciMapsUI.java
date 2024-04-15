@@ -1,4 +1,4 @@
-package com.example.reciperu;
+package com.example.reciperu.Interfaces;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -15,6 +15,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.reciperu.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -25,7 +26,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-public class ReciMaps extends AppCompatActivity implements OnMapReadyCallback {
+public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationClient;
@@ -45,7 +46,7 @@ public class ReciMaps extends AppCompatActivity implements OnMapReadyCallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_reci_maps);
+        setContentView(R.layout.activity_reci_maps_ui);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

@@ -1,4 +1,4 @@
-package com.example.reciperu;
+package com.example.reciperu.Interfaces;
 
 
 import android.os.Bundle;
@@ -19,7 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.example.reciperu.DAO.UsuarioDAO;
 import com.example.reciperu.Entity.Usuario;
-import com.example.reciperu.Interfaces.*;
+import com.example.reciperu.R;
 import com.example.reciperu.Utilities.*;
 
 import android.widget.EditText;
@@ -28,7 +28,7 @@ import android.widget.Toast;
 
 import java.security.MessageDigest;
 
-public class MainActivity extends AppCompatActivity {
+public class PrincipalUI extends AppCompatActivity {
 
     private Button btnRegistrarse;
 
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_principal_ui);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Crear un Intent para iniciar la nueva actividad
-                Intent intent = new Intent(MainActivity.this, RegistroUI.class);
+                Intent intent = new Intent(PrincipalUI.this, RegistroUsuarioUI.class);
                 edtusuario.setText("");
                 edtContrasena.setText("");
 
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 Usuario userFind = new Usuario();
                 userFind.setCorreo(correo);
                 UsuarioDAO usuarioDAO = new UsuarioDAOImpl(userFind, getApplicationContext());
-                usuarioDAO.getByEmail(new DataAccessUtilities.OnDataRetrievedOneListener<Usuario>() {
+                usuarioDAO.getUserBy(userFind.getCorreo(), new DataAccessUtilities.OnDataRetrievedOneListener<Usuario>() {
                     @Override
                     public void onDataRetrieved(Usuario userReceived) {
                         if (userReceived != null) {
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                                 return; // Finalizar el método si la contraseña es incorrecta
                             }
                             // Crear un Intent para iniciar la nueva actividad
-                            Intent intent = new Intent(MainActivity.this, UIMenu.class);
+                            Intent intent = new Intent(PrincipalUI.this, MenuUI.class);
                             edtusuario.setText("");
                             edtContrasena.setText("");
                             edtusuario.requestFocus();

@@ -5,6 +5,8 @@ import androidx.annotation.RequiresApi;
 
 import com.example.reciperu.Entity.Usuario;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -71,4 +73,27 @@ public class CommonServiceUtilities {
         return data;
     }
 
+    // Método para obtener la clase y el nombre del atributo
+    public static String[] obtenerInfoAtributo(Object objeto, Object valorAtributo) {
+        Class<?> clazz = objeto.getClass();
+        String nombreCampo = null;
+        String claseCampo = null;
+
+        try {
+            // Iterar sobre los campos de la clase para encontrar el que coincide con el valor del atributo
+            for (Field campo : clazz.getDeclaredFields()) {
+                campo.setAccessible(true); // Permitir el acceso a campos privados
+                Object valor = campo.get(objeto);
+                if (valorAtributo.equals(valor)) {
+                    nombreCampo = campo.getName();
+                    claseCampo = campo.getType().getSimpleName();
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error al obtener la información del atributo: " + e.getMessage());
+        }
+
+        return new String[]{claseCampo, nombreCampo};
+    }
 }

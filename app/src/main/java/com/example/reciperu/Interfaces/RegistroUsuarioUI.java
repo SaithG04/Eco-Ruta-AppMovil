@@ -15,7 +15,7 @@ import com.example.reciperu.R;
 import com.example.reciperu.Utilities.CommonServiceUtilities;
 import com.example.reciperu.Utilities.DataAccessUtilities;
 
-public class RegistroUI extends AppCompatActivity {
+public class RegistroUsuarioUI extends AppCompatActivity {
 
     private final CommonServiceUtilities csu = new CommonServiceUtilities();
 
@@ -60,7 +60,7 @@ public class RegistroUI extends AppCompatActivity {
             usuarioFind.setUsuario(nombre);
             usuarioFind.setCorreo(correo);
             UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuarioFind, this.getApplicationContext());
-            usuarioDAO.getByUsername(new DataAccessUtilities.OnDataRetrievedOneListener<Usuario>() {
+            usuarioDAO.getUserBy(usuarioFind.getUsuario(), new DataAccessUtilities.OnDataRetrievedOneListener<Usuario>() {
                 @Override
                 public void onDataRetrieved(Usuario userReceived) {
                     if (userReceived != null) {
@@ -73,7 +73,7 @@ public class RegistroUI extends AppCompatActivity {
                 @Override
                 public void onError(String errorMessage) {
                     if (errorMessage.equals("Usuario no encontrado.")) {
-                        usuarioDAO.getByEmail(new DataAccessUtilities.OnDataRetrievedOneListener<Usuario>() {
+                        usuarioDAO.getUserBy(usuarioFind.getCorreo(), new DataAccessUtilities.OnDataRetrievedOneListener<Usuario>() {
                             @Override
                             public void onDataRetrieved(Usuario userReceived) {
                                 if (userReceived != null) {
