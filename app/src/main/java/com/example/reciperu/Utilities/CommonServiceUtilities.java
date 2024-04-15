@@ -32,7 +32,7 @@ public class CommonServiceUtilities {
     public <T> Object[] entityToObjectArray(T entity) {
         if (entity instanceof Usuario) {
             int id = ((Usuario) entity).getId();
-            String nombre = ((Usuario) entity).getNombre();
+            String nombre = ((Usuario) entity).getUsuario();
             String correo = ((Usuario) entity).getCorreo();
             byte[] hashedPassword = ((Usuario) entity).getHashedPassword();
             byte[] salt = ((Usuario) entity).getSalt();

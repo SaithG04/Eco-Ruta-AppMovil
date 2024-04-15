@@ -78,13 +78,33 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
     public boolean eliminar() {
         return false;
     }
-
+    @Override
     public void getByUsername(OnDataRetrievedOneListener<Usuario> listener){
         // Crear una cola de solicitudes
         RequestQueue requestQueue = Volley.newRequestQueue(context);
 
         // Realizar la solicitud de manera síncrona
-        getEntityByParameter(requestQueue, TABLE_NAME, "nombre", usuario.getNombre(), "String", new OnDataRetrievedOneListener<Usuario>() {
+        getEntityByParameter(requestQueue, TABLE_NAME, "usuario", usuario.getUsuario(), "String", new OnDataRetrievedOneListener<Usuario>() {
+            @Override
+            public void onDataRetrieved(Usuario usuario) {
+                // Notificar al listener que se han recuperado los datos
+                listener.onDataRetrieved(usuario);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                // Notificar al listener en caso de error
+                listener.onError(errorMessage);
+            }
+        });
+    }
+    @Override
+    public void getByEmail(OnDataRetrievedOneListener<Usuario> listener){
+        // Crear una cola de solicitudes
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+
+        // Realizar la solicitud de manera síncrona
+        getEntityByParameter(requestQueue, TABLE_NAME, "correo", usuario.getCorreo(), "String", new OnDataRetrievedOneListener<Usuario>() {
             @Override
             public void onDataRetrieved(Usuario usuario) {
                 // Notificar al listener que se han recuperado los datos

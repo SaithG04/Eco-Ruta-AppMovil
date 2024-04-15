@@ -1,6 +1,5 @@
 package com.example.reciperu.Interfaces;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,13 +11,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.example.reciperu.DAO.UsuarioDAO;
 import com.example.reciperu.Entity.Usuario;
-import com.example.reciperu.MainActivity;
 import com.example.reciperu.R;
-import com.example.reciperu.ReciMaps;
 import com.example.reciperu.Utilities.CommonServiceUtilities;
 import com.example.reciperu.Utilities.DataAccessUtilities;
-
-import java.security.MessageDigest;
 
 public class RegistroUI extends AppCompatActivity {
 
@@ -62,44 +57,52 @@ public class RegistroUI extends AppCompatActivity {
         } else {
 
             Usuario usuarioFind = new Usuario();
-            usuarioFind.setNombre(nombre);
+            usuarioFind.setUsuario(nombre);
+            usuarioFind.setCorreo(correo);
             UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuarioFind, this.getApplicationContext());
             usuarioDAO.getByUsername(new DataAccessUtilities.OnDataRetrievedOneListener<Usuario>() {
                 @Override
                 public void onDataRetrieved(Usuario userReceived) {
                     if (userReceived != null) {
                         Toast.makeText(getApplicationContext(), "El usuario no está disponible.", Toast.LENGTH_SHORT).show();
+                        edtUsuario.setText("");
+                        edtUsuario.requestFocus();
                     }
                 }
 
                 @Override
                 public void onError(String errorMessage) {
-                    if(errorMessage.equals("Usuario no encontrado.")){
-                        byte[] salt = CommonServiceUtilities.generateSalt();
-                        byte[] hashedPassword = CommonServiceUtilities.hashPassword(contrasena, salt);
+                    if (errorMessage.equals("Usuario no encontrado.")) {
+                        usuarioDAO.getByEmail(new DataAccessUtilities.OnDataRetrievedOneListener<Usuario>() {
+                            @Override
+                            public void onDataRetrieved(Usuario userReceived) {
+                                if (userReceived != null) {
+                                    Toast.makeText(getApplicationContext(), "El correo ya está en uso.", Toast.LENGTH_SHORT).show();
+                                    edtCorreo.setText("");
+                                    edtCorreo.requestFocus();
+                                }
+                            }
 
-                        Usuario newUsuario = new Usuario(nombre, correo, hashedPassword, salt);
-                        usuarioDAO.setEntity(newUsuario);
-                        usuarioDAO.insertar();
+                            @Override
+                            public void onError(String errorMessage) {
+                                if (errorMessage.equals("Usuario no encontrado.")) {
+                                    byte[] salt = CommonServiceUtilities.generateSalt();
+                                    byte[] hashedPassword = CommonServiceUtilities.hashPassword(contrasena, salt);
 
-                        edtUsuario.setText("");
-                        edtContrasena.setText("");
-                        edtCorreo.setText("");
+                                    Usuario newUsuario = new Usuario(nombre, correo, hashedPassword, salt);
+                                    usuarioDAO.setEntity(newUsuario);
+                                    usuarioDAO.insertar();
+
+                                    edtUsuario.setText("");
+                                    edtContrasena.setText("");
+                                    edtCorreo.setText("");
+                                    edtUsuario.requestFocus();
+                                }
+                            }
+                        });
                     }
                 }
             });
-//            byte[] salt = CommonServiceUtilities.generateSalt();
-//            byte[] hashedPassword = CommonServiceUtilities.hashPassword(contrasena, salt);
-//
-//            Usuario usuario = new Usuario(nombre, correo, hashedPassword, salt);
-//
-//
-//            usuarioDAO.insertar();
         }
-
-
-
     }
-
-
 }

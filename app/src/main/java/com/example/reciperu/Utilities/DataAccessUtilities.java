@@ -2,13 +2,11 @@ package com.example.reciperu.Utilities;
 
 import static com.example.reciperu.Utilities.CommonServiceUtilities.*;
 
-import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -32,7 +30,7 @@ public class DataAccessUtilities {
     public static String message = "";
     private boolean success = false;
 
-    private Usuario usuario;
+    public static Usuario usuario;
 
 
     public interface OnDataRetrievedListener<T> {
@@ -74,7 +72,7 @@ public class DataAccessUtilities {
                                     if (nombreTabla.equals("usuarios")) {
                                         Usuario usuario = new Usuario();
                                         usuario.setId(jsonObject.getInt("id"));
-                                        usuario.setNombre(jsonObject.getString("nombre"));
+                                        usuario.setUsuario(jsonObject.getString("usuario"));
                                         usuario.setCorreo(jsonObject.getString("correo"));
                                         String hashedPasswordHex = jsonObject.getString("hashedPassword");
                                         String salt = jsonObject.getString("salt");
@@ -181,7 +179,7 @@ public class DataAccessUtilities {
                                 if (nombreTabla.equals("usuarios")) {
                                     Usuario usuario = new Usuario();
                                     usuario.setId(jsonObject.getInt("id"));
-                                    usuario.setNombre(jsonObject.getString("nombre"));
+                                    usuario.setUsuario(jsonObject.getString("usuario"));
                                     usuario.setCorreo(jsonObject.getString("correo"));
                                     String hashedPasswordHex = jsonObject.getString("hashedPassword");
                                     String salt = jsonObject.getString("salt");
