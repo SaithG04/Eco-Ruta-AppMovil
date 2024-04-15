@@ -3,6 +3,7 @@ package com.example.reciperu;
 
 import android.os.Bundle;
 
+import android.text.Editable;
 import android.widget.Button;
 import android.view.View;
 
@@ -16,14 +17,17 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 
-
-import com.example.reciperu.Interfaces.RegistroUI;
-import com.example.reciperu.Interfaces.UIMenu;
-
+import com.example.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
+import com.example.reciperu.DAO.UsuarioDAO;
+import com.example.reciperu.Entity.Usuario;
+import com.example.reciperu.Interfaces.*;
+import com.example.reciperu.Utilities.*;
 
 import android.widget.EditText;
+import android.widget.Toast;
 
 
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -31,6 +35,8 @@ import java.security.spec.KeySpec;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.PBEKeySpec;
+
+import java.util.ArrayList;
 import java.util.Base64;
 
 public class MainActivity extends AppCompatActivity {
@@ -74,21 +80,49 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        // Configura el listener para el botón de login
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                // Crear un Intent para iniciar la nueva actividad
-                Intent intent = new Intent(MainActivity.this, UIMenu.class);
-                edtusuario.setText("");
-                edtContrasena.setText("");
 
-                // Iniciar la nueva actividad
-                startActivity(intent);
+            public void onClick(View view) {
+                String username = edtusuario.getText().toString();
+                String password = edtContrasena.getText().toString();
+                Usuario userFind = new Usuario();
+                userFind.setNombre(username);
+                UsuarioDAO usuarioDAO = new UsuarioDAOImpl(userFind, getApplicationContext());
+                usuarioDAO.getByUsername(new DataAccessUtilities.OnDataRetrievedOneListener<Usuario>() {
+                    @Override
+                    public void onDataRetrieved(Usuario userReceived) {
+                        if (userReceived != null) {
+                            byte[] inputHashedPassword = CommonServiceUtilities.hashPassword(password, userReceived.getSalt());
+                            if (!MessageDigest.isEqual(userReceived.getHashedPassword(), inputHashedPassword)) {
+                                // Mostrar mensaje de error si la contraseña es incorrecta
+                                Toast.makeText(getApplicationContext(), "Contraseña incorrecta. Verifique nuevamente.", Toast.LENGTH_SHORT).show();
+                                edtContrasena.setText("");
+                                edtusuario.requestFocus();
+//                                ++intentos;
+                                return; // Finalizar el método si la contraseña es incorrecta
+                            }
+                            // Crear un Intent para iniciar la nueva actividad
+                            Intent intent = new Intent(MainActivity.this, UIMenu.class);
+                            edtusuario.setText("");
+                            edtContrasena.setText("");
+
+                            // Iniciar la nueva actividad
+                            startActivity(intent);
+                        } else {
+                            // Si la lista de usuarios está vacía, mostrar un mensaje indicando esto
+                            Toast.makeText(getApplicationContext(), "No se encontró el usuario.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        // Manejar el error en caso de problemas con la solicitud
+                        Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
-
 
 
     }

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public interface CRUD<T> {
+
+    void setEntity(T entity);
     void listar(DataAccessUtilities.OnDataRetrievedListener<T> listener);
 
     void insertar();

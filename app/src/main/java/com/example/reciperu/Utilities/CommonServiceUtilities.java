@@ -11,14 +11,14 @@ import java.security.SecureRandom;
 
 public class CommonServiceUtilities {
 
-    public byte[] generateSalt() {
+    public static byte[] generateSalt() {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[16];
         random.nextBytes(salt);
         return salt;
     }
 
-    public byte[] hashPassword(String password, byte[] salt) {
+    public static byte[] hashPassword(String password, byte[] salt) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(salt);
