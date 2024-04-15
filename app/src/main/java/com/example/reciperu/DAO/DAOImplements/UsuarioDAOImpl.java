@@ -1,7 +1,5 @@
 package com.example.reciperu.DAO.DAOImplements;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Build;
 import android.widget.Toast;
@@ -19,12 +17,18 @@ import java.util.ArrayList;
 public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
 
     private Usuario usuario;
-    private Context context;
+    private final Context context;
+    private final static String TABLE_NAME = "usuarios";
 
     public UsuarioDAOImpl(Usuario usuario, Context context) {
         this.usuario = usuario;
         this.context = context;
     }
+
+    public void setEntity(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void listar(OnDataRetrievedListener<Usuario> listener) {
@@ -32,7 +36,7 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
         RequestQueue requestQueue = Volley.newRequestQueue(context);
 
         // Realizar la solicitud de manera síncrona
-        listarGeneric(requestQueue, "usuarios", Usuario.class, new OnDataRetrievedListener<Usuario>() {
+        listarGeneric(requestQueue, TABLE_NAME, new OnDataRetrievedListener<Usuario>() {
             @Override
             public void onDataRetrieved(ArrayList<Usuario> data) {
                 // Notificar al listener que se han recuperado los datos
@@ -52,7 +56,7 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
     public void insertar() {
         // Crear la cola de solicitudes de Volley
         RequestQueue requestQueue = Volley.newRequestQueue(context);
-        insertarGeneric(requestQueue, "insertar_usuario.php", usuario, new OnInsertionListener() {
+        insertarGeneric(requestQueue, TABLE_NAME, usuario, new OnInsertionListener() {
             @Override
             public void onInsertionSuccess() {
                 Toast.makeText(context, "Usuario registrado.", Toast.LENGTH_LONG).show();
@@ -75,5 +79,24 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
         return false;
     }
 
+    public void getByUsername(OnDataRetrievedOneListener<Usuario> listener){
+        // Crear una cola de solicitudes
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+
+        // Realizar la solicitud de manera síncrona
+        getEntityByParameter(requestQueue, TABLE_NAME, "nombre", usuario.getNombre(), "String", new OnDataRetrievedOneListener<Usuario>() {
+            @Override
+            public void onDataRetrieved(Usuario usuario) {
+                // Notificar al listener que se han recuperado los datos
+                listener.onDataRetrieved(usuario);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                // Notificar al listener en caso de error
+                listener.onError(errorMessage);
+            }
+        });
+    }
 
 }

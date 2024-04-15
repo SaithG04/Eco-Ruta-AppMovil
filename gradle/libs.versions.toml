@@ -7,16 +7,17 @@ appcompat = "1.6.1"
 material = "1.11.0"
 activity = "1.8.2"
 constraintlayout = "2.1.4"
-playServicesMapsLicense = "18.0.1"
 volley = "1.2.1"
 googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
-playServicesMaps = "18.1.0"
 okhttp = "4.9.3"
 json = "20210307"
 gson = "2.10.1"
+playServicesMapsVersion = "18.2.0"
+firebaseDatabase = "20.3.1"
 playServicesLocation = "21.2.0"
 
 [libraries]
+
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -24,12 +25,12 @@ appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "a
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-play-services-maps-license = { module = "com.google.android.gms:play-services-maps-license", version.ref = "playServicesMapsLicense" }
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
-play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 json = { group = "org.json", name = "json", version.ref = "json" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+play-services-maps= { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMapsVersion" }
+firebaseDatabase = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabase" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
