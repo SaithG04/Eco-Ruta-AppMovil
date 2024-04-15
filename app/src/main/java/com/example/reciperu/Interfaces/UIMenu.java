@@ -15,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.reciperu.MainActivity;
 import com.example.reciperu.R;
 import com.example.reciperu.ReciMaps;
+import com.example.reciperu.Utilities.DataAccessUtilities;
 
 public class UIMenu extends AppCompatActivity {
     private Button VerMapa;
@@ -45,11 +46,11 @@ public class UIMenu extends AppCompatActivity {
         });
 
         Intent intent = getIntent();
-        String nombreUsuario = intent.getStringExtra("usuario");
+        String nombreUsuario = DataAccessUtilities.usuario.getUsuario();
 
         TextView txvnombreUSER = findViewById(R.id.txvUSERNAME);
 
-        txvnombreUSER.setText("Bienvenido, " + nombreUsuario);
+        txvnombreUSER.setText(String.format("Bienvenido, %s", nombreUsuario));
 
         // Obtén el botón de cerrar sesión
         Button cerrarSesionButton = findViewById(R.id.btnCerrarSesion);
@@ -68,8 +69,8 @@ public class UIMenu extends AppCompatActivity {
     private void cerrarSesion() {
         // Inicia la actividad principal
         Intent intent = new Intent(UIMenu.this, MainActivity.class); // Reemplaza `MainActivity` con el nombre de tu actividad principal
+        DataAccessUtilities.usuario = null;
         startActivity(intent);
-
         // Finaliza la actividad actual
         finish();
     }

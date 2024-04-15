@@ -3,7 +3,6 @@ package com.example.reciperu;
 
 import android.os.Bundle;
 
-import android.text.Editable;
 import android.widget.Button;
 import android.view.View;
 
@@ -28,16 +27,6 @@ import android.widget.Toast;
 
 
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.PBEKeySpec;
-
-import java.util.ArrayList;
-import java.util.Base64;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText edtusuario, edtContrasena;
     private Button btnLogin;
-
 
 
     @Override
@@ -84,12 +72,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
 
             public void onClick(View view) {
-                String username = edtusuario.getText().toString();
+                String correo = edtusuario.getText().toString(); //cambiar id de componente a correo
                 String password = edtContrasena.getText().toString();
                 Usuario userFind = new Usuario();
-                userFind.setNombre(username);
+                userFind.setCorreo(correo);
                 UsuarioDAO usuarioDAO = new UsuarioDAOImpl(userFind, getApplicationContext());
-                usuarioDAO.getByUsername(new DataAccessUtilities.OnDataRetrievedOneListener<Usuario>() {
+                usuarioDAO.getByEmail(new DataAccessUtilities.OnDataRetrievedOneListener<Usuario>() {
                     @Override
                     public void onDataRetrieved(Usuario userReceived) {
                         if (userReceived != null) {
@@ -106,19 +94,25 @@ public class MainActivity extends AppCompatActivity {
                             Intent intent = new Intent(MainActivity.this, UIMenu.class);
                             edtusuario.setText("");
                             edtContrasena.setText("");
-
+                            edtusuario.requestFocus();
+                            //Guardar logueo
+                            DataAccessUtilities.usuario = userReceived;
                             // Iniciar la nueva actividad
                             startActivity(intent);
-                        } else {
-                            // Si la lista de usuarios está vacía, mostrar un mensaje indicando esto
-                            Toast.makeText(getApplicationContext(), "No se encontró el usuario.", Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onError(String errorMessage) {
                         // Manejar el error en caso de problemas con la solicitud
-                        Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                        if(errorMessage.contains("Error de red")){
+                            Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                            edtusuario.setText("");
+                        }else{
+                            Toast.makeText(getApplicationContext(), "No hay usuarios registrados con ese correo.", Toast.LENGTH_SHORT).show();
+                        }
+                        edtContrasena.setText("");
+                        edtusuario.requestFocus();
                     }
                 });
             }

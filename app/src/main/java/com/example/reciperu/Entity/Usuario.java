@@ -1,27 +1,25 @@
 package com.example.reciperu.Entity;
 
-import java.util.Arrays;
-
 public class Usuario {
     private int id;
-    private String nombre;
+    private String usuario;
     private String correo;
     private byte[] hashedPassword;
     private byte[] salt;
     private String status;
 
-    public Usuario(int id, String nombre, String correo, byte[] hashedPassword, byte[] salt, String status) {
+    public Usuario(int id, String usuario, String correo, byte[] hashedPassword, byte[] salt, String status) {
         this.id = id;
-        this.nombre = nombre;
+        this.usuario = usuario;
         this.correo = correo;
         this.hashedPassword = hashedPassword;
         this.salt = salt;
         this.status = status;
     }
 
-    public Usuario(String nombre, String correo, byte[] hashedPassword, byte[] salt) {
+    public Usuario(String usuario, String correo, byte[] hashedPassword, byte[] salt) {
         id = 0;
-        this.nombre = nombre;
+        this.usuario = usuario;
         this.correo = correo;
         this.hashedPassword = hashedPassword;
         this.salt = salt;
@@ -39,12 +37,12 @@ public class Usuario {
         this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getUsuario() {
+        return usuario;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
     }
 
     public String getCorreo() {
@@ -83,7 +81,7 @@ public class Usuario {
     public String toString() {
         return "Usuario{" +
                 "id=" + id +
-                ", nombre='" + nombre + '\'' +
+                ", nombre='" + usuario + '\'' +
                 ", correo='" + correo + '\'' +
                 ", hashedPassword=" + hashedPassword +
                 ", salt=" + salt +
