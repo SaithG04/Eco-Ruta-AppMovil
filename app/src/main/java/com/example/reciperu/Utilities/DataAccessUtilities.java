@@ -23,6 +23,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class DataAccessUtilities {
 
@@ -32,11 +33,16 @@ public class DataAccessUtilities {
     private boolean success = false;
 
     private Usuario usuario;
-    private ArrayList<Usuario> usuarioArrayList = new ArrayList<>();
 
 
     public interface OnDataRetrievedListener<T> {
         void onDataRetrieved(ArrayList<T> data);
+
+        void onError(String errorMessage);
+    }
+
+    public interface OnDataRetrievedOneListener<T> {
+        void onDataRetrieved(T entity);
 
         void onError(String errorMessage);
     }
@@ -47,15 +53,15 @@ public class DataAccessUtilities {
         void onInsertionError(String errorMessage);
     }
 
-    public <T> void listarGeneric(RequestQueue requestQueue, String nombreTabla, Class<T> tipoEntidad, OnDataRetrievedListener<T> listener) {
-        ArrayList<T> usuarioArrayList = new ArrayList<>(); // Declaración de la lista dentro del método
-
+    public <T> void listarGeneric(RequestQueue requestQueue, String nombreTabla, OnDataRetrievedListener<T> listener) {
+        ArrayList<T> entityArrayList = new ArrayList<>(); // Declaración de la lista dentro del método
         try {
             String url = URL + "listar_tabla.php";
 
             // Crear una solicitud POST
             StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
+                        /** @noinspection unchecked*/
                         @Override
                         public void onResponse(String response) {
                             // Imprimir la respuesta recibida antes de intentar analizarla como JSON
@@ -65,7 +71,7 @@ public class DataAccessUtilities {
                                 JSONArray jsonArray = new JSONArray(response); // response es la cadena que recibes del servidor
                                 for (int i = 0; i < jsonArray.length(); i++) {
                                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                                    if (tipoEntidad == Usuario.class) {
+                                    if (nombreTabla.equals("usuarios")) {
                                         Usuario usuario = new Usuario();
                                         usuario.setId(jsonObject.getInt("id"));
                                         usuario.setNombre(jsonObject.getString("nombre"));
@@ -73,20 +79,20 @@ public class DataAccessUtilities {
                                         String hashedPasswordHex = jsonObject.getString("hashedPassword");
                                         String salt = jsonObject.getString("salt");
                                         byte[] hashedPasswordBytes = hexStringToByteArray(hashedPasswordHex);
-                                        byte[] saltBytes  = hexStringToByteArray(salt);
+                                        byte[] saltBytes = hexStringToByteArray(salt);
                                         usuario.setHashedPassword(hashedPasswordBytes);
                                         usuario.setSalt(saltBytes);
                                         usuario.setStatus(jsonObject.getString("status"));
                                         System.out.println(usuario.toString());
-                                        usuarioArrayList.add((T) usuario);
+                                        entityArrayList.add((T) usuario);
                                     }
                                 }
                                 // Notificar al listener que se han recuperado los datos correctamente
-                                listener.onDataRetrieved(usuarioArrayList);
+                                listener.onDataRetrieved(entityArrayList);
                             } catch (JSONException e) {
                                 // Manejar el error de análisis JSON.
                                 if (listener != null) {
-                                    listener.onError("Error al procesar la respuesta JSON: " + e.getMessage());
+                                    listener.onError("Error desconocido." );
                                 }
                                 e.printStackTrace(System.out);
                             }
@@ -97,8 +103,9 @@ public class DataAccessUtilities {
                         public void onErrorResponse(VolleyError error) {
                             // Manejar el error de la solicitud HTTP
                             if (listener != null) {
-                                listener.onError("Error de red: " + error.toString());
+                                listener.onError("Error de red.");
                             }
+                            error.printStackTrace(System.out);
                         }
                     }) {
                 @Override
@@ -115,17 +122,16 @@ public class DataAccessUtilities {
         } catch (Exception e) {
             // Manejar cualquier otro error
             if (listener != null) {
-                listener.onError("Error desconocido: " + e.getMessage());
+                listener.onError("Error desconocido.");
             }
+            e.printStackTrace(System.out);
         }
     }
 
-
-
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public <T> void insertarGeneric(RequestQueue requestQueue, String scriptPhp, T entity, OnInsertionListener listener) {
+    public <T> void insertarGeneric(RequestQueue requestQueue, String tableName, T entity, OnInsertionListener listener) {
         try {
-            String tableName = determineTableName(scriptPhp);
+            String scriptPhp = determineScript(tableName);
             obtenerColumnasTabla(requestQueue, tableName, new OnColumnasObtenidasListener() {
                 @RequiresApi(api = Build.VERSION_CODES.O)
                 @Override
@@ -137,7 +143,7 @@ public class DataAccessUtilities {
                     } catch (Exception e) {
                         e.printStackTrace(System.out);
                         if (listener != null) {
-                            listener.onInsertionError(e.getMessage());
+                            listener.onInsertionError("Error desconocido.");
                         }
                     }
                 }
@@ -146,17 +152,91 @@ public class DataAccessUtilities {
                 public void onError(String errorMessage) {
                     System.out.println("Error: " + errorMessage);
                     if (listener != null) {
-                        listener.onInsertionError(errorMessage);
+                        listener.onInsertionError("Error desconocido.");
                     }
                 }
             });
         } catch (Exception exception) {
             exception.printStackTrace(System.out);
             if (listener != null) {
-                listener.onInsertionError(exception.getMessage());
+                listener.onInsertionError("Error desconocido.");
             }
         }
     }
+
+    public <T> void getEntityByParameter(RequestQueue requestQueue, String nombreTabla, String parameterName, Object parameter, String parameterType, OnDataRetrievedOneListener<T> listener) {
+        try {
+            String url = URL + "get_entity_by_parameter.php";
+
+            // Crear una solicitud POST
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            // Imprimir la respuesta recibida antes de intentar analizarla como JSON
+                            System.out.println("Response received: " + response);
+                            try {
+                                JSONObject jsonObject = new JSONObject(response); // response es la cadena que recibes del servidor
+                                T entity = null;
+                                if (nombreTabla.equals("usuarios")) {
+                                    Usuario usuario = new Usuario();
+                                    usuario.setId(jsonObject.getInt("id"));
+                                    usuario.setNombre(jsonObject.getString("nombre"));
+                                    usuario.setCorreo(jsonObject.getString("correo"));
+                                    String hashedPasswordHex = jsonObject.getString("hashedPassword");
+                                    String salt = jsonObject.getString("salt");
+                                    byte[] hashedPasswordBytes = hexStringToByteArray(hashedPasswordHex);
+                                    byte[] saltBytes = hexStringToByteArray(salt);
+                                    usuario.setHashedPassword(hashedPasswordBytes);
+                                    usuario.setSalt(saltBytes);
+                                    usuario.setStatus(jsonObject.getString("status"));
+                                    System.out.println(usuario.toString());
+                                    entity = (T) usuario;
+                                }
+                                // Notificar al listener que se han recuperado los datos correctamente
+                                listener.onDataRetrieved(entity);
+                            } catch (JSONException e) {
+                                // Manejar el error de análisis JSON.
+                                if (listener != null) {
+                                    listener.onError(Objects.requireNonNull(e.getMessage()).contains("No value for id") ? "Usuario no encontrado." : "Error desconocido");
+                                }
+                                e.printStackTrace(System.out);
+                            }
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // Manejar el error de la solicitud HTTP
+                            if (listener != null) {
+                                listener.onError("Error de red.");
+                            }
+                            error.printStackTrace(System.out);
+                        }
+                    }) {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    // Agregar parámetros POST si es necesario
+                    Map<String, String> params = new HashMap<>();
+                    params.put("tableName", nombreTabla);
+                    params.put("parameterName", parameterName);
+                    params.put("parameter", String.valueOf(parameter));
+                    params.put("parameterType", parameterType);
+                    return params;
+                }
+            };
+
+            // Agregar la solicitud a la cola de solicitudes.
+            requestQueue.add(stringRequest);
+        } catch (Exception e) {
+            // Manejar cualquier otro error
+            if (listener != null) {
+                listener.onError("Error desconocido.");
+            }
+            e.printStackTrace(System.out);
+        }
+    }
+
 
     private StringRequest createStringRequest(String scriptPhp, Map<String, Object> parametros, OnInsertionListener listener) {
         return new StringRequest(Request.Method.POST, URL + scriptPhp,
@@ -168,14 +248,14 @@ public class DataAccessUtilities {
                         }
                     } else {
                         if (listener != null) {
-                            listener.onInsertionError(response);
+                            listener.onInsertionError("Error desconocido");
                         }
                     }
                 },
                 error -> {
                     error.printStackTrace(System.out);
                     if (listener != null) {
-                        listener.onInsertionError("Error de red: " + error.toString());
+                        listener.onInsertionError("Error de red.");
                     }
                 }) {
             @Override
@@ -191,10 +271,10 @@ public class DataAccessUtilities {
     }
 
 
-    private String determineTableName(String scriptPhp) {
-        switch (scriptPhp) {
-            case "insertar_usuario.php":
-                return "usuarios";
+    private String determineScript(String tableName) {
+        switch (tableName) {
+            case "usuarios":
+                return "insertar_usuario.php";
             default:
                 return null;
         }
@@ -206,7 +286,6 @@ public class DataAccessUtilities {
         Object[] objects = new CommonServiceUtilities().entityToObjectArray(entity);
         for (int i = 0; i < columnas.size(); i++) {
             parametros.put(columnas.get(i), objects[i]);
-
         }
         System.out.println("PARAMETROS: " + parametros);
         return parametros;
@@ -242,8 +321,7 @@ public class DataAccessUtilities {
                                 message = e.getMessage();
                                 e.printStackTrace(System.out);
                                 if (listener != null) {
-                                    listener.onError("Error al procesar la respuesta JSON");
-
+                                    listener.onError("Error desconocido.");
                                 }
                             }
                         }
@@ -253,7 +331,7 @@ public class DataAccessUtilities {
                         public void onErrorResponse(VolleyError error) {
                             error.printStackTrace(System.out);
                             if (listener != null) {
-                                listener.onError("Error de red: " + error.toString());
+                                listener.onError("Error de red.");
                                 message = error.toString();
                                 success = false;
                             }
