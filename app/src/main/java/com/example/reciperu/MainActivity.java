@@ -2,7 +2,7 @@ package com.example.reciperu;
 
 
 import android.os.Bundle;
-import android.util.Log;
+
 import android.widget.Button;
 import android.view.View;
 
@@ -16,17 +16,22 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 
-import com.example.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
-import com.example.reciperu.DAO.UsuarioDAO;
-import com.example.reciperu.Entity.Usuario;
+
 import com.example.reciperu.Interfaces.RegistroUI;
-import com.example.reciperu.Utilities.DataAccessUtilities;
+
+
 
 import android.widget.EditText;
-import android.widget.Toast;
 
-import java.util.ArrayList;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.PBEKeySpec;
+import java.util.Base64;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText edtusuario, edtContrasena;
     private Button btnLogin;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,33 +73,25 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+
+        // Configura el listener para el botón de login
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                UsuarioDAO usuarioDAO = new UsuarioDAOImpl(new Usuario(), getApplicationContext());
-                usuarioDAO.listar(new DataAccessUtilities.OnDataRetrievedListener<Usuario>() {
-                    @Override
-                    public void onDataRetrieved(ArrayList<Usuario> data) {
-                        if (!data.isEmpty()) {
-                            // Si la lista de usuarios no está vacía, mostrar cada usuario en un Toast
-                            for (Usuario usuario : data) {
-                                // Mostrar el mensaje en un Toast corto
-                                Toast.makeText(getApplicationContext(), usuario.toString(), Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            // Si la lista de usuarios está vacía, mostrar un mensaje indicando esto
-                            Toast.makeText(getApplicationContext(), "No se encontraron usuarios", Toast.LENGTH_SHORT).show();
-                        }
-                    }
+            public void onClick(View v) {
+                // Crear un Intent para iniciar la nueva actividad
+                Intent intent = new Intent(MainActivity.this, ReciMaps.class);
+                edtusuario.setText("");
+                edtContrasena.setText("");
 
-                    @Override
-                    public void onError(String errorMessage) {
-                        // Manejar el error en caso de problemas con la solicitud
-                        Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                // Iniciar la nueva actividad
+                startActivity(intent);
             }
         });
 
+
+
     }
+
+
 }
