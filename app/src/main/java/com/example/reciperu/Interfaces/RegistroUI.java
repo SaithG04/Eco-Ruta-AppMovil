@@ -72,4 +72,6 @@ public class RegistroUI extends AppCompatActivity {
 
 
     }
+
+
 }
