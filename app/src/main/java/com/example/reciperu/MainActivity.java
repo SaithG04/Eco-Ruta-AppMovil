@@ -18,7 +18,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 
 import com.example.reciperu.Interfaces.RegistroUI;
-
+import com.example.reciperu.Interfaces.UIMenu;
 
 
 import android.widget.EditText;
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Crear un Intent para iniciar la nueva actividad
-                Intent intent = new Intent(MainActivity.this, ReciMaps.class);
+                Intent intent = new Intent(MainActivity.this, UIMenu.class);
                 edtusuario.setText("");
                 edtContrasena.setText("");
 
