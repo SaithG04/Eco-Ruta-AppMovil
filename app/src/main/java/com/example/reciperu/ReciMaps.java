@@ -88,7 +88,7 @@ public class ReciMaps extends AppCompatActivity implements OnMapReadyCallback {
                     if (location != null) {
                         // Centrar el mapa en la ubicación actual con un nivel de zoom específico
                         LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                        float zoomLevel = 15.0f; // Nivel de zoom más adecuado
+                        float zoomLevel = 18.0f; // Nivel de zoom más adecuado
                         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, zoomLevel));
 
                         // Agregar un marcador en la ubicación actual
