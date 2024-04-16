@@ -22,7 +22,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".ReciMaps"
+            android:name=".Interfaces.ReciMapsUI"
             android:exported="true"
             android:label="@string/title_activity_reci_maps" />
 
@@ -31,13 +31,13 @@
             android:value="AIzaSyAq5z0qk55XkZdcc8FJbHywmXCcve4pkN4" />
 
         <activity
-            android:name=".Interfaces.UIMenu"
+            android:name=".Interfaces.MenuUI"
             android:exported="false" />
         <activity
-            android:name=".Interfaces.RegistroUI"
+            android:name=".Interfaces.RegistroUsuarioUI"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Interfaces.PrincipalUI"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

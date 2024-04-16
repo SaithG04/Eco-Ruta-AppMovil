@@ -1,4 +1,4 @@
-package com.example.reciperu.Interfaces;
+package com.qromarck.reciperu.Interfaces;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,19 +12,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.reciperu.MainActivity;
-import com.example.reciperu.R;
-import com.example.reciperu.ReciMaps;
-import com.example.reciperu.Utilities.DataAccessUtilities;
+import com.qromarck.reciperu.R;
+import com.qromarck.reciperu.Utilities.DataAccessUtilities;
 
-public class UIMenu extends AppCompatActivity {
+public class MenuUI extends AppCompatActivity {
     private Button VerMapa;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_uimenu);
+        setContentView(R.layout.activity_menu_ui);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -36,7 +34,7 @@ public class UIMenu extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
                             // Crea un Intent para abrir otra actividad
-                            Intent intent = new Intent(UIMenu.this, ReciMaps.class);
+                            Intent intent = new Intent(MenuUI.this, ReciMapsUI.class);
 
                             // Inicia la segunda actividad
                             startActivity(intent);
@@ -46,7 +44,7 @@ public class UIMenu extends AppCompatActivity {
         });
 
         Intent intent = getIntent();
-        String nombreUsuario = DataAccessUtilities.usuario.getUsuario();
+        String nombreUsuario = DataAccessUtilities.usuario.getFull_name();
 
         TextView txvnombreUSER = findViewById(R.id.txvUSERNAME);
 
@@ -68,7 +66,7 @@ public class UIMenu extends AppCompatActivity {
     // Método para manejar el cierre de sesión
     private void cerrarSesion() {
         // Inicia la actividad principal
-        Intent intent = new Intent(UIMenu.this, MainActivity.class); // Reemplaza `MainActivity` con el nombre de tu actividad principal
+        Intent intent = new Intent(MenuUI.this, PrincipalUI.class); // Reemplaza `PrincipalUI` con el nombre de tu actividad principal
         DataAccessUtilities.usuario = null;
         startActivity(intent);
         // Finaliza la actividad actual

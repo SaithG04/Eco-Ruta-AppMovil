@@ -9,12 +9,14 @@ activity = "1.8.2"
 constraintlayout = "2.1.4"
 volley = "1.2.1"
 googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
-okhttp = "4.9.3"
-json = "20210307"
+okhttp = "4.12.0"
+json = "20240303"
 gson = "2.10.1"
 playServicesMapsVersion = "18.2.0"
 firebaseDatabase = "20.3.1"
 playServicesLocation = "21.2.0"
+firebaseFirestore = "24.11.1"
+firebaseAuth = "22.3.1"
 
 [libraries]
 
@@ -32,6 +34,8 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 play-services-maps= { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMapsVersion" }
 firebaseDatabase = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabase" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

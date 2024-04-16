@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "790248094002",
+    "project_id": "reciperu-9ab32",
+    "storage_bucket": "reciperu-9ab32.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:790248094002:android:f1acdeaa4c4ad0cc813f2b",
+        "android_client_info": {
+          "package_name": "com.qromarck.reciperu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1tzllDIbW0RzFKQDxBc9pTfpQV8KppKU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
