@@ -50,17 +50,120 @@ public class DataAccessUtilities {
         void onError(String errorMessage);
     }
 
-    public interface OnDataRetrievedOneListener<T> {
-        void onDataRetrieved(T entity);
-
-        void onError(String errorMessage);
-    }
 
     public interface OnInsertionListener {
         void onInsertionSuccess();
 
         void onInsertionError(String errorMessage);
     }
+
+
+    public void insertOnFireStore(String collectionName, String documentId, Map<String, Object> data,
+                                  OnInsertionListener insertionListener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection(collectionName).document(documentId).set(data)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        if (insertionListener != null) {
+                            insertionListener.onInsertionSuccess();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (insertionListener != null) {
+                            insertionListener.onInsertionError(e.getMessage());
+                        }
+                    }
+                });
+    }
+
+
+    public <T> Task<List<T>> getByCriteria(@NonNull Class<T> clazz, String campo, Object value) {
+        CollectionReference collectionRef = FirebaseFirestore.getInstance().collection(clazz.getSimpleName().toLowerCase() + "s");
+
+        TaskCompletionSource<List<T>> taskCompletionSource = new TaskCompletionSource<>();
+
+        collectionRef.whereEqualTo(campo, value)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+                        for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
+                            // Obtener todos los datos del documento como un mapa
+                            Map<String, Object> data = documentSnapshot.getData();
+
+                            // Iterar sobre las entradas del mapa e imprimir los datos
+                            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                                String key = entry.getKey();
+                                Object value = entry.getValue();
+                                System.out.println(key + ": " + value);
+                            }
+                        }
+                        List<T> entities = new ArrayList<>();
+                        for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
+                            // Convertir el documento a un objeto de la clase proporcionada (utilizando reflexión)
+                            T entity = documentSnapshot.toObject(clazz);
+                            // Agregar la entidad a la lista
+                            entities.add(entity);
+                        }
+                        // Completa la tarea con la lista de entidades
+                        taskCompletionSource.setResult(entities);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Completa la tarea con un error si la lectura falla
+                        taskCompletionSource.setException(e);
+                        e.printStackTrace(System.out);
+                    }
+                });
+
+        return taskCompletionSource.getTask();
+    }
+
+    @Deprecated
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public <T> void insertarGeneric(RequestQueue requestQueue, String tableName, T entity, OnInsertionListener listener) {
+        try {
+            String scriptPhp = determineScript(tableName);
+            obtenerColumnasTabla(requestQueue, tableName, new OnColumnasObtenidasListener() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
+                @Override
+                public void onColumnasObtenidas(ArrayList<String> columnas) {
+                    try {
+                        Map<String, Object> parametros = buildParameterMap(entity, columnas);
+                        StringRequest stringRequest = createStringRequest(scriptPhp, parametros, listener);
+                        requestQueue.add(stringRequest);
+                    } catch (Exception e) {
+                        e.printStackTrace(System.out);
+                        if (listener != null) {
+                            listener.onInsertionError("Error desconocido.");
+                        }
+                    }
+                }
+
+                @Override
+                public void onError(String errorMessage) {
+                    System.out.println("Error: " + errorMessage);
+                    if (listener != null) {
+                        listener.onInsertionError("Error desconocido.");
+                    }
+                }
+            });
+        } catch (Exception exception) {
+            exception.printStackTrace(System.out);
+            if (listener != null) {
+                listener.onInsertionError("Error desconocido.");
+            }
+        }
+    }
+
+    @Deprecated
     public <T> void listarGeneric(RequestQueue requestQueue, String nombreTabla, OnDataRetrievedListener<T> listener) {
         ArrayList<T> entityArrayList = new ArrayList<>(); // Declaración de la lista dentro del método
         try {
@@ -134,110 +237,6 @@ public class DataAccessUtilities {
             }
             e.printStackTrace(System.out);
         }
-    }
-
-    public void insertOnFireStore(String collectionName, String documentId, Map<String, Object> data,
-                                OnInsertionListener insertionListener) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        db.collection(collectionName).document(documentId).set(data)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        if (insertionListener != null) {
-                            insertionListener.onInsertionSuccess();
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (insertionListener != null) {
-                            insertionListener.onInsertionError(e.getMessage());
-                        }
-                    }
-                });
-    }
-
-    @Deprecated
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public <T> void insertarGeneric(RequestQueue requestQueue, String tableName, T entity, OnInsertionListener listener) {
-        try {
-            String scriptPhp = determineScript(tableName);
-            obtenerColumnasTabla(requestQueue, tableName, new OnColumnasObtenidasListener() {
-                @RequiresApi(api = Build.VERSION_CODES.O)
-                @Override
-                public void onColumnasObtenidas(ArrayList<String> columnas) {
-                    try {
-                        Map<String, Object> parametros = buildParameterMap(entity, columnas);
-                        StringRequest stringRequest = createStringRequest(scriptPhp, parametros, listener);
-                        requestQueue.add(stringRequest);
-                    } catch (Exception e) {
-                        e.printStackTrace(System.out);
-                        if (listener != null) {
-                            listener.onInsertionError("Error desconocido.");
-                        }
-                    }
-                }
-
-                @Override
-                public void onError(String errorMessage) {
-                    System.out.println("Error: " + errorMessage);
-                    if (listener != null) {
-                        listener.onInsertionError("Error desconocido.");
-                    }
-                }
-            });
-        } catch (Exception exception) {
-            exception.printStackTrace(System.out);
-            if (listener != null) {
-                listener.onInsertionError("Error desconocido.");
-            }
-        }
-    }
-
-    public <T> Task<List<T>> getByCriteria(@NonNull Class<T> clazz, String campo, Object value) {
-        CollectionReference collectionRef = FirebaseFirestore.getInstance().collection(clazz.getSimpleName().toLowerCase() + "s");
-
-        TaskCompletionSource<List<T>> taskCompletionSource = new TaskCompletionSource<>();
-
-        collectionRef.whereEqualTo(campo, value)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot querySnapshot) {
-                        for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
-                            // Obtener todos los datos del documento como un mapa
-                            Map<String, Object> data = documentSnapshot.getData();
-
-                            // Iterar sobre las entradas del mapa e imprimir los datos
-                            for (Map.Entry<String, Object> entry : data.entrySet()) {
-                                String key = entry.getKey();
-                                Object value = entry.getValue();
-                                System.out.println(key + ": " + value);
-                            }
-                        }
-                        List<T> entities = new ArrayList<>();
-                        for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
-                            // Convertir el documento a un objeto de la clase proporcionada (utilizando reflexión)
-                            T entity = documentSnapshot.toObject(clazz);
-                            // Agregar la entidad a la lista
-                            entities.add(entity);
-                        }
-                        // Completa la tarea con la lista de entidades
-                        taskCompletionSource.setResult(entities);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Completa la tarea con un error si la lectura falla
-                        taskCompletionSource.setException(e);
-                        e.printStackTrace(System.out);
-                    }
-                });
-
-        return taskCompletionSource.getTask();
     }
 
     @Deprecated
@@ -314,7 +313,7 @@ public class DataAccessUtilities {
         }
     }
 
-
+    @Deprecated
     private StringRequest createStringRequest(String scriptPhp, Map<String, Object> parametros, OnInsertionListener listener) {
         return new StringRequest(Request.Method.POST, URL + scriptPhp,
                 response -> {
@@ -347,7 +346,7 @@ public class DataAccessUtilities {
         };
     }
 
-
+    @Deprecated
     private String determineScript(String tableName) {
         switch (tableName) {
             case "usuarios":
@@ -357,6 +356,7 @@ public class DataAccessUtilities {
         }
     }
 
+    @Deprecated
     @RequiresApi(api = Build.VERSION_CODES.O)
     private <T> Map<String, Object> buildParameterMap(T entity, ArrayList<String> columnas) {
         Map<String, Object> parametros = new HashMap<>();
@@ -368,6 +368,7 @@ public class DataAccessUtilities {
         return parametros;
     }
 
+    @Deprecated
     public void obtenerColumnasTabla(RequestQueue requestQueue, String nombreTabla, final OnColumnasObtenidasListener listener) {
         // Define la URL para la solicitud
         try {
@@ -430,9 +431,16 @@ public class DataAccessUtilities {
         }
     }
 
-
+    @Deprecated
     public interface OnColumnasObtenidasListener {
         void onColumnasObtenidas(ArrayList<String> columnas);
+
+        void onError(String errorMessage);
+    }
+
+    @Deprecated
+    public interface OnDataRetrievedOneListener<T> {
+        void onDataRetrieved(T entity);
 
         void onError(String errorMessage);
     }

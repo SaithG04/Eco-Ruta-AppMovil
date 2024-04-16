@@ -9,6 +9,7 @@ public class Usuario {
     private byte[] salt;
     private Date registro_date;
     private String status;
+    private String type;
 
     // Constructores, getters y setters
 
@@ -17,7 +18,7 @@ public class Usuario {
     }
 
     // Constructor con todos los campos
-    public Usuario(String id, String full_name, String email, byte[] hashedPassword, byte[] salt, Date registro_date, String status) {
+    public Usuario(String id, String full_name, String email, byte[] hashedPassword, byte[] salt, Date registro_date, String status, String type) {
         this.id = id;
         this.full_name = full_name;
         this.email = email;
@@ -25,6 +26,7 @@ public class Usuario {
         this.salt = salt;
         this.registro_date = registro_date;
         this.status = status;
+        this.type = type;
     }
 
     // Getters y setters para todos los campos
@@ -83,5 +85,13 @@ public class Usuario {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

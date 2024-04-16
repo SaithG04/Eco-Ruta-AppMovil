@@ -1,5 +1,11 @@
 package com.qromarck.reciperu.Utilities;
+
+import android.app.Activity;
 import android.os.Build;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 
 import androidx.annotation.RequiresApi;
 
@@ -11,6 +17,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 public class CommonServiceUtilities {
+
+    private static FrameLayout loadingLayout;
+    private static ProgressBar loadingIndicator;
 
     public static byte[] generateSalt() {
         SecureRandom random = new SecureRandom();
@@ -29,6 +38,7 @@ public class CommonServiceUtilities {
         }
     }
 
+    @Deprecated
     @RequiresApi(api = Build.VERSION_CODES.O)
     public <T> Object[] entityToObjectArray(T entity) {
         if (entity instanceof Usuario) {
@@ -67,7 +77,7 @@ public class CommonServiceUtilities {
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-                    + Character.digit(hex.charAt(i+1), 16));
+                    + Character.digit(hex.charAt(i + 1), 16));
         }
         return data;
     }
@@ -95,4 +105,21 @@ public class CommonServiceUtilities {
 
         return new String[]{claseCampo, nombreCampo};
     }
+
+    // Método para mostrar el indicador de carga y la máscara oscura
+//    private void showLoadingIndicator(Activity activity) {
+//        loadingIndicator = activity.findViewById(R.id)
+//        loadingIndicator.setVisibility(View.VISIBLE);
+//        loadingLayout.setVisibility(View.VISIBLE);
+//        // Además, puedes inhabilitar las interacciones con otros elementos de la interfaz de usuario aquí
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//    }
+//
+//    // Método para ocultar el indicador de carga y la máscara oscura
+//    private void hideLoadingIndicator() {
+//        loadingIndicator.setVisibility(View.GONE);
+//        loadingLayout.setVisibility(View.GONE);
+//        // Además, puedes habilitar las interacciones con otros elementos de la interfaz de usuario aquí
+//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//    }
 }

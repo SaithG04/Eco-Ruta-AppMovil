@@ -3,6 +3,7 @@ package com.qromarck.reciperu.Interfaces;
 
 import android.os.Bundle;
 
+import android.view.WindowManager;
 import android.widget.Button;
 import android.view.View;
 
@@ -29,18 +30,21 @@ import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.*;
 
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 
 import java.security.MessageDigest;
-
-import javax.xml.transform.sax.SAXResult;
 
 public class PrincipalUI extends AppCompatActivity {
 
     private Button btnRegistrarse;
     private EditText edtCorreo, edtContrasena;
     private Button btnLogin;
+    private FrameLayout loadingLayout;
+    private ProgressBar loadingIndicator;
     FirebaseAuth mAuth;
 
 
@@ -61,6 +65,9 @@ public class PrincipalUI extends AppCompatActivity {
         edtCorreo = findViewById(R.id.edtCorreoLOGIN);
         edtContrasena = findViewById(R.id.edtContraLOGIN);
         btnLogin = findViewById(R.id.btnLoginLOG);
+        loadingLayout = findViewById(R.id.loadingLayout);
+        loadingIndicator = findViewById(R.id.loadingIndicator);
+
         mAuth = FirebaseAuth.getInstance();
 
         // Configurar el listener del botón
@@ -89,6 +96,8 @@ public class PrincipalUI extends AppCompatActivity {
     }
 
     private void loginOnFireBase(String correo, String password) {
+        showLoadingIndicator();
+
         Usuario userSearched = new Usuario();
         userSearched.setEmail(correo);
         UsuarioDAO usuarioDAO = new UsuarioDAOImpl(userSearched, PrincipalUI.this);
@@ -96,6 +105,7 @@ public class PrincipalUI extends AppCompatActivity {
             @Override
             public void onUserRetrieved(Usuario usuario) {
                 if (usuario == null) {
+                    hideLoadingIndicator();
                     Toast.makeText(PrincipalUI.this, "No hay ninguna cuenta asociada a este correo.", Toast.LENGTH_LONG).show();
                 } else {
                     mAuth.signInWithEmailAndPassword(correo, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -120,10 +130,13 @@ public class PrincipalUI extends AppCompatActivity {
                                 errorMessage = "Verifique nuevamente su contraseña por favor.";
                                 edtContrasena.setText("");
                                 edtContrasena.requestFocus();
+                            } else if (e.getMessage().contains("We have blocked all requests from this device due to unusual activity. Try again later. [ Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later. ]")) {
+                                errorMessage = "Se ha bloqueado temporalmente el acceso a tu cuenta debido a demasiados intentos de inicio de sesión fallidos. Por favor, restablece tu contraseña o inténtalo más tarde.";
                             } else {
                                 errorMessage = "Lo sentimos, ha ocurrido un error.";
                             }
-                            Toast.makeText(PrincipalUI.this, errorMessage, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PrincipalUI.this, errorMessage, Toast.LENGTH_LONG).show();
+                            hideLoadingIndicator();
                         }
                     });
                 }
@@ -132,48 +145,20 @@ public class PrincipalUI extends AppCompatActivity {
 
     }
 
-    @Deprecated
-    private void login(String correo, String password) {
 
-        Usuario userFind = new Usuario();
-        userFind.setEmail(correo);
-        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(userFind, PrincipalUI.this);
-        usuarioDAO.getUserBy(userFind.getEmail(), new DataAccessUtilities.OnDataRetrievedOneListener<Usuario>() {
-            @Override
-            public void onDataRetrieved(Usuario userReceived) {
-                if (userReceived != null) {
-                    byte[] inputHashedPassword = CommonServiceUtilities.hashPassword(password, userReceived.getSalt());
-                    if (!MessageDigest.isEqual(userReceived.getHashedPassword(), inputHashedPassword)) {
-                        // Mostrar mensaje de error si la contraseña es incorrecta
-                        Toast.makeText(getApplicationContext(), "Contraseña incorrecta. Verifique nuevamente.", Toast.LENGTH_SHORT).show();
-                        edtContrasena.setText("");
-                        edtCorreo.requestFocus();
-                        return; // Finalizar el método si la contraseña es incorrecta
-                    }
-                    // Crear un Intent para iniciar la nueva actividad
-                    Intent intent = new Intent(PrincipalUI.this, MenuUI.class);
-                    edtCorreo.setText("");
-                    edtContrasena.setText("");
-                    edtCorreo.requestFocus();
-                    //Guardar logueo
-                    DataAccessUtilities.usuario = userReceived;
-                    // Iniciar la nueva actividad
-                    startActivity(intent);
-                }
-            }
+    // Método para mostrar el indicador de carga y la máscara oscura
+    private void showLoadingIndicator() {
+        loadingIndicator.setVisibility(View.VISIBLE);
+        loadingLayout.setVisibility(View.VISIBLE);
+        // Además, puedes inhabilitar las interacciones con otros elementos de la interfaz de usuario aquí
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
 
-            @Override
-            public void onError(String errorMessage) {
-                // Manejar el error en caso de problemas con la solicitud
-                if (errorMessage.contains("Error de red")) {
-                    Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
-                    edtCorreo.setText("");
-                } else {
-                    Toast.makeText(getApplicationContext(), "No hay usuarios registrados con ese correo.", Toast.LENGTH_SHORT).show();
-                }
-                edtContrasena.setText("");
-                edtCorreo.requestFocus();
-            }
-        });
+    // Método para ocultar el indicador de carga y la máscara oscura
+    private void hideLoadingIndicator() {
+        loadingIndicator.setVisibility(View.GONE);
+        loadingLayout.setVisibility(View.GONE);
+        // Además, puedes habilitar las interacciones con otros elementos de la interfaz de usuario aquí
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 }

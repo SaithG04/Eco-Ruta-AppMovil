@@ -6,7 +6,5 @@ import com.qromarck.reciperu.Utilities.DataAccessUtilities;
 
 public interface UsuarioDAO extends CRUD<Usuario> {
 
-    void getUserBy(Object parameter, DataAccessUtilities.OnDataRetrievedOneListener<Usuario> listener);
-
     void getUserOnFireBase(Object parameter, UsuarioDAOImpl.OnUserRetrievedListener listener);
 }

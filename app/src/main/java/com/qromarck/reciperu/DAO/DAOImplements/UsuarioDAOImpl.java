@@ -30,6 +30,10 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
     private final Activity activity;
     private final static String COLLECTION_NAME = "usuarios";
 
+    public interface OnUserRetrievedListener {
+        void onUserRetrieved(Usuario usuario);
+    }
+
     public UsuarioDAOImpl(Usuario usuario, Activity activity) {
         this.usuario = usuario;
         this.activity = activity;
@@ -44,34 +48,8 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
 
     }
 
-    public interface OnUserRetrievedListener {
-        void onUserRetrieved(Usuario usuario);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    @Deprecated
-    public void listar(OnDataRetrievedListener<Usuario> listener) {
-        // Crear una cola de solicitudes
-        RequestQueue requestQueue = Volley.newRequestQueue(activity.getApplicationContext());
-
-        // Realizar la solicitud de manera síncrona
-        listarGeneric(requestQueue, COLLECTION_NAME, new OnDataRetrievedListener<Usuario>() {
-            @Override
-            public void onDataRetrieved(ArrayList<Usuario> data) {
-                // Notificar al listener que se han recuperado los datos
-                listener.onDataRetrieved(data);
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                // Notificar al listener en caso de error
-                listener.onError(errorMessage);
-            }
-        });
-    }
-
     @Override
-    public void insertarOnFireStore(Map<String, Object> userData){
+    public void insertOnFireStore(Map<String, Object> userData) {
         String documentId = Objects.requireNonNull(userData.get("id")).toString();
         insertOnFireStore(COLLECTION_NAME, documentId, userData,
                 new OnInsertionListener() {
@@ -86,42 +64,25 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
                     @Override
                     public void onInsertionError(String errorMessage) {
                         // Manejar el fallo desde cualquier clase
-                        Toast.makeText(activity.getApplicationContext(), "Error al agregar la entidad: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity.getApplicationContext(), "Error al registrar... ", Toast.LENGTH_SHORT).show();
+                        System.out.println(errorMessage);
                     }
                 });
 
     }
-    @Deprecated
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void insertar() {
-        // Crear la cola de solicitudes de Volley
-        RequestQueue requestQueue = Volley.newRequestQueue(activity.getApplicationContext());
-        insertarGeneric(requestQueue, COLLECTION_NAME, usuario, new OnInsertionListener() {
-            @Override
-            public void onInsertionSuccess() {
-                Toast.makeText(activity.getApplicationContext(), "Usuario registrado.", Toast.LENGTH_LONG).show();
-            }
 
-            @Override
-            public void onInsertionError(String errorMessage) {
-                Toast.makeText(activity.getApplicationContext(), "Error. Usuario no registrado.", Toast.LENGTH_LONG).show();
-            }
-        });
+    @Override
+    public void updateOnFireStore() {
+
     }
 
     @Override
-    public boolean actualizar() {
-        return false;
-    }
+    public void deleteFromFireStore() {
 
-    @Override
-    public boolean eliminar() {
-        return false;
     }
 
     @Override
     public void getUserOnFireBase(Object parameter, OnUserRetrievedListener listener) {
-        // Llamar al método para obtener la clase, y el nombre del atributo
         String[] infoAtributo = obtenerInfoAtributo(usuario, parameter);
         String parameterName = infoAtributo[1];
 
@@ -147,33 +108,4 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
                 });
     }
 
-    @Deprecated
-    @Override
-    public void getUserBy(Object parameter, OnDataRetrievedOneListener<Usuario> listener) {
-
-        // Crear una cola de solicitudes
-        RequestQueue requestQueue = Volley.newRequestQueue(activity.getApplicationContext());
-
-        // Llamar al método para obtener la clase, y el nombre del atributo
-        String[] infoAtributo = obtenerInfoAtributo(usuario, parameter);
-
-        // Asignar la clase y el nombre del atributo
-        String parameterType = infoAtributo[0];
-        String parameterName = infoAtributo[1];
-
-        // Realizar la solicitud de manera síncrona
-        getEntityByParameter(requestQueue, COLLECTION_NAME, parameterName, parameter, parameterType, new OnDataRetrievedOneListener<Usuario>() {
-            @Override
-            public void onDataRetrieved(Usuario usuario) {
-                // Notificar al listener que se han recuperado los datos
-                listener.onDataRetrieved(usuario);
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                // Notificar al listener en caso de error
-                listener.onError(errorMessage);
-            }
-        });
-    }
 }
