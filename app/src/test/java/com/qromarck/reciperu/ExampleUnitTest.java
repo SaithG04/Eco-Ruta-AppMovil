@@ -1,4 +1,4 @@
-package com.example.reciperu;
+package com.qromarck.reciperu;
 
 import org.junit.Test;
 

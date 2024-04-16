@@ -1,9 +1,10 @@
-package com.example.reciperu.Utilities;
+package com.qromarck.reciperu.Utilities;
 
-import static com.example.reciperu.Utilities.CommonServiceUtilities.*;
+import static com.qromarck.reciperu.Utilities.CommonServiceUtilities.*;
 
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.android.volley.AuthFailureError;
@@ -12,7 +13,15 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.example.reciperu.Entity.Usuario;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.qromarck.reciperu.Entity.Usuario;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +29,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -31,6 +41,7 @@ public class DataAccessUtilities {
     private boolean success = false;
 
     public static Usuario usuario;
+    private CollectionReference reference;
 
 
     public interface OnDataRetrievedListener<T> {
@@ -50,7 +61,6 @@ public class DataAccessUtilities {
 
         void onInsertionError(String errorMessage);
     }
-
     public <T> void listarGeneric(RequestQueue requestQueue, String nombreTabla, OnDataRetrievedListener<T> listener) {
         ArrayList<T> entityArrayList = new ArrayList<>(); // Declaración de la lista dentro del método
         try {
@@ -71,9 +81,9 @@ public class DataAccessUtilities {
                                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                                     if (nombreTabla.equals("usuarios")) {
                                         Usuario usuario = new Usuario();
-                                        usuario.setId(jsonObject.getInt("id"));
-                                        usuario.setUsuario(jsonObject.getString("usuario"));
-                                        usuario.setCorreo(jsonObject.getString("correo"));
+//                                        usuario.setId(jsonObject.getInt("id"));
+                                        usuario.setFull_name(jsonObject.getString("usuario"));
+                                        usuario.setEmail(jsonObject.getString("correo"));
                                         String hashedPasswordHex = jsonObject.getString("hashedPassword");
                                         String salt = jsonObject.getString("salt");
                                         byte[] hashedPasswordBytes = hexStringToByteArray(hashedPasswordHex);
@@ -90,7 +100,7 @@ public class DataAccessUtilities {
                             } catch (JSONException e) {
                                 // Manejar el error de análisis JSON.
                                 if (listener != null) {
-                                    listener.onError("Error desconocido." );
+                                    listener.onError("Error desconocido.");
                                 }
                                 e.printStackTrace(System.out);
                             }
@@ -126,6 +136,30 @@ public class DataAccessUtilities {
         }
     }
 
+    public void insertOnFireStore(String collectionName, String documentId, Map<String, Object> data,
+                                OnInsertionListener insertionListener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection(collectionName).document(documentId).set(data)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        if (insertionListener != null) {
+                            insertionListener.onInsertionSuccess();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (insertionListener != null) {
+                            insertionListener.onInsertionError(e.getMessage());
+                        }
+                    }
+                });
+    }
+
+    @Deprecated
     @RequiresApi(api = Build.VERSION_CODES.O)
     public <T> void insertarGeneric(RequestQueue requestQueue, String tableName, T entity, OnInsertionListener listener) {
         try {
@@ -162,6 +196,51 @@ public class DataAccessUtilities {
         }
     }
 
+    public <T> Task<List<T>> getByCriteria(@NonNull Class<T> clazz, String campo, Object value) {
+        CollectionReference collectionRef = FirebaseFirestore.getInstance().collection(clazz.getSimpleName().toLowerCase() + "s");
+
+        TaskCompletionSource<List<T>> taskCompletionSource = new TaskCompletionSource<>();
+
+        collectionRef.whereEqualTo(campo, value)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+                        for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
+                            // Obtener todos los datos del documento como un mapa
+                            Map<String, Object> data = documentSnapshot.getData();
+
+                            // Iterar sobre las entradas del mapa e imprimir los datos
+                            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                                String key = entry.getKey();
+                                Object value = entry.getValue();
+                                System.out.println(key + ": " + value);
+                            }
+                        }
+                        List<T> entities = new ArrayList<>();
+                        for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
+                            // Convertir el documento a un objeto de la clase proporcionada (utilizando reflexión)
+                            T entity = documentSnapshot.toObject(clazz);
+                            // Agregar la entidad a la lista
+                            entities.add(entity);
+                        }
+                        // Completa la tarea con la lista de entidades
+                        taskCompletionSource.setResult(entities);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Completa la tarea con un error si la lectura falla
+                        taskCompletionSource.setException(e);
+                        e.printStackTrace(System.out);
+                    }
+                });
+
+        return taskCompletionSource.getTask();
+    }
+
+    @Deprecated
     public <T> void getEntityByParameter(RequestQueue requestQueue, String nombreTabla, String parameterName, Object parameter, String parameterType, OnDataRetrievedOneListener<T> listener) {
         try {
             String url = URL + "get_entity_by_parameter.php";
@@ -178,9 +257,9 @@ public class DataAccessUtilities {
                                 T entity = null;
                                 if (nombreTabla.equals("usuarios")) {
                                     Usuario usuario = new Usuario();
-                                    usuario.setId(jsonObject.getInt("id"));
-                                    usuario.setUsuario(jsonObject.getString("usuario"));
-                                    usuario.setCorreo(jsonObject.getString("correo"));
+//                                    usuario.setId(jsonObject.getInt("id"));
+                                    usuario.setFull_name(jsonObject.getString("usuario"));
+                                    usuario.setEmail(jsonObject.getString("correo"));
                                     String hashedPasswordHex = jsonObject.getString("hashedPassword");
                                     String salt = jsonObject.getString("salt");
                                     byte[] hashedPasswordBytes = hexStringToByteArray(hashedPasswordHex);

@@ -1,4 +1,4 @@
-package com.example.reciperu.Interfaces;
+package com.qromarck.reciperu.Interfaces;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,8 +12,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.reciperu.R;
-import com.example.reciperu.Utilities.DataAccessUtilities;
+import com.qromarck.reciperu.R;
+import com.qromarck.reciperu.Utilities.DataAccessUtilities;
 
 public class MenuUI extends AppCompatActivity {
     private Button VerMapa;
@@ -44,7 +44,7 @@ public class MenuUI extends AppCompatActivity {
         });
 
         Intent intent = getIntent();
-        String nombreUsuario = DataAccessUtilities.usuario.getUsuario();
+        String nombreUsuario = DataAccessUtilities.usuario.getFull_name();
 
         TextView txvnombreUSER = findViewById(R.id.txvUSERNAME);
 

@@ -1,12 +1,11 @@
-package com.example.reciperu.Utilities;
+package com.qromarck.reciperu.Utilities;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.example.reciperu.Entity.Usuario;
+import com.qromarck.reciperu.Entity.Usuario;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -33,9 +32,9 @@ public class CommonServiceUtilities {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public <T> Object[] entityToObjectArray(T entity) {
         if (entity instanceof Usuario) {
-            int id = ((Usuario) entity).getId();
-            String nombre = ((Usuario) entity).getUsuario();
-            String correo = ((Usuario) entity).getCorreo();
+            String id = ((Usuario) entity).getId();
+            String nombre = ((Usuario) entity).getFull_name();
+            String correo = ((Usuario) entity).getEmail();
             byte[] hashedPassword = ((Usuario) entity).getHashedPassword();
             byte[] salt = ((Usuario) entity).getSalt();
             String status = ((Usuario) entity).getStatus();
