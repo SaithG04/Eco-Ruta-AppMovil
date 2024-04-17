@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">ReciPeru</string>
     <string name="title_activity_reci_maps">ReciMaps</string>
+    <string name="asset_statements" translatable="false">
+[{
+  \"include\": \"https://reciperu2024.000webhostapp.com/.well-known/assetlinks.json\"
+}]
+</string>
 </resources>
