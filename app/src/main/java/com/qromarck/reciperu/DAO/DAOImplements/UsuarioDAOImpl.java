@@ -3,23 +3,17 @@ package com.qromarck.reciperu.DAO.DAOImplements;
 import static com.qromarck.reciperu.Utilities.CommonServiceUtilities.*;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.widget.Toast;
 
 import androidx.annotation.*;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.*;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.Usuario;
-import com.qromarck.reciperu.Interfaces.PrincipalUI;
-import com.qromarck.reciperu.Interfaces.RegistroUsuarioUI;
+import com.qromarck.reciperu.Interfaces.LoginPrincipalUI;
 import com.qromarck.reciperu.Utilities.DataAccessUtilities;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -57,7 +51,7 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
                     public void onInsertionSuccess() {
                         Toast.makeText(activity.getApplicationContext(), "¡En hora buena, ahora eres parte de esta familia!.", Toast.LENGTH_LONG).show();
                         activity.finish();
-                        Intent intent = new Intent(activity.getApplicationContext(), PrincipalUI.class);
+                        Intent intent = new Intent(activity.getApplicationContext(), LoginPrincipalUI.class);
                         activity.startActivity(intent);
                     }
 

@@ -18,7 +18,7 @@ firebaseDatabase = "20.3.1"
 playServicesLocation = "21.2.0"
 firebaseFirestore = "24.11.1"
 firebaseAuth = "22.3.1"
-playServicesAuth = "21.2.0"
+playServicesAuth = "21.1.0"
 
 [libraries]
 

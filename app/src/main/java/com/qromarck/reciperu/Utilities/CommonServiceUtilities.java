@@ -1,6 +1,8 @@
 package com.qromarck.reciperu.Utilities;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.view.View;
 import android.view.WindowManager;
@@ -17,7 +19,17 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 public class CommonServiceUtilities {
-        public static byte[] generateSalt() {
+
+    public static SharedPreferences.Editor systemEditor;
+
+    public static SharedPreferences.Editor getSystemEditor(Activity activity) {
+        if (systemEditor == null) {
+            systemEditor = activity.getSharedPreferences("com.qromarck.reciperu.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE).edit();
+        }
+        return systemEditor;
+    }
+
+    public static byte[] generateSalt() {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[16];
         random.nextBytes(salt);

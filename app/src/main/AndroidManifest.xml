@@ -37,7 +37,7 @@
             android:name=".Interfaces.RegistroUsuarioUI"
             android:exported="false" />
         <activity
-            android:name=".Interfaces.PrincipalUI"
+            android:name=".Interfaces.LoginPrincipalUI"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

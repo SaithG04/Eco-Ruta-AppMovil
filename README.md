@@ -1,1 +1,2 @@
 # ReciPeru
+INFO

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".Interfaces.PrincipalUI">
+    tools:context=".Interfaces.LoginPrincipalUI">
 
 
     <ImageView
@@ -92,13 +92,14 @@
 
     <EditText
         android:id="@+id/edtContraLOGIN"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Ingrese su contraseña"
         android:inputType="textPassword"
         android:textAlignment="center"
         android:textColor="#000000"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@+id/textView3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -108,12 +109,13 @@
 
     <EditText
         android:id="@+id/edtCorreoLOGIN"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Ingrese su correo"
         android:inputType="textEmailAddress"
         android:textAlignment="center"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"

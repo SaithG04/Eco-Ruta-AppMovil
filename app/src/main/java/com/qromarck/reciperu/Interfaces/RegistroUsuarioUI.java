@@ -61,7 +61,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         registrarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(validateCampos()){
+                if (validateCampos()) {
                     registrarUsuarioOnFireStore();
                 }
             }
@@ -70,9 +70,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         registrarGoogleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(validateCampos()){
-                    registrarUsuarioOnFireStoreWithGoogleAccount();
-                }
+                registrarUsuarioOnFireStoreWithGoogleAccount();
             }
         });
     }
@@ -121,50 +119,10 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         });
 
     }
+
     private void registrarUsuarioOnFireStoreWithGoogleAccount() {
         showLoadingIndicator();
-        String fullName = edtUsuario.getText().toString();
-        String email = edtCorreo.getText().toString();
-        String password = edtContrasena.getText().toString();
 
-//        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken();
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-
-                    String id = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-                    Date date = new Date();
-                    Map<String, Object> map = getStringObjectMap(date, id, fullName, email);
-
-                    UsuarioDAO usuarioDAO = new UsuarioDAOImpl(new Usuario(), RegistroUsuarioUI.this);
-                    usuarioDAO.insertOnFireStore(map);
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                String errorMessage;
-                if (Objects.requireNonNull(e.getMessage()).contains("The email address is already in use by another account.")) {
-                    errorMessage = "¡Ups! Parece que alguien más ya está usando ese email.";
-                    edtCorreo.setText("");
-                    edtCorreo.requestFocus();
-                } else if (e.getMessage().contains("The email address is badly formatted.")) {
-                    errorMessage = "¡Ups! Parece que el email que has ingresado no es válido.";
-                    edtCorreo.requestFocus();
-                } else if (e.getMessage().contains("The given password is invalid. [ Password should be at least 6 characters ]")) {
-                    errorMessage = "Tu contraseña debe contener al menos 6 caracteres.";
-                    edtContrasena.requestFocus();
-                } else if (e.getMessage().contains("A network error (such as timeout, interrupted connection or unreachable host) has occurred.")) {
-                    errorMessage = "Parece que estamos desconectados :(";
-                } else {
-                    errorMessage = "¡Ups! Algo salió mal.";
-                }
-                hideLoadingIndicator();
-                Toast.makeText(RegistroUsuarioUI.this, errorMessage, Toast.LENGTH_LONG).show();
-                e.printStackTrace(System.out);
-            }
-        });
 
     }
 
@@ -184,7 +142,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         return map;
     }
 
-    private boolean validateCampos(){
+    private boolean validateCampos() {
         String fullName = edtUsuario.getText().toString();
         String email = edtCorreo.getText().toString();
         String password = edtContrasena.getText().toString();

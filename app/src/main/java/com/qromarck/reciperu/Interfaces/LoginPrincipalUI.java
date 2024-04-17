@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.view.View;
 
@@ -32,16 +31,13 @@ import com.qromarck.reciperu.Utilities.*;
 
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
-import java.security.MessageDigest;
 
 /**
  * Clase que representa la interfaz de usuario principal de la aplicación.
  */
-public class PrincipalUI extends AppCompatActivity {
+public class LoginPrincipalUI extends AppCompatActivity {
 
     // Declaración de variables
 
@@ -94,7 +90,7 @@ public class PrincipalUI extends AppCompatActivity {
         btnRegistrarse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(PrincipalUI.this, RegistroUsuarioUI.class);
+                Intent intent = new Intent(LoginPrincipalUI.this, RegistroUsuarioUI.class);
                 startActivity(intent);
             }
         });
@@ -106,7 +102,7 @@ public class PrincipalUI extends AppCompatActivity {
                 String correo = edtCorreo.getText().toString();
                 String password = edtContrasena.getText().toString();
                 if (correo.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(PrincipalUI.this, "¡Ey, faltan datos!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginPrincipalUI.this, "¡Ey, faltan datos!", Toast.LENGTH_SHORT).show();
                 } else {
                     loginOnFireBase(correo, password); // Método para iniciar sesión en Firebase
                 }
@@ -126,7 +122,7 @@ public class PrincipalUI extends AppCompatActivity {
         // Crear un usuario con el correo proporcionado
         Usuario userSearched = new Usuario();
         userSearched.setEmail(correo);
-        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(userSearched, PrincipalUI.this);
+        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(userSearched, LoginPrincipalUI.this);
 
         // Buscar usuario en Firebase
         usuarioDAO.getUserOnFireBase(userSearched.getEmail(), new UsuarioDAOImpl.OnUserRetrievedListener() {
@@ -134,21 +130,20 @@ public class PrincipalUI extends AppCompatActivity {
             public void onUserRetrieved(Usuario usuario) {
                 if (usuario == null) { // Si no se encuentra el usuario
                     hideLoadingIndicator(); // Ocultar indicador de carga
-                    Toast.makeText(PrincipalUI.this, "No hay ninguna cuenta asociada a este correo.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginPrincipalUI.this, "No hay ninguna cuenta asociada a este correo.", Toast.LENGTH_LONG).show();
                 } else {
                     // Iniciar sesión con el correo y la contraseña proporcionados
                     mAuth.signInWithEmailAndPassword(correo, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
-                                SharedPreferences preferences = getSharedPreferences("com.qromarck.reciperu.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
-                                @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = preferences.edit();
+                                SharedPreferences.Editor editor = CommonServiceUtilities.getSystemEditor(LoginPrincipalUI.this);
                                 editor.putString("email", correo);
                                 editor.putString("fullName", usuario.getFull_name());
                                 editor.apply();
                                 DataAccessUtilities.usuario = usuario; // Establecer el usuario en DataAccessUtilities
                                 finish();
-                                startActivity(new Intent(PrincipalUI.this, MenuUI.class)); // Abrir actividad del menú
+                                startActivity(new Intent(LoginPrincipalUI.this, MenuUI.class)); // Abrir actividad del menú
                             }
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -175,7 +170,7 @@ public class PrincipalUI extends AppCompatActivity {
                             } else {
                                 errorMessage = "Lo sentimos, ha ocurrido un error.";
                             }
-                            Toast.makeText(PrincipalUI.this, errorMessage, duration).show();
+                            Toast.makeText(LoginPrincipalUI.this, errorMessage, duration).show();
                             hideLoadingIndicator();
                         }
                     });
@@ -189,13 +184,13 @@ public class PrincipalUI extends AppCompatActivity {
      * Método para mostrar el indicador de carga.
      */
     private void showLoadingIndicator() {
-        CommonServiceUtilities.showLoadingIndicator(PrincipalUI.this, loadingLayout, loadingIndicator);
+        CommonServiceUtilities.showLoadingIndicator(LoginPrincipalUI.this, loadingLayout, loadingIndicator);
     }
 
     /**
      * Método para ocultar el indicador de carga.
      */
     private void hideLoadingIndicator() {
-        CommonServiceUtilities.hideLoadingIndicator(PrincipalUI.this, loadingLayout, loadingIndicator);
+        CommonServiceUtilities.hideLoadingIndicator(LoginPrincipalUI.this, loadingLayout, loadingIndicator);
     }
 }

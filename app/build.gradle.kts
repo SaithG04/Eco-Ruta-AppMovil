@@ -56,7 +56,8 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.firebaseDatabase)
-    implementation(libs.firebase.bom)
+    implementation(platform(libs.firebase.bom))
+    //noinspection UseTomlInstead
     implementation("com.google.firebase:firebase-analytics")
     implementation(libs.play.services.auth)
 }

@@ -16,6 +16,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.qromarck.reciperu.R;
+import com.qromarck.reciperu.Utilities.CommonServiceUtilities;
 import com.qromarck.reciperu.Utilities.DataAccessUtilities;
 
 public class MenuUI extends AppCompatActivity {
@@ -69,10 +70,9 @@ public class MenuUI extends AppCompatActivity {
     // Método para manejar el cierre de sesión
     private void cerrarSesion() {
         // Inicia la actividad principal
-        Intent intent = new Intent(MenuUI.this, PrincipalUI.class); // Reemplaza `PrincipalUI` con el nombre de tu actividad principal
+        Intent intent = new Intent(MenuUI.this, LoginPrincipalUI.class); // Reemplaza `PrincipalUI` con el nombre de tu actividad principal
         DataAccessUtilities.usuario = null;
-        SharedPreferences preferences = getSharedPreferences("com.qromarck.reciperu.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
-        @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = preferences.edit();
+        SharedPreferences.Editor editor = CommonServiceUtilities.getSystemEditor(MenuUI.this);
         editor.clear();
         editor.apply();
         startActivity(intent);
