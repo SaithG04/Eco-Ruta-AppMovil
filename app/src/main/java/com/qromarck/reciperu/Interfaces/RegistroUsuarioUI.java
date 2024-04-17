@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.credentials.CredentialManager;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -57,6 +58,8 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         ImageButton registrarGoogleButton = findViewById(R.id.btnGoogleREG);
         loadingLayout = findViewById(R.id.loadingLayout);
         loadingIndicator = findViewById(R.id.loadingIndicator);
+        // Use your app or activity context to instantiate a client instance of
+
 
         registrarButton.setOnClickListener(new View.OnClickListener() {
             @Override
