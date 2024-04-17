@@ -17,11 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 public class CommonServiceUtilities {
-
-    private static FrameLayout loadingLayout;
-    private static ProgressBar loadingIndicator;
-
-    public static byte[] generateSalt() {
+        public static byte[] generateSalt() {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[16];
         random.nextBytes(salt);
@@ -82,7 +78,6 @@ public class CommonServiceUtilities {
         return data;
     }
 
-    // Método para obtener la clase y el nombre del atributo
     public static String[] obtenerInfoAtributo(Object objeto, Object valorAtributo) {
         Class<?> clazz = objeto.getClass();
         String nombreCampo = null;
@@ -100,26 +95,21 @@ public class CommonServiceUtilities {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Error al obtener la información del atributo: " + e.getMessage());
+            e.printStackTrace(System.out);
         }
 
         return new String[]{claseCampo, nombreCampo};
     }
 
-    // Método para mostrar el indicador de carga y la máscara oscura
-//    private void showLoadingIndicator(Activity activity) {
-//        loadingIndicator = activity.findViewById(R.id)
-//        loadingIndicator.setVisibility(View.VISIBLE);
-//        loadingLayout.setVisibility(View.VISIBLE);
-//        // Además, puedes inhabilitar las interacciones con otros elementos de la interfaz de usuario aquí
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-//    }
-//
-//    // Método para ocultar el indicador de carga y la máscara oscura
-//    private void hideLoadingIndicator() {
-//        loadingIndicator.setVisibility(View.GONE);
-//        loadingLayout.setVisibility(View.GONE);
-//        // Además, puedes habilitar las interacciones con otros elementos de la interfaz de usuario aquí
-//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-//    }
+    public static void showLoadingIndicator(Activity activity, FrameLayout loadingLayout, ProgressBar loadingIndicator) {
+        loadingIndicator.setVisibility(View.VISIBLE);
+        loadingLayout.setVisibility(View.VISIBLE);
+        activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    public static void hideLoadingIndicator(Activity activity, FrameLayout loadingLayout, ProgressBar loadingIndicator) {
+        loadingIndicator.setVisibility(View.GONE);
+        loadingLayout.setVisibility(View.GONE);
+        activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
 }

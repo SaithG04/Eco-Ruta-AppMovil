@@ -131,7 +131,6 @@
         android:visibility="gone"
         >
 
-
         <ProgressBar
             android:id="@+id/loadingIndicator"
             style="@style/CustomProgressBar"

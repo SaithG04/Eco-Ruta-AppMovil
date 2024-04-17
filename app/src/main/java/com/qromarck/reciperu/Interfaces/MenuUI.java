@@ -1,6 +1,9 @@
 package com.qromarck.reciperu.Interfaces;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -68,6 +71,10 @@ public class MenuUI extends AppCompatActivity {
         // Inicia la actividad principal
         Intent intent = new Intent(MenuUI.this, PrincipalUI.class); // Reemplaza `PrincipalUI` con el nombre de tu actividad principal
         DataAccessUtilities.usuario = null;
+        SharedPreferences preferences = getSharedPreferences("com.qromarck.reciperu.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
+        @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
         startActivity(intent);
         // Finaliza la actividad actual
         finish();

@@ -22,7 +22,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.581" />
+        app:layout_constraintVertical_bias="0.551" />
 
     <TextView
         android:id="@+id/textView"
@@ -54,7 +54,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.72" />
+        app:layout_constraintVertical_bias="0.651" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -70,8 +70,8 @@
 
     <Button
         android:id="@+id/btnREG"
-        android:layout_width="248dp"
-        android:layout_height="66dp"
+        android:layout_width="250dp"
+        android:layout_height="54dp"
         android:backgroundTint="#589633"
         android:fontFamily="sans-serif-medium"
         android:text="UNIRME A RECIPERU"
@@ -81,17 +81,16 @@
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.947" />
+        app:layout_constraintVertical_bias="0.837" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="359dp"
         android:layout_height="179dp"
         android:fontFamily="sans-serif-light"
-        android:gravity="center_vertical"
         android:text="¡Únete a ReciPeru y haz la diferencia en el cuidado del medio ambiente!  Con ReciPeru, podrás estar al tanto de los horarios de recolección de basura en tu área y tomar medidas para mantener limpio nuestro entorno. ¿Tienes problemas ambientales que quieres reportar? ¡No te preocupes! Con nuestra aplicación, puedes informar fácilmente sobre cualquier situación que requiera atención, desde vertederos ilegales hasta áreas contaminadas.  Además, podrás conectarte con otros ciudadanos comprometidos con la protección del medio ambiente, compartir ideas y encontrar soluciones juntos. Únete a nuestra comunidad y juntos hagamos de ReciPeru un lugar más limpio y sostenible para todos.  ¡Regístrate ahora y comienza a marcar la diferencia!"
-        android:textAlignment="center"
-        android:textSize="11sp"
+        android:gravity="center"
+        android:textSize="11.5sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -101,30 +100,31 @@
 
     <TextView
         android:id="@+id/textView5"
-        android:layout_width="331dp"
-        android:layout_height="27dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="Crea una contraseña que puedas recordar fácilmente."
-        android:textAlignment="center"
         android:textAllCaps="false"
         android:textSize="12sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.757" />
+        app:layout_constraintVertical_bias="0.693" />
 
     <EditText
         android:id="@+id/edtUsuarioREG"
-        android:layout_width="308dp"
-        android:layout_height="41dp"
+        android:layout_width="match_parent"
+        android:layout_height="51dp"
         android:ems="10"
         android:fontFamily="sans-serif-light"
         android:hint="Ingresa tus nombres y apellidos"
         android:inputType="text"
         android:textAlignment="center"
         android:textColor="#000000"
-        android:textSize="14sp"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
@@ -133,23 +133,24 @@
 
     <EditText
         android:id="@+id/edtCorreoREG"
-        android:layout_width="323dp"
+        android:layout_width="match_parent"
         android:layout_height="49dp"
         android:ems="10"
         android:fontFamily="sans-serif-light"
         android:hint="Ingresa aquí tu correo electrónico"
         android:inputType="textEmailAddress"
         android:textAlignment="center"
-        android:textSize="14sp"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.636" />
+        app:layout_constraintVertical_bias="0.605" />
 
     <EditText
         android:id="@+id/edtContrasenaREG"
-        android:layout_width="323dp"
+        android:layout_width="match_parent"
         android:layout_height="42dp"
         android:ems="10"
         android:fontFamily="sans-serif-light"
@@ -157,11 +158,46 @@
         android:inputType="textPassword"
         android:textAlignment="center"
         android:textColor="#000000"
-        android:textSize="14sp"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.812" />
+        app:layout_constraintVertical_bias="0.743" />
+
+    <ImageButton
+        android:id="@+id/btnGoogleREG"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.218"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.905"
+        app:srcCompat="@drawable/googleg_standard_color_18" />
+
+    <FrameLayout
+        android:id="@+id/loadingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#BA939393"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+
+        <ProgressBar
+            android:id="@+id/loadingIndicator"
+            style="@style/CustomProgressBar"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:padding="10dp"
+            android:visibility="gone" />
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

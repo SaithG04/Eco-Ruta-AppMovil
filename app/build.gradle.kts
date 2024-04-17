@@ -56,7 +56,8 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.firebaseDatabase)
-    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+    implementation(libs.firebase.bom)
     implementation("com.google.firebase:firebase-analytics")
+    implementation(libs.play.services.auth)
 }
 
