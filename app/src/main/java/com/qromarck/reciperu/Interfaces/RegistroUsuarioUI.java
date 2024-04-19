@@ -8,6 +8,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -54,7 +55,6 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         edtCorreo = findViewById(R.id.edtCorreoREG);
         edtContrasena = findViewById(R.id.edtContrasenaREG);
         Button registrarButton = findViewById(R.id.btnREG);
-        ImageButton registrarGoogleButton = findViewById(R.id.btnGoogleREG);
         loadingLayout = findViewById(R.id.loadingLayout);
         loadingIndicator = findViewById(R.id.loadingIndicator);
 
@@ -64,13 +64,6 @@ public class RegistroUsuarioUI extends AppCompatActivity {
                 if (validateCampos()) {
                     registrarUsuarioOnFireStore();
                 }
-            }
-        });
-
-        registrarGoogleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                registrarUsuarioOnFireStoreWithGoogleAccount();
             }
         });
     }
@@ -117,12 +110,6 @@ public class RegistroUsuarioUI extends AppCompatActivity {
                 e.printStackTrace(System.out);
             }
         });
-
-    }
-
-    private void registrarUsuarioOnFireStoreWithGoogleAccount() {
-        showLoadingIndicator();
-
 
     }
 

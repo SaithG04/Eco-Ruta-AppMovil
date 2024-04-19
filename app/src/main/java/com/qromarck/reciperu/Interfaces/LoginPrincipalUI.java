@@ -1,7 +1,5 @@
 package com.qromarck.reciperu.Interfaces;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
@@ -17,8 +15,11 @@ import android.content.Intent;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,6 +32,7 @@ import com.qromarck.reciperu.Utilities.*;
 
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -61,6 +63,7 @@ public class LoginPrincipalUI extends AppCompatActivity {
      * Instancia de FirebaseAuth para la autenticación de Firebase.
      */
     private FirebaseAuth mAuth;
+    private GoogleSignInClient mGSIClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +81,7 @@ public class LoginPrincipalUI extends AppCompatActivity {
         // Inicializar elementos de la interfaz de usuario
         Button btnRegistrarse = findViewById(R.id.btnRegistrar);
         Button btnLogin = findViewById(R.id.btnLoginLOG);
+        ImageView viewRegGoogle = findViewById(R.id.viewRegistrarGoogle);
         edtCorreo = findViewById(R.id.edtCorreoLOGIN);
         edtContrasena = findViewById(R.id.edtContraLOGIN);
         loadingLayout = findViewById(R.id.loadingLayout);
@@ -106,6 +110,15 @@ public class LoginPrincipalUI extends AppCompatActivity {
                 } else {
                     loginOnFireBase(correo, password); // Método para iniciar sesión en Firebase
                 }
+            }
+        });
+        viewRegGoogle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(getString(R.string.default_web_client_id))
+                        .requestEmail()
+                        .build();
             }
         });
     }

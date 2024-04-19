@@ -1,0 +1,15 @@
+[
+  {
+    "relation" : [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target" : {
+      "namespace" : "reciperu",
+      "package_name" : "com.qromarck.reciperu",
+      "sha256_cert_fingerprints" : [
+        07:B9:84:B9:64:53:2F:E7:04:D6:48:62:AC:55:87:AF:12:C1:15:CA:E3:B2:25:D7:29:46:E3:AA:2C:E7:AC:5E
+      ]
+    }
+  }
+]

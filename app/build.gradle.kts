@@ -60,5 +60,6 @@ dependencies {
     //noinspection UseTomlInstead
     implementation("com.google.firebase:firebase-analytics")
     implementation(libs.play.services.auth)
+    implementation("com.google.android.gms:play-services-auth:18.1.0")
 }
 
