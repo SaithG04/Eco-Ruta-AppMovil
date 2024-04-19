@@ -1,12 +1,16 @@
 package com.qromarck.reciperu.Interfaces;
 
 import android.content.SharedPreferences;
+import android.credentials.Credential;
+import android.credentials.GetCredentialResponse;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 
@@ -19,7 +23,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -116,10 +119,10 @@ public class LoginPrincipalUI extends AppCompatActivity {
         viewRegGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestIdToken(getString(R.string.default_web_client_id))
-                        .requestEmail()
-                        .build();
+//                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//                        .requestIdToken(getString(R.string.default_web_client_id))
+//                        .requestEmail()
+//                        .build();
             }
         });
     }
@@ -207,100 +210,4 @@ public class LoginPrincipalUI extends AppCompatActivity {
     private void hideLoadingIndicator() {
         CommonServiceUtilities.hideLoadingIndicator(LoginPrincipalUI.this, loadingLayout, loadingIndicator);
     }
-
-    private void log() {
-        // Define la URL de donde quieres obtener el JSON
-        String url = "https://reciperu2024.000webhostapp.com/.well-known/assetlinks.json";
-
-        // Crea una solicitud de cadena utilizando Volley
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String requestJson) {
-                        // CredentialManager.
-                        CredentialManager credentialManager = CredentialManager.create(getApplicationContext());
-
-                        // Retrieves the user's saved password for your app from their
-                        // password provider.
-                        GetPasswordOption getPasswordOption = new GetPasswordOption();
-
-                        // Get passkey from the user's public key credential provider.
-                        GetPublicKeyCredentialOption getPublicKeyCredentialOption =
-                                new GetPublicKeyCredentialOption(requestJson);
-
-
-                        GetCredentialRequest getCredRequest = new GetCredentialRequest.Builder()
-                                .addCredentialOption(getPasswordOption)
-                                .addCredentialOption(getPublicKeyCredentialOption)
-                                .build();
-
-                        credentialManager.getCredentialAsync(
-                                // Use activity based context to avoid undefined
-                                // system UI launching behavior
-                                LoginPrincipalUI.this,
-                                getCredRequest,
-                                null,
-                                null,
-                                new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
-                                    @Override
-                                    public void onResult(GetCredentialResponse result) {
-                                        handleSignIn(result);
-                                    }
-
-                                    @Override
-                                    public void onError(GetCredentialException e) {
-                                        handleFailure(e);
-                                    }
-                                }
-                        );
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                // Maneja el error de la solicitud
-            }
-        });
-
-        // Agrega la solicitud a la cola de Volley
-        Volley.newRequestQueue(this).add(stringRequest);
-    }
-
-    private void handleSignIn(GetCredentialResponse result) {
-        // Handle the successfully returned credential.
-        Credential credential = result.getCredential();
-        if (credential instanceof PublicKeyCredential) {
-            String responseJson = ((PublicKeyCredential) credential).getAuthenticationResponseJson();
-            // Share responseJson i.e. a GetCredentialResponse on your server to validate and authenticate
-        } else if (credential instanceof PasswordCredential) {
-            String username = ((PasswordCredential) credential).getId();
-            String password = ((PasswordCredential) credential).getPassword();
-            // Use id and password to send to your server to validate and authenticate
-        }
-//        else if (credential instanceof CustomCredential) {
-//            if (ExampleCustomCredential.TYPE.equals(credential.getType())) {
-//                try {
-//                    ExampleCustomCredential customCred = ExampleCustomCredential.createFrom(customCredential.getData());
-//                    // Extract the required credentials and complete the
-//                    // authentication as per the federated sign in or any external
-//                    // sign in library flow
-//                } catch (ExampleCustomCredential.ExampleCustomCredentialParsingException e) {
-//                    // Unlikely to happen. If it does, you likely need to update the
-//                    // dependency version of your external sign-in library.
-//                    Log.e(TAG, "Failed to parse an ExampleCustomCredential", e);
-//                }
-//            } else {
-//                // Catch any unrecognized custom credential type here.
-//                Log.e(TAG, "Unexpected type of credential");
-//            }
-//        }
-        else {
-            // Catch any unrecognized credential type here.
-            Log.e(TAG, "Unexpected type of credential");
-        }
-    }
-
-    private void handleFailure(GetCredentialException e) {
-        // Maneja el fallo de la obtención de credenciales
-    }
-
 }
