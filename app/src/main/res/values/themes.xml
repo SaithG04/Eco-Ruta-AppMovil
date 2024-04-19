@@ -1,9 +1,17 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.ReciPeru" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="LightTheme.ReciPeru" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Otros atributos del tema -->
+        <item name="colorPrimary">@color/gray</item>
+        <item name="colorPrimaryDark">@color/black</item>
+        <item name="colorAccent">@color/greenR</item>
     </style>
 
-    <style name="Theme.ReciPeru" parent="Base.Theme.ReciPeru" />
+    <style name="DarkTheme.ReciPeru" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Otros atributos del tema -->
+        <item name="colorPrimary">@color/gray</item>
+        <item name="colorPrimaryDark">@color/black</item>
+        <item name="colorAccent">@color/greenR</item>
+    </style>
 </resources>

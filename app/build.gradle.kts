@@ -60,9 +60,6 @@ dependencies {
     //noinspection UseTomlInstead
     implementation("com.google.firebase:firebase-analytics")
     implementation(libs.play.services.auth)
-    implementation(libs.credentials)
-    // optional - needed for credentials support from play services, for devices running
-    // Android 13 and below.
-    implementation(libs.credentials.play.services.auth)
+    implementation("com.google.android.gms:play-services-auth:18.1.0")
 }
 
