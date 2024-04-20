@@ -2,20 +2,12 @@ package com.qromarck.reciperu.Interfaces;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import com.qromarck.reciperu.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,80 +15,107 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.qromarck.reciperu.R;
 
 public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationClient;
-
-    // Lanzador para manejar la solicitud de permisos
-    private final ActivityResultLauncher<String[]> permissionLauncher = registerForActivityResult(
-            new ActivityResultContracts.RequestMultiplePermissions(),
-            permissions -> {
-                if (permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
-                        || permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
-                    enableLocation();
-                }
-            }
-    );
+    private FirebaseFirestore firestore;
+    private Marker currentUserMarker;
+    private ListenerRegistration usersLocationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_reci_maps_ui);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
-        // Inicializa el mapa
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        firestore = FirebaseFirestore.getInstance();
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         this.googleMap = googleMap;
 
-        // Verifica y solicita permisos de ubicación si es necesario
+        // Solicitar permisos de ubicación si es necesario
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // Solicita permisos de ubicación
-            permissionLauncher.launch(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION});
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
         } else {
             enableLocation();
         }
     }
 
     private void enableLocation() {
-        // Habilitar el botón de ubicación en el mapa
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             googleMap.setMyLocationEnabled(true);
 
-            // Obtener la ubicación actual usando FusedLocationProviderClient
-            fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                @Override
-                public void onSuccess(Location location) {
-                    // Verifica si la ubicación no es nula
-                    if (location != null) {
-                        // Centrar el mapa en la ubicación actual con un nivel de zoom específico
-                        LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                        float zoomLevel = 18.0f; // Nivel de zoom más adecuado
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, zoomLevel));
-
-                        // Agregar un marcador en la ubicación actual
-                        googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Ubicación actual"));
-                    }
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+                if (location != null) {
+                    LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 18.0f));
+                    currentUserMarker = googleMap.addMarker(new MarkerOptions().position(currentLocation));
+                    // Guardar la ubicación del usuario en Firebase
+                    saveUserLocation(location.getLatitude(), location.getLongitude());
+                    // Escuchar cambios en la base de datos de usuarios
+                    startListeningToUsersLocations();
                 }
             });
         }
     }
+
+    private void startListeningToUsersLocations() {
+        usersLocationListener = firestore.collection("users_locations").addSnapshotListener((value, error) -> {
+            if (error != null) {
+                return;
+            }
+
+            for (DocumentChange dc : value.getDocumentChanges()) {
+                if (dc.getType() == DocumentChange.Type.ADDED || dc.getType() == DocumentChange.Type.MODIFIED) {
+                    // Obtener la ubicación del usuario
+                    String userId = dc.getDocument().getId();
+                    double latitude = dc.getDocument().getDouble("latitude");
+                    double longitude = dc.getDocument().getDouble("longitude");
+
+                    // Actualizar o agregar marcador en el mapa
+                    LatLng userLocation = new LatLng(latitude, longitude);
+                    if (userId.equals(currentUserMarker.getTag())) {
+                        // Si es el usuario actual, actualizar la posición del marcador
+                        currentUserMarker.setPosition(userLocation);
+                    } else {
+                        // Si es otro usuario, agregar un nuevo marcador
+                        Marker marker = googleMap.addMarker(new MarkerOptions().position(userLocation));
+                        marker.setTag(userId);
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (usersLocationListener != null) {
+            usersLocationListener.remove();
+        }
+    }
+
+    // Método para guardar la ubicación del usuario en Firebase
+    private void saveUserLocation(double latitude, double longitude) {
+        // Puedes obtener el ID del usuario de la autenticación de Firebase o de otra manera
+        String userId = "user_id"; // Reemplaza esto con el ID del usuario
+        firestore.collection("users_locations").document(userId).set(new UserLocation(latitude, longitude));
+    }
 }
+
+
