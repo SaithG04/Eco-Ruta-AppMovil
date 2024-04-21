@@ -1,213 +1,166 @@
 package com.qromarck.reciperu.Interfaces;
 
-import android.content.SharedPreferences;
-import android.credentials.Credential;
-import android.credentials.GetCredentialResponse;
-import android.os.Build;
-import android.os.Bundle;
-import android.widget.Button;
-import android.view.View;
-
-import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-
+import android.Manifest;
 import android.content.Intent;
-
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
-import com.qromarck.reciperu.DAO.UsuarioDAO;
-import com.qromarck.reciperu.Entity.Usuario;
-import com.qromarck.reciperu.R;
-import com.qromarck.reciperu.Utilities.*;
-
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-/**
- * Clase que representa la interfaz de usuario principal de la aplicación.
- */
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.qromarck.reciperu.R;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class LoginPrincipalUI extends AppCompatActivity {
 
-    // Declaración de variables
-
-    /**
-     * Campo de texto para el correo electrónico.
-     */
     private EditText edtCorreo;
-    /**
-     * Campo de texto para la contraseña.
-     */
     private EditText edtContrasena;
-    /**
-     * Diseño de la interfaz de usuario para mostrar el indicador de carga.
-     */
     private FrameLayout loadingLayout;
-    /**
-     * Indicador de carga.
-     */
     private ProgressBar loadingIndicator;
-    /**
-     * Instancia de FirebaseAuth para la autenticación de Firebase.
-     */
     private FirebaseAuth mAuth;
-    private GoogleSignInClient mGSIClient;
+    private FusedLocationProviderClient fusedLocationClient;
+    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Establecer el diseño de la actividad y configurar bordes transparentes
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_principal_ui);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
-        // Inicializar elementos de la interfaz de usuario
-        Button btnRegistrarse = findViewById(R.id.btnRegistrar);
-        Button btnLogin = findViewById(R.id.btnLoginLOG);
-        ImageView viewRegGoogle = findViewById(R.id.viewRegistrarGoogle);
         edtCorreo = findViewById(R.id.edtCorreoLOGIN);
         edtContrasena = findViewById(R.id.edtContraLOGIN);
         loadingLayout = findViewById(R.id.loadingLayout);
         loadingIndicator = findViewById(R.id.loadingIndicator);
+        Button btnRegistrarse = findViewById(R.id.btnRegistrar);
+        Button btnLogin = findViewById(R.id.btnLoginLOG);
+        ImageView viewRegGoogle = findViewById(R.id.viewRegistrarGoogle);
 
-        // Inicializar FirebaseAuth para la autenticación de Firebase
         mAuth = FirebaseAuth.getInstance();
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        firestore = FirebaseFirestore.getInstance();
 
-        // Configurar el botón para abrir la actividad de registro de usuario
-        btnRegistrarse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(LoginPrincipalUI.this, RegistroUsuarioUI.class);
-                startActivity(intent);
+        btnRegistrarse.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginPrincipalUI.this, RegistroUsuarioUI.class);
+            startActivity(intent);
+        });
+
+        btnLogin.setOnClickListener(v -> {
+            String correo = edtCorreo.getText().toString();
+            String password = edtContrasena.getText().toString();
+            if (correo.isEmpty() || password.isEmpty()) {
+                Toast.makeText(LoginPrincipalUI.this, "¡Ey, faltan datos!", Toast.LENGTH_SHORT).show();
+            } else {
+                loginOnFireBase(correo, password);
             }
         });
 
-        // Configurar el botón de inicio de sesión
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String correo = edtCorreo.getText().toString();
-                String password = edtContrasena.getText().toString();
-                if (correo.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(LoginPrincipalUI.this, "¡Ey, faltan datos!", Toast.LENGTH_SHORT).show();
-                } else {
-                    loginOnFireBase(correo, password); // Método para iniciar sesión en Firebase
-
-                }
-            }
-        });
-        viewRegGoogle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//                        .requestIdToken(getString(R.string.default_web_client_id))
-//                        .requestEmail()
-//                        .build();
-            }
+        viewRegGoogle.setOnClickListener(v -> {
+            // Agregar aquí la lógica para iniciar sesión con Google
         });
     }
 
-    /**
-     * Método para iniciar sesión en Firebase.
-     *
-     * @param correo   Correo electrónico del usuario.
-     * @param password Contraseña del usuario.
-     */
     private void loginOnFireBase(String correo, String password) {
-        showLoadingIndicator(); // Mostrar indicador de carga
+        showLoadingIndicator();
 
-        // Crear un usuario con el correo proporcionado
-        Usuario userSearched = new Usuario();
-        userSearched.setEmail(correo);
-        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(userSearched, LoginPrincipalUI.this);
-
-        // Buscar usuario en Firebase
-        usuarioDAO.getUserOnFireBase(userSearched.getEmail(), new UsuarioDAOImpl.OnUserRetrievedListener() {
-            @Override
-            public void onUserRetrieved(Usuario usuario) {
-                if (usuario == null) { // Si no se encuentra el usuario
-                    hideLoadingIndicator(); // Ocultar indicador de carga
-                    Toast.makeText(LoginPrincipalUI.this, "No hay ninguna cuenta asociada a este correo.", Toast.LENGTH_LONG).show();
-                } else {
-                    // Iniciar sesión con el correo y la contraseña proporcionados
-                    mAuth.signInWithEmailAndPassword(correo, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                SharedPreferences.Editor editor = CommonServiceUtilities.getSystemEditor(LoginPrincipalUI.this);
-                                editor.putString("email", correo);
-                                editor.putString("fullName", usuario.getFull_name());
-                                editor.apply();
-                                DataAccessUtilities.usuario = usuario; // Establecer el usuario en DataAccessUtilities
-                                finish();
-                                startActivity(new Intent(LoginPrincipalUI.this, MenuUI.class)); // Abrir actividad del menú
-                            }
+        mAuth.signInWithEmailAndPassword(correo, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            obtenerUbicacionYAgregarALaBaseDeDatos(user.getUid());
                         }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            e.printStackTrace(System.out);
-                            String errorMessage = null;
-                            int duration = Toast.LENGTH_SHORT;
+                    } else {
+                        hideLoadingIndicator();
+                        Toast.makeText(LoginPrincipalUI.this, "Error al iniciar sesión. Por favor, verifique sus credenciales.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
-                            String errorCode = ((FirebaseAuthException) e).getErrorCode(); // Suponiendo que estás utilizando FirebaseAuthException
-                            System.out.println(errorCode);
-
-                            // Manejar diferentes tipos de errores de inicio de sesión
-                            if (e.getMessage().contains("The email address is badly formatted.")) {
-                                errorMessage = "¡Ups! Parece que el email que has ingresado no es válido.";
-                                edtCorreo.requestFocus();
-                            } else if (e.getMessage().contains("The supplied auth credential is incorrect, malformed or has expired.")) {
-                                errorMessage = "Verifique nuevamente su contraseña por favor.";
-                                edtContrasena.setText("");
-                                edtContrasena.requestFocus();
-                            } else if (e.getMessage().contains("We have blocked all requests from this device due to unusual activity. Try again later. [ Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later. ]")) {
-                                errorMessage = "Se ha bloqueado temporalmente el acceso a tu cuenta debido a demasiados intentos de inicio de sesión fallidos. Por favor, restablece tu contraseña o inténtalo más tarde.";
-                                duration = Toast.LENGTH_LONG;
-                            } else {
-                                errorMessage = "Lo sentimos, ha ocurrido un error.";
-                            }
-                            Toast.makeText(LoginPrincipalUI.this, errorMessage, duration).show();
-                            hideLoadingIndicator();
+    private void obtenerUbicacionYAgregarALaBaseDeDatos(String userId) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, location -> {
+                        if (location != null) {
+                            double latitude = location.getLatitude();
+                            double longitude = location.getLongitude();
+                            guardarUbicacionEnFirebase(userId, latitude, longitude);
                         }
                     });
-                }
-            }
-        });
-
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }
     }
 
-    /**
-     * Método para mostrar el indicador de carga.
-     */
+    private void guardarUbicacionEnFirebase(String userId, double latitude, double longitude) {
+        Map<String, Object> ubicacion = new HashMap<>();
+        ubicacion.put("latitude", latitude);
+        ubicacion.put("longitude", longitude);
+        ubicacion.put("timestamp", System.currentTimeMillis());
+
+        firestore.collection("users_locations")
+                .document(userId)
+                .set(ubicacion)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(LoginPrincipalUI.this, "Ubicación guardada correctamente", Toast.LENGTH_SHORT).show();
+                    hideLoadingIndicator();
+                    abrirMenu();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(LoginPrincipalUI.this, "Error al guardar la ubicación", Toast.LENGTH_SHORT).show();
+                    hideLoadingIndicator();
+                });
+    }
+
     private void showLoadingIndicator() {
-        CommonServiceUtilities.showLoadingIndicator(LoginPrincipalUI.this, loadingLayout, loadingIndicator);
+        loadingLayout.setVisibility(View.VISIBLE);
+        loadingIndicator.setVisibility(View.VISIBLE);
     }
 
-    /**
-     * Método para ocultar el indicador de carga.
-     */
     private void hideLoadingIndicator() {
-        CommonServiceUtilities.hideLoadingIndicator(LoginPrincipalUI.this, loadingLayout, loadingIndicator);
+        loadingLayout.setVisibility(View.GONE);
+        loadingIndicator.setVisibility(View.GONE);
+    }
+
+    private void abrirMenu() {
+        Intent intent = new Intent(LoginPrincipalUI.this, MenuUI.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permiso de ubicación concedido, obtener ubicación y agregar a la base de datos
+                FirebaseUser user = mAuth.getCurrentUser();
+                if (user != null) {
+                    obtenerUbicacionYAgregarALaBaseDeDatos(user.getUid());
+                }
+            } else {
+                // Permiso de ubicación denegado
+                Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
+                hideLoadingIndicator();
+            }
+        }
     }
 }
