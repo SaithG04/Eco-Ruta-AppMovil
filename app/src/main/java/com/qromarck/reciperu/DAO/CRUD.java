@@ -9,7 +9,7 @@ public interface CRUD<T> {
     void setEntity(T entity);
     void listarFromFireStore(DataAccessUtilities.OnDataRetrievedListener<T> listener);
 
-    void insertOnFireStore(Map<String, Object> userData);
+    void insertOnFireStore();
 
     void updateOnFireStore();
 

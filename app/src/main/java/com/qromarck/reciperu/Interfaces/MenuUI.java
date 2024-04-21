@@ -14,6 +14,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.CommonServiceUtilities;
 import com.qromarck.reciperu.Utilities.DataAccessUtilities;
@@ -38,7 +39,6 @@ public class MenuUI extends AppCompatActivity {
                 public void onClick(View v) {
                     // Crea un Intent para abrir otra actividad
                     Intent intent = new Intent(MenuUI.this, ReciMapsUI.class);
-
                     // Inicia la segunda actividad
                     startActivity(intent);
                 }
@@ -46,16 +46,18 @@ public class MenuUI extends AppCompatActivity {
             return insets;
         });
 
+        Usuario userLoggedOnSystem = CommonServiceUtilities.recuperarUsuario(MenuUI.this);
+
         // Verifica si el objeto Usuario está inicializado
-        if (DataAccessUtilities.usuario != null) {
+        if (userLoggedOnSystem != null) {
             // Obtiene el nombre de usuario y lo muestra en el TextView
-            String nombreUsuario = DataAccessUtilities.usuario.getFull_name();
+            String nombreUsuario = userLoggedOnSystem.getFull_name();
             TextView txvnombreUSER = findViewById(R.id.txvUSERNAME);
             txvnombreUSER.setText(String.format("Bienvenido, %s", nombreUsuario));
         } else {
             // Si el objeto Usuario es nulo, muestra un mensaje o toma alguna acción alternativa
             // Por ejemplo:
-            Toast.makeText(this, "Usuario no disponible", Toast.LENGTH_SHORT).show();
+            System.out.println("Usuario no disponible");
         }
 
         // Obtén el botón de cerrar sesión
@@ -75,10 +77,7 @@ public class MenuUI extends AppCompatActivity {
     private void cerrarSesion() {
         // Inicia la actividad principal
         Intent intent = new Intent(MenuUI.this, LoginPrincipalUI.class); // Reemplaza `PrincipalUI` con el nombre de tu actividad principal
-        DataAccessUtilities.usuario = null;
-        SharedPreferences.Editor editor = CommonServiceUtilities.getSystemEditor(MenuUI.this);
-        editor.clear();
-        editor.apply();
+        CommonServiceUtilities.guardarUsuario(MenuUI.this, null);
         startActivity(intent);
         // Finaliza la actividad actual
         finish();

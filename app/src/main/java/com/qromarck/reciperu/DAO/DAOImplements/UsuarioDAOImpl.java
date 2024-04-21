@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.*;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.Interfaces.LoginPrincipalUI;
+import com.qromarck.reciperu.Utilities.CommonServiceUtilities;
 import com.qromarck.reciperu.Utilities.DataAccessUtilities;
 
 import java.util.List;
@@ -43,9 +44,10 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
     }
 
     @Override
-    public void insertOnFireStore(Map<String, Object> userData) {
-        String documentId = Objects.requireNonNull(userData.get("id")).toString();
-        insertOnFireStore(COLLECTION_NAME, documentId, userData,
+    public void insertOnFireStore() {
+        Map<String, Object> entityToMap = entityToMap(usuario);
+        String documentId = Objects.requireNonNull(entityToMap.get("id")).toString();
+        insertOnFireStore(COLLECTION_NAME, documentId, entityToMap,
                 new OnInsertionListener() {
                     @Override
                     public void onInsertionSuccess() {
@@ -62,12 +64,23 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
                         System.out.println(errorMessage);
                     }
                 });
-
     }
 
     @Override
     public void updateOnFireStore() {
+        Map<String, Object> entityToMap = entityToMap(usuario);
+        String documentId = Objects.requireNonNull(entityToMap.get("id")).toString();
+        updateOnFireStore(COLLECTION_NAME, documentId, entityToMap, new OnUpdateListener() {
+            @Override
+            public void onUpdateComplete() {
 
+            }
+
+            @Override
+            public void onUpdateError(String errorMessage) {
+                System.out.println(errorMessage);
+            }
+        });
     }
 
     @Override

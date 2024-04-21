@@ -13,6 +13,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -40,21 +41,20 @@ public class DataAccessUtilities {
     public static String message = "";
     private boolean success = false;
 
-    public static Usuario usuario;
+//    public static Usuario userLoggedOnSystem;
     private CollectionReference reference;
-
-
-    public interface OnDataRetrievedListener<T> {
-        void onDataRetrieved(ArrayList<T> data);
-
-        void onError(String errorMessage);
-    }
 
 
     public interface OnInsertionListener {
         void onInsertionSuccess();
 
         void onInsertionError(String errorMessage);
+    }
+
+    public interface OnUpdateListener {
+        void onUpdateComplete();
+
+        void onUpdateError(String errorMessage);
     }
 
 
@@ -76,6 +76,28 @@ public class DataAccessUtilities {
                     public void onFailure(@NonNull Exception e) {
                         if (insertionListener != null) {
                             insertionListener.onInsertionError(e.getMessage());
+                        }
+                    }
+                });
+    }
+
+    public void updateOnFireStore(String collectionName, String documentId, Map<String, Object> data,
+                                  OnUpdateListener updateListener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection(collectionName).document(documentId).update(data)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (updateListener != null) {
+                            updateListener.onUpdateComplete();
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (updateListener != null) {
+                            updateListener.onUpdateError(e.getMessage());
                         }
                     }
                 });
@@ -444,4 +466,12 @@ public class DataAccessUtilities {
 
         void onError(String errorMessage);
     }
+
+    @Deprecated
+    public interface OnDataRetrievedListener<T> {
+        void onDataRetrieved(ArrayList<T> data);
+
+        void onError(String errorMessage);
+    }
+
 }
