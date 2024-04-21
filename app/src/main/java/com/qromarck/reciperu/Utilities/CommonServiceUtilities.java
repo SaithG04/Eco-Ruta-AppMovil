@@ -53,19 +53,19 @@ public class CommonServiceUtilities {
             String id = ((Usuario) entity).getId();
             String nombre = ((Usuario) entity).getFull_name();
             String correo = ((Usuario) entity).getEmail();
-            byte[] hashedPassword = ((Usuario) entity).getHashedPassword();
-            byte[] salt = ((Usuario) entity).getSalt();
+//            byte[] hashedPassword = ((Usuario) entity).getHashedPassword();
+//            byte[] salt = ((Usuario) entity).getSalt();
             String status = ((Usuario) entity).getStatus();
 
-            String hashedPasswordString = bytesToHex(hashedPassword);
-            String saltString = bytesToHex(salt);
+//            String hashedPasswordString = bytesToHex(hashedPassword);
+//            String saltString = bytesToHex(salt);
 
             return new Object[]{
                     id,
                     nombre,
                     correo,
-                    hashedPasswordString,
-                    saltString,
+//                    hashedPasswordString,
+//                    saltString,
                     status
             };
         }

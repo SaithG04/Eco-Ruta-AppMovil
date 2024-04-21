@@ -5,11 +5,12 @@ public class Usuario {
     private String id;
     private String full_name;
     private String email;
-    private byte[] hashedPassword;
-    private byte[] salt;
     private Date registro_date;
     private String status;
     private String type;
+    private double last_latitude;
+    private double last_longitude;
+    private Date last_update_ubication_date;
 
     // Constructores, getters y setters
 
@@ -18,16 +19,19 @@ public class Usuario {
     }
 
     // Constructor con todos los campos
-    public Usuario(String id, String full_name, String email, byte[] hashedPassword, byte[] salt, Date registro_date, String status, String type) {
+
+    public Usuario(String id, String full_name, String email, Date registro_date, String status, String type, double last_latitude, double last_longitude, Date last_update_ubication_date) {
         this.id = id;
         this.full_name = full_name;
         this.email = email;
-        this.hashedPassword = hashedPassword;
-        this.salt = salt;
         this.registro_date = registro_date;
         this.status = status;
         this.type = type;
+        this.last_latitude = last_latitude;
+        this.last_longitude = last_longitude;
+        this.last_update_ubication_date = last_update_ubication_date;
     }
+
 
     // Getters y setters para todos los campos
 
@@ -55,22 +59,6 @@ public class Usuario {
         this.email = email;
     }
 
-    public byte[] getHashedPassword() {
-        return hashedPassword;
-    }
-
-    public void setHashedPassword(byte[] hashedPassword) {
-        this.hashedPassword = hashedPassword;
-    }
-
-    public byte[] getSalt() {
-        return salt;
-    }
-
-    public void setSalt(byte[] salt) {
-        this.salt = salt;
-    }
-
     public Date getRegistro_date() {
         return registro_date;
     }
@@ -90,8 +78,31 @@ public class Usuario {
     public String getType() {
         return type;
     }
-
     public void setType(String type) {
         this.type = type;
+    }
+
+    public double getLast_latitude() {
+        return last_latitude;
+    }
+
+    public void setLast_latitude(double last_latitude) {
+        this.last_latitude = last_latitude;
+    }
+
+    public double getLast_longitude() {
+        return last_longitude;
+    }
+
+    public void setLast_longitude(double last_longitude) {
+        this.last_longitude = last_longitude;
+    }
+
+    public Date getLast_update_ubication_date() {
+        return last_update_ubication_date;
+    }
+
+    public void setLast_update_ubication_date(Date last_update_ubication_date) {
+        this.last_update_ubication_date = last_update_ubication_date;
     }
 }
