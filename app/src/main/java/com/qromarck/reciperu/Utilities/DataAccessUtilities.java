@@ -191,8 +191,8 @@ public class DataAccessUtilities {
                                         String salt = jsonObject.getString("salt");
                                         byte[] hashedPasswordBytes = hexStringToByteArray(hashedPasswordHex);
                                         byte[] saltBytes = hexStringToByteArray(salt);
-                                        usuario.setHashedPassword(hashedPasswordBytes);
-                                        usuario.setSalt(saltBytes);
+//                                        usuario.setHashedPassword(hashedPasswordBytes);
+//                                        usuario.setSalt(saltBytes);
                                         usuario.setStatus(jsonObject.getString("status"));
                                         System.out.println(usuario.toString());
                                         entityArrayList.add((T) usuario);
@@ -263,8 +263,8 @@ public class DataAccessUtilities {
                                     String salt = jsonObject.getString("salt");
                                     byte[] hashedPasswordBytes = hexStringToByteArray(hashedPasswordHex);
                                     byte[] saltBytes = hexStringToByteArray(salt);
-                                    usuario.setHashedPassword(hashedPasswordBytes);
-                                    usuario.setSalt(saltBytes);
+//                                    usuario.setHashedPassword(hashedPasswordBytes);
+//                                    usuario.setSalt(saltBytes);
                                     usuario.setStatus(jsonObject.getString("status"));
                                     System.out.println(usuario.toString());
                                     entity = (T) usuario;

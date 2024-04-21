@@ -1,6 +1,8 @@
 package com.qromarck.reciperu.Interfaces;
 
+import android.Manifest;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.credentials.Credential;
 import android.credentials.GetCredentialResponse;
 import android.os.Build;
@@ -12,6 +14,8 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 
 import android.content.Intent;
@@ -21,12 +25,15 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.Usuario;
@@ -38,6 +45,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Clase que representa la interfaz de usuario principal de la aplicación.
@@ -67,6 +78,9 @@ public class LoginPrincipalUI extends AppCompatActivity {
      */
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGSIClient;
+
+    private FusedLocationProviderClient fusedLocationClient;
+    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,10 +133,7 @@ public class LoginPrincipalUI extends AppCompatActivity {
         viewRegGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//                        .requestIdToken(getString(R.string.default_web_client_id))
-//                        .requestEmail()
-//                        .build();
+
             }
         });
     }
@@ -154,10 +165,6 @@ public class LoginPrincipalUI extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
-                                SharedPreferences.Editor editor = CommonServiceUtilities.getSystemEditor(LoginPrincipalUI.this);
-                                editor.putString("email", correo);
-                                editor.putString("fullName", usuario.getFull_name());
-                                editor.apply();
                                 DataAccessUtilities.usuario = usuario; // Establecer el usuario en DataAccessUtilities
                                 finish();
                                 startActivity(new Intent(LoginPrincipalUI.this, MenuUI.class)); // Abrir actividad del menú
@@ -195,6 +202,12 @@ public class LoginPrincipalUI extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void abrirMenu() {
+        Intent intent = new Intent(LoginPrincipalUI.this, MenuUI.class);
+        startActivity(intent);
+        finish();
     }
 
     /**

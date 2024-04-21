@@ -127,6 +127,9 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         map.put("registro_date", timestamp);
         map.put("status", initialState);
         map.put("type", defaultType);
+        map.put("last_latitude", 0.0);
+        map.put("last_longiteude", 0.0);
+        map.put("last_update_ubication_date", timestamp);
         return map;
     }
 
