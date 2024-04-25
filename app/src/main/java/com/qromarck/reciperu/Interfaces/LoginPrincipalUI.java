@@ -91,12 +91,21 @@ public class LoginPrincipalUI extends AppCompatActivity {
         // Inicializar FirebaseAuth para la autenticación de Firebase
         mAuth = FirebaseAuth.getInstance();
 
+        Usuario usuario = CommonServiceUtilities.recuperarUsuario(getApplicationContext());
+        if (usuario != null) {
+            // El usuario está logueado
+            // Puedes iniciar la actividad que corresponda, por ejemplo:
+            startActivity(new Intent(this, MenuUI.class));
+            finish();
+        }
+
         // Configurar el botón para abrir la actividad de registro de usuario
         btnRegistrarse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(LoginPrincipalUI.this, RegistroUsuarioUI.class);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -110,7 +119,6 @@ public class LoginPrincipalUI extends AppCompatActivity {
                     Toast.makeText(LoginPrincipalUI.this, "¡Ey, faltan datos!", Toast.LENGTH_SHORT).show();
                 } else {
                     loginOnFireBase(correo, password); // Método para iniciar sesión en Firebase
-
                 }
             }
         });

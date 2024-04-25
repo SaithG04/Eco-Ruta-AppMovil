@@ -1,7 +1,9 @@
 package com.qromarck.reciperu.Interfaces;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -42,6 +44,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
     private EditText edtUsuario, edtCorreo, edtContrasena;
     private FrameLayout loadingLayout;
     private ProgressBar loadingIndicator;
+    private boolean retroceso;
     FirebaseFirestore mFirestore;
     FirebaseAuth mAuth;
 
@@ -50,6 +53,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registro_ui);
 
+        retroceso = true;
         mFirestore = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         edtUsuario = findViewById(R.id.edtUsuarioREG);
@@ -72,14 +76,53 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        hideLoadingIndicator();
+        if(retroceso){
+            Intent intent = new Intent(RegistroUsuarioUI.this, LoginPrincipalUI.class);
+            startActivity(intent);
+        }
+    }
+
     private void registrarUsuarioOnFireStore(Usuario usuario) {
         showLoadingIndicator();
         mAuth.createUserWithEmailAndPassword(usuario.getEmail(), edtContrasena.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, RegistroUsuarioUI.this);
-                    usuarioDAO.insertOnFireStore();
+                    mAuth.signInWithEmailAndPassword(usuario.getEmail(), edtContrasena.getText().toString())
+                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+
+                                        retroceso = false;
+                                       //Se le asigna el id generado por firebase al nuevo usuario y se procede a registrar en firestore el resto de sus datos
+                                        usuario.setId(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+                                        usuario.setStatus("logged in");
+
+                                        CommonServiceUtilities.guardarUsuario(RegistroUsuarioUI.this, usuario);
+
+                                        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, RegistroUsuarioUI.this);
+                                        usuarioDAO.insertOnFireStore();
+
+//                                        usuario.setStatus("logged in");
+                                        CommonServiceUtilities.guardarUsuario(RegistroUsuarioUI.this, usuario);
+
+//                                        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, LoginPrincipalUI.this);
+//                                        usuarioDAO.updateOnFireStore();
+                                        // Después de agregar al usuario a Firestore
+//                                        FirebaseAuth.getInstance().signOut();
+                                    } else {
+                                        System.out.println("NO SE AUTENTICO");
+                                    }
+                                }
+                            });
+                }else{
+                    Log.e("REGISTRO", "NO SE REGISTRO AL USUARIO");
+                    hideLoadingIndicator();
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -133,16 +176,13 @@ public class RegistroUsuarioUI extends AppCompatActivity {
     @NonNull
     private Usuario crearUsuario() {
 
-        FirebaseUser nuevoUsuario = mAuth.getCurrentUser();
-
-        String id = Objects.requireNonNull(nuevoUsuario).getUid();
         String fullName = edtUsuario.getText().toString();
         String email = edtCorreo.getText().toString();
         Timestamp registro_date = new Timestamp(new Date());
         String status = "logged out";
         String type = "usuario";
 
-        return new Usuario(id, fullName, email, registro_date, status, type);
+        return new Usuario(fullName, email, registro_date, status, type);
     }
 
     /**

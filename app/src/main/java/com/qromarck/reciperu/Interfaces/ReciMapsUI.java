@@ -55,7 +55,7 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
     private Usuario userLoggedOnSystem;
     private LocationManager locationManager;
     private AlertDialog dialog;
-    private static final int REQUEST_LOCATION_PERMISSION = 1;
+    public static final int REQUEST_LOCATION_PERMISSION = 1;
     Location lastKnownLocation;
     private Geocoder geocoder;
     private Marker otherUserMarker;
@@ -86,8 +86,9 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         super.onResume();
         if (!isConductor()) {
             updateUbicationOfConductor();
-            configureUpdates();
+//            configureUpdates();
         }
+        configureUpdates();
         updateLastUbication();
     }
 
@@ -129,9 +130,9 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        if (!isConductor()) {
+//        if (!isConductor()) {
             updateLastUbication();
-        }
+//        }
     }
 
     @Override

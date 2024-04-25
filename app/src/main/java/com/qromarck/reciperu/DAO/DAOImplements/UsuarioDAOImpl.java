@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.*;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.Interfaces.LoginPrincipalUI;
+import com.qromarck.reciperu.Interfaces.MenuUI;
 import com.qromarck.reciperu.Utilities.CommonServiceUtilities;
 import com.qromarck.reciperu.Utilities.DataAccessUtilities;
 
@@ -53,7 +54,7 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
                     public void onInsertionSuccess() {
                         Toast.makeText(activity.getApplicationContext(), "¡En hora buena, ahora eres parte de esta familia!.", Toast.LENGTH_LONG).show();
                         activity.finish();
-                        Intent intent = new Intent(activity.getApplicationContext(), LoginPrincipalUI.class);
+                        Intent intent = new Intent(activity.getApplicationContext(), MenuUI.class);
                         activity.startActivity(intent);
                     }
 
@@ -61,6 +62,9 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
                     public void onInsertionError(String errorMessage) {
                         // Manejar el fallo desde cualquier clase
                         Toast.makeText(activity.getApplicationContext(), "Error al registrar... ", Toast.LENGTH_SHORT).show();
+                        activity.finish();
+                        Intent intent = new Intent(activity.getApplicationContext(), LoginPrincipalUI.class);
+                        activity.startActivity(intent);
                         System.out.println(errorMessage);
                     }
                 });

@@ -25,6 +25,7 @@
         <activity
             android:name=".Interfaces.ReciMapsUI"
             android:exported="true"
+            android:launchMode="singleTask"
             android:label="@string/title_activity_reci_maps" />
 
         <meta-data
@@ -35,6 +36,7 @@
             android:resource="@string/asset_statements" />
         <activity
             android:name=".Interfaces.MenuUI"
+            android:launchMode="singleTask"
             android:exported="false" />
         <activity
             android:name=".Interfaces.RegistroUsuarioUI"
