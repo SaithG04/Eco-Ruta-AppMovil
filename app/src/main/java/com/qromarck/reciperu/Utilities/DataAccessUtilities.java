@@ -18,6 +18,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -40,8 +42,7 @@ public class DataAccessUtilities {
     private static final int MY_SOCKET_TIMEOUT_MS = 5000; // 5 segundos
     public static String message = "";
     private boolean success = false;
-
-//    public static Usuario userLoggedOnSystem;
+    public static Usuario userLoggedOnSystem;
     private CollectionReference reference;
 
 
@@ -146,6 +147,29 @@ public class DataAccessUtilities {
                 });
 
         return taskCompletionSource.getTask();
+    }
+
+    public void insertOnFireStoreRealtime(String collectionName, String documentId, Map<String, Object> data,
+                                  OnInsertionListener insertionListener) {
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = db.getReference(collectionName).child(documentId);
+
+        databaseReference.setValue(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                if (insertionListener != null) {
+                    insertionListener.onInsertionSuccess();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (insertionListener != null) {
+                    insertionListener.onInsertionError(e.getMessage());
+                    e.printStackTrace(System.err);
+                }
+            }
+        });
     }
 
     @Deprecated

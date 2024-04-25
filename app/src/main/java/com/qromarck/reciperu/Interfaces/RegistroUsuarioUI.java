@@ -139,12 +139,10 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         String fullName = edtUsuario.getText().toString();
         String email = edtCorreo.getText().toString();
         Timestamp registro_date = new Timestamp(new Date());
-        String status = "logued out";
+        String status = "logged out";
         String type = "usuario";
-        double last_latitude = 0.0;
-        double last_longitude = 0.0;
 
-        return new Usuario(id, fullName, email, registro_date, status, type, last_latitude, last_longitude, registro_date);
+        return new Usuario(id, fullName, email, registro_date, status, type);
     }
 
     /**

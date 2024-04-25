@@ -14,6 +14,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
+import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.CommonServiceUtilities;
@@ -77,10 +79,18 @@ public class MenuUI extends AppCompatActivity {
     private void cerrarSesion() {
         // Inicia la actividad principal
         Intent intent = new Intent(MenuUI.this, LoginPrincipalUI.class); // Reemplaza `PrincipalUI` con el nombre de tu actividad principal
+        Usuario usuario = CommonServiceUtilities.recuperarUsuario(MenuUI.this);
+        usuario.setStatus("logged out");
+        desloguearUser(usuario);
         CommonServiceUtilities.guardarUsuario(MenuUI.this, null);
         startActivity(intent);
         // Finaliza la actividad actual
         finish();
+    }
+
+    private void desloguearUser(Usuario usuario) {
+        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, MenuUI.this);
+        usuarioDAO.updateOnFireStore();
     }
 
 }
