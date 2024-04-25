@@ -20,6 +20,7 @@ playServicesLocation = "21.2.0"
 firebaseFirestore = "24.11.1"
 firebaseAuth = "22.3.1"
 playServicesAuth = "21.1.0"
+supportAnnotations = "28.0.0"
 
 [libraries]
 
@@ -43,6 +44,7 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
+support-annotations = { group = "com.android.support", name = "support-annotations", version.ref = "supportAnnotations" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
