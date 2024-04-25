@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "790248094002",
+    "firebase_url": "https://reciperu-9ab32-default-rtdb.firebaseio.com",
+    "project_id": "reciperu-9ab32",
+    "storage_bucket": "reciperu-9ab32.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:790248094002:android:f1acdeaa4c4ad0cc813f2b",
+        "android_client_info": {
+          "package_name": "com.qromarck.reciperu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "790248094002-7nbg03j1nc3e61h3b1s1bqsml1gts48v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.qromarck.reciperu",
+            "certificate_hash": "d586070f8de89de29c55c69e89285f7f515dc64e"
+          }
+        },
+        {
+          "client_id": "790248094002-nhlom2819g7sqda5g4v5dp0ugilsasg9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1tzllDIbW0RzFKQDxBc9pTfpQV8KppKU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "790248094002-nhlom2819g7sqda5g4v5dp0ugilsasg9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
