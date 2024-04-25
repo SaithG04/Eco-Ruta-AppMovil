@@ -1,21 +1,12 @@
 package com.qromarck.reciperu.Interfaces;
 
-import android.Manifest;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.credentials.Credential;
-import android.credentials.GetCredentialResponse;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 
 import android.content.Intent;
@@ -24,12 +15,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -46,9 +36,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
 
 /**
  * Clase que representa la interfaz de usuario principal de la aplicación.
@@ -77,10 +65,6 @@ public class LoginPrincipalUI extends AppCompatActivity {
      * Instancia de FirebaseAuth para la autenticación de Firebase.
      */
     private FirebaseAuth mAuth;
-    private GoogleSignInClient mGSIClient;
-
-    private FusedLocationProviderClient fusedLocationClient;
-    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,7 +149,9 @@ public class LoginPrincipalUI extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
-                                DataAccessUtilities.usuario = usuario; // Establecer el usuario en DataAccessUtilities
+                                usuario.setStatus("logged in");
+                                CommonServiceUtilities.guardarUsuario(LoginPrincipalUI.this, usuario);
+                                loguearUser(usuario);
                                 finish();
                                 startActivity(new Intent(LoginPrincipalUI.this, MenuUI.class)); // Abrir actividad del menú
                             }
@@ -177,11 +163,8 @@ public class LoginPrincipalUI extends AppCompatActivity {
                             String errorMessage = null;
                             int duration = Toast.LENGTH_SHORT;
 
-                            String errorCode = ((FirebaseAuthException) e).getErrorCode(); // Suponiendo que estás utilizando FirebaseAuthException
-                            System.out.println(errorCode);
-
                             // Manejar diferentes tipos de errores de inicio de sesión
-                            if (e.getMessage().contains("The email address is badly formatted.")) {
+                            if (Objects.requireNonNull(e.getMessage()).contains("The email address is badly formatted.")) {
                                 errorMessage = "¡Ups! Parece que el email que has ingresado no es válido.";
                                 edtCorreo.requestFocus();
                             } else if (e.getMessage().contains("The supplied auth credential is incorrect, malformed or has expired.")) {
@@ -194,6 +177,8 @@ public class LoginPrincipalUI extends AppCompatActivity {
                             } else {
                                 errorMessage = "Lo sentimos, ha ocurrido un error.";
                             }
+
+
                             Toast.makeText(LoginPrincipalUI.this, errorMessage, duration).show();
                             hideLoadingIndicator();
                         }
@@ -208,6 +193,11 @@ public class LoginPrincipalUI extends AppCompatActivity {
         Intent intent = new Intent(LoginPrincipalUI.this, MenuUI.class);
         startActivity(intent);
         finish();
+    }
+
+    private void loguearUser(Usuario usuario) {
+        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, LoginPrincipalUI.this);
+        usuarioDAO.updateOnFireStore();
     }
 
     /**

@@ -1,8 +1,18 @@
 package com.qromarck.reciperu.Interfaces;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.Settings;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,170 +25,357 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.qromarck.reciperu.DAO.DAOImplements.LocationDAOImpl;
+import com.qromarck.reciperu.DAO.LocationDAO;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
-import com.qromarck.reciperu.Utilities.DataAccessUtilities;
+import com.qromarck.reciperu.Utilities.CommonServiceUtilities;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
-public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback {
+public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
 
     private GoogleMap googleMap;
-    private FusedLocationProviderClient fusedLocationClient;
-    private FirebaseFirestore firestore;
-    private Marker currentUserMarker;
-    private ListenerRegistration usersLocationListener;
+    private boolean mapReady = false;
+    private Usuario userLoggedOnSystem;
+    private LocationManager locationManager;
+    private AlertDialog dialog;
+    private static final int REQUEST_LOCATION_PERMISSION = 1;
+    Location lastKnownLocation;
+    private Geocoder geocoder;
+    private Marker otherUserMarker;
+    private final Handler handlerConductor = new Handler();
+    private final Handler handlerUser = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reci_maps_ui);
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        firestore = FirebaseFirestore.getInstance();
-        obtenerUbicacionYAgregarALaBaseDeDatos(DataAccessUtilities.usuario.getId());
+        initializeUI();
+        checkLocationPermissions();
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         this.googleMap = googleMap;
-
-        // Solicitar permisos de ubicación si es necesario
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-        } else {
-            enableLocation();
+        mapReady = true;
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
         }
+        googleMap.setMyLocationEnabled(true);
     }
 
-    private void enableLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            googleMap.setMyLocationEnabled(true);
-
-            fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-                if (location != null) {
-                    LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 18.0f));
-                    currentUserMarker = googleMap.addMarker(new MarkerOptions().position(currentLocation));
-                    // Guardar la ubicación del usuario en Firebase
-//                    saveUserLocation(location.getLatitude(), location.getLongitude());
-                    // Escuchar cambios en la base de datos de usuarios
-                    startListeningToUsersLocations();
-                }
-            });
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isConductor()) {
+            updateUbicationOfConductor();
+            configureUpdates();
         }
+        updateLastUbication();
     }
 
-    private void startListeningToUsersLocations() {
-        usersLocationListener = firestore.collection("usuarios").addSnapshotListener((value, error) -> {
-            if (error != null) {
-                return;
-            }
-            System.out.println(usersLocationListener);
-            for (DocumentChange dc : value.getDocumentChanges()) {
-                if (dc.getType() == DocumentChange.Type.ADDED || dc.getType() == DocumentChange.Type.MODIFIED) {
-                    try {
-                        // Obtener la ubicación del usuario
-                        String userId = dc.getDocument().getId();
-                        double latitude = dc.getDocument().getDouble("last_latitude");
-                        double longitude = dc.getDocument().getDouble("last_longitude");
+    @Override
+    protected void onStop() {
+        super.onStop();
+        destroyDialog();
+        handlerUser.removeCallbacksAndMessages(null);
+    }
 
-                        Date date = new Date();
-                        Timestamp timestamp= new Timestamp(date);
-
-                        // Actualizar o agregar marcador en el mapa
-                        LatLng userLocation = new LatLng(latitude, longitude);
-                        if (userId.equals(currentUserMarker.getTag())) {
-                            // Si es el usuario actual, actualizar la posición del marcador
-                            currentUserMarker.setPosition(userLocation);
-                            guardarUbicacionEnFirebase(userId, latitude, longitude, timestamp);
-                        } else {
-                            // Si es otro usuario, agregar un nuevo marcador
-                            Marker marker = googleMap.addMarker(new MarkerOptions().position(userLocation));
-                            marker.setTag(userId);
-                        }
-                    } catch (Exception exception) {
-                        exception.printStackTrace(System.out);
-                    }
-
-                }
-            }
-        });
+    @Override
+    protected void onPause() {
+        super.onPause();
+        destroyDialog();
+        handlerUser.removeCallbacksAndMessages(null);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (usersLocationListener != null) {
-            usersLocationListener.remove();
-        }
+        destroyDialog();
+        handlerConductor.removeCallbacksAndMessages(null);
+        handlerUser.removeCallbacksAndMessages(null);
     }
 
 
-    private void obtenerUbicacionYAgregarALaBaseDeDatos(String userId) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, location -> {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                updateLastUbication();
+            } else {
+                finish();
+                startActivity(new Intent(ReciMapsUI.this, MenuUI.class));
+            }
+        }
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        if (!isConductor()) {
+            updateLastUbication();
+        }
+    }
+
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        lastKnownLocation = location;
+    }
+
+    @Override
+    public void onProviderEnabled(@NonNull String provider) {
+        if (!isFinishing() && !isDestroyed()) {
+            System.out.println("GPS ACTIVADO");
+            destroyDialog();
+            if (isConductor()) {
+                updateMyUbicationAsConductor();
+            } else {
+                updateUbicationOfConductor();
+            }
+        }
+    }
+
+    @Override
+    public void onProviderDisabled(@NonNull String provider) {
+        if (!isFinishing() && !isDestroyed()) {
+            System.out.println("GPS DESACTIVADO");
+            if (provider.equals(LocationManager.GPS_PROVIDER)) {
+                System.out.println(provider);
+                if (dialog == null || !dialog.isShowing()) {
+                    dialog = new AlertDialog.Builder(this)
+                            .setMessage("Por favor, habilite su ubicación para continuar.")
+                            .setPositiveButton("Configuración", (dialog, which) -> {
+                                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                startActivity(intent);
+                            })
+                            .setNegativeButton("Cancelar", (dialog, which) -> {
+                                finish();
+                                startActivity(new Intent(ReciMapsUI.this, MenuUI.class));
+                            })
+                            .setCancelable(false) // Evita que se cierre tocando fuera del diálogo
+                            .show();
+                    if (isConductor()) {
+                        handlerConductor.removeCallbacksAndMessages(null);
+                    } else {
+                        handlerUser.removeCallbacksAndMessages(null);
+                    }
+                }
+            }else{
+                System.out.println(provider);
+            }
+        }
+    }
+
+    public void updateLastUbication() {
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
                         if (location != null) {
-                            double latitude = location.getLatitude();
-                            double longitude = location.getLongitude();
-                            guardarUbicacionEnFirebase(userId, latitude, longitude, new Timestamp(new Date()));
+                            moveCamera(location);
+                        } else {
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ReciMapsUI.this.updateLastUbication();
+                                }
+                            }, 1000);
+
                         }
-                    });
+                    }
+                });
+
+    }
+
+    private void updateMyUbicationAsConductor() {
+        handlerConductor.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Llama al método para obtener la ubicación del otro usuario
+                updateLastUbication();
+                // Programa la próxima actualización después de un intervalo de tiempo (por ejemplo, 1 segundo)
+                handlerConductor.postDelayed(this, 1000);
+            }
+        }, 1000); // Llama al método inicialmente después de 1 segundo
+    }
+
+    private void updateUbicationOfConductor() {
+        handlerUser.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("Obteniendo ubi del conductor...");
+                // Llama al método para obtener la ubicación del otro usuario
+                getConductorUbication();
+                // Programa la próxima actualización después de un intervalo de tiempo (por ejemplo, 1 segundo)
+                handlerUser.postDelayed(this, 3000);
+            }
+        }, 1000); // Llama al método inicialmente después de 1 segundo
+    }
+
+    private void configureUpdates() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && mapReady) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    6000,   // Intervalo de actualización en milisegundos (5 minutos)
+                    5, this); // Distancia mínima de cambio en metros
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            requestLocationPermission();
         }
     }
 
-    private void guardarUbicacionEnFirebase(String userId, double latitude, double longitude, Timestamp timestamp) {
-
-        Usuario usuario = DataAccessUtilities.usuario;
-        String id = usuario.getId();
-        String full_name = usuario.getFull_name();
-        String email = usuario.getEmail();
-        Date registro_date = usuario.getRegistro_date();
-        String status = usuario.getStatus();
-        String type = usuario.getType();
-
-        Map<String, Object> ubicacion = new HashMap<>();
-        ubicacion.put("id", id);
-        ubicacion.put("full_name", full_name);
-        ubicacion.put("email", email);
-        ubicacion.put("registro_date", registro_date);
-        ubicacion.put("status", status);
-        ubicacion.put("type", type);
-        ubicacion.put("last_latitude", latitude);
-        ubicacion.put("last_longiteude", longitude);
-        ubicacion.put("last_update_ubication_date", timestamp);
-
-        firestore.collection("usuarios")
-                .document(userId)
-                .set(ubicacion)
-                .addOnSuccessListener(aVoid -> {
-                    System.out.println(ubicacion);
-                })
-                .addOnFailureListener(e -> {
-                    e.printStackTrace(System.out);
-                });
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
     }
 
-    // Método para guardar la ubicación del usuario en Firebase
-//    private void saveUserLocation(double latitude, double longitude) {
-//        firestore.collection("usuarios").document(DataAccessUtilities.usuario.getId()).set(new UserLocation(latitude, longitude));
-//    }
+    private void moveCamera(Location location) {
+        float zoom = 18.0f;
+        if (isConductor()) {
+            zoom = 15.0f;
+        }
+        if (location != null) {
+            if (googleMap != null) {
+                LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(currentLocation)
+                        .zoom(zoom)
+                        .build();
+                googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                saveOnFB(location);
+                CommonServiceUtilities.guardarUsuario(ReciMapsUI.this, userLoggedOnSystem);
+            } else {
+                new Handler().postDelayed(this::updateLastUbication, 1000);
+            }
+        } else {
+            new Handler().postDelayed(this::updateLastUbication, 1000);
+        }
+
+    }
+
+    private void saveOnFB(Location location) {
+
+        com.qromarck.reciperu.Entity.Location locationUp = new com.qromarck.reciperu.Entity.Location();
+        String city = getCityFromLocation(location, geocoder);
+        locationUp.setUserId(userLoggedOnSystem.getId());
+        locationUp.setLatitude(location.getLatitude());
+        locationUp.setLongitude(location.getLongitude());
+        locationUp.setCity(city);
+        LocationDAO locationDAO = new LocationDAOImpl(locationUp);
+        locationDAO.insertOnFireStore();
+    }
+
+    private String getCityFromLocation(Location location, Geocoder geocoder) {
+        try {
+            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                String city = addresses.get(0).getLocality();
+                if (city != null) {
+                    return city;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace(System.out);
+        }
+        return null;
+    }
+
+    private void setMarkerOfConductor(double latitude, double longitude) {
+        if (googleMap != null) {
+            LatLng otherUserLocation = new LatLng(latitude, longitude);
+
+            // Cargar el icono personalizado desde los recursos
+            BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.truck_icon);
+            //BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(otherUserLocation)
+                    .title("CONDUCTOR")
+                    .icon(icon); // Personalizar el icono del marcador
+
+            // Elimina el marcador anterior del otro usuario si ya existe
+            if (otherUserMarker != null) {
+                otherUserMarker.remove();
+            }
+
+            // Agrega el nuevo marcador del otro usuario en el mapa
+            otherUserMarker = googleMap.addMarker(markerOptions);
+        }
+    }
+
+
+    // Método para escuchar los cambios en la ubicación del otro usuario en Firebase Realtime Database
+    private void getConductorUbication() {
+        String otherUserId = "2PEUsE6tkVRlvsm9KmVHVxutmBw1";
+        DatabaseReference otherUserLocationRef = FirebaseDatabase.getInstance().getReference("user_locations").child(otherUserId);
+        otherUserLocationRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // Obtener la ubicación del conductor desde el DataSnapshot
+                double latitude = dataSnapshot.child("latitude").getValue(Double.class);
+                double longitude = dataSnapshot.child("longitude").getValue(Double.class);
+
+                // Agregar el marcador del conductor en el mapa
+                setMarkerOfConductor(latitude, longitude);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Manejar errores de lectura de datos
+                Log.e("FirebaseDatabase", "Error al obtener la ubicación del conductor: " + databaseError.getMessage());
+            }
+        });
+    }
+
+    private boolean isConductor() {
+        return CommonServiceUtilities.recuperarUsuario(ReciMapsUI.this).getType().equals("conductor");
+    }
+
+    private void destroyDialog() {
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+        }
+    }
+
+
+    private void initializeUI() {
+        userLoggedOnSystem = CommonServiceUtilities.recuperarUsuario(ReciMapsUI.this);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        Objects.requireNonNull(mapFragment).getMapAsync(this);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        geocoder = new Geocoder(this, Locale.getDefault());
+    }
+
+    private void checkLocationPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            updateLastUbication();
+            if (isConductor()) {
+                updateMyUbicationAsConductor();
+            } else {
+                updateUbicationOfConductor();
+            }
+        } else {
+            requestLocationPermission();
+        }
+    }
+
 }
-
-

@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -21,6 +22,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
@@ -33,11 +35,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 public class RegistroUsuarioUI extends AppCompatActivity {
 
     private EditText edtUsuario, edtCorreo, edtContrasena;
-
     private FrameLayout loadingLayout;
     private ProgressBar loadingIndicator;
     FirebaseFirestore mFirestore;
@@ -63,28 +65,21 @@ public class RegistroUsuarioUI extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (validateCampos()) {
-                    registrarUsuarioOnFireStore();
+                    Usuario nuevoUsuario = crearUsuario();
+                    registrarUsuarioOnFireStore(nuevoUsuario);
                 }
             }
         });
     }
 
-    private void registrarUsuarioOnFireStore() {
+    private void registrarUsuarioOnFireStore(Usuario usuario) {
         showLoadingIndicator();
-        String fullName = edtUsuario.getText().toString();
-        String email = edtCorreo.getText().toString();
-        String password = edtContrasena.getText().toString();
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        mAuth.createUserWithEmailAndPassword(usuario.getEmail(), edtContrasena.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-
-                    String id = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-                    Date date = new Date();
-                    Map<String, Object> map = getStringObjectMap(date, id, fullName, email);
-
-                    UsuarioDAO usuarioDAO = new UsuarioDAOImpl(new Usuario(), RegistroUsuarioUI.this);
-                    usuarioDAO.insertOnFireStore(map);
+                    UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, RegistroUsuarioUI.this);
+                    usuarioDAO.insertOnFireStore();
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -93,12 +88,14 @@ public class RegistroUsuarioUI extends AppCompatActivity {
                 String errorMessage;
                 if (Objects.requireNonNull(e.getMessage()).contains("The email address is already in use by another account.")) {
                     errorMessage = "¡Ups! Parece que alguien más ya está usando ese email.";
-                    edtCorreo.setText("");
+                    edtCorreo.setError("");
                     edtCorreo.requestFocus();
                 } else if (e.getMessage().contains("The email address is badly formatted.")) {
                     errorMessage = "¡Ups! Parece que el email que has ingresado no es válido.";
+                    edtCorreo.setError("");
                     edtCorreo.requestFocus();
                 } else if (e.getMessage().contains("The given password is invalid. [ Password should be at least 6 characters ]")) {
+                    edtContrasena.setError("");
                     errorMessage = "Tu contraseña debe contener al menos 6 caracteres.";
                     edtContrasena.requestFocus();
                 } else if (e.getMessage().contains("A network error (such as timeout, interrupted connection or unreachable host) has occurred.")) {
@@ -114,42 +111,38 @@ public class RegistroUsuarioUI extends AppCompatActivity {
 
     }
 
-    @NonNull
-    private static Map<String, Object> getStringObjectMap(Date date, String id, String fullName, String email) {
-        Timestamp timestamp = new Timestamp(date);
-        String initialState = "logued out";
-        String defaultType = "usuario";
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("id", id);
-        map.put("full_name", fullName);
-        map.put("email", email);
-        map.put("registro_date", timestamp);
-        map.put("status", initialState);
-        map.put("type", defaultType);
-        map.put("last_latitude", 0.0);
-        map.put("last_longiteude", 0.0);
-        map.put("last_update_ubication_date", timestamp);
-        return map;
-    }
-
     private boolean validateCampos() {
         String fullName = edtUsuario.getText().toString();
         String email = edtCorreo.getText().toString();
         String password = edtContrasena.getText().toString();
 
         if (fullName.isEmpty()) {
-            Toast.makeText(RegistroUsuarioUI.this, "Ingrese su nombre completo", Toast.LENGTH_SHORT).show();
+            edtUsuario.setError("Ingrese su nombre completo");
             return false;
         } else if (email.isEmpty()) {
-            Toast.makeText(RegistroUsuarioUI.this, "Ingrese su correo", Toast.LENGTH_SHORT).show();
+            edtCorreo.setError("Ingrese su correo");
             return false;
         } else if (password.isEmpty()) {
-            Toast.makeText(RegistroUsuarioUI.this, "Ingrese una contraseña", Toast.LENGTH_SHORT).show();
+            edtContrasena.setError("Ingrese una clave");
             return false;
         } else {
             return true;
         }
+    }
+
+    @NonNull
+    private Usuario crearUsuario() {
+
+        FirebaseUser nuevoUsuario = mAuth.getCurrentUser();
+
+        String id = Objects.requireNonNull(nuevoUsuario).getUid();
+        String fullName = edtUsuario.getText().toString();
+        String email = edtCorreo.getText().toString();
+        Timestamp registro_date = new Timestamp(new Date());
+        String status = "logged out";
+        String type = "usuario";
+
+        return new Usuario(id, fullName, email, registro_date, status, type);
     }
 
     /**

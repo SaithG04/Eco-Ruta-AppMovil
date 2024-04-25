@@ -138,27 +138,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.451" />
 
-    <FrameLayout
-        android:id="@+id/loadingLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#BA939393"
-        android:clickable="true"
-        android:focusable="true"
-        android:visibility="gone"
-        >
-
-        <ProgressBar
-            android:id="@+id/loadingIndicator"
-            style="@style/CustomProgressBar"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:padding="10dp"
-            android:layout_gravity="center"
-            android:indeterminate="true"
-            android:visibility="gone"/>
-    </FrameLayout>
-
     <ImageView
         android:id="@+id/viewRegistrarGoogle"
         android:layout_width="wrap_content"
@@ -202,5 +181,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.811" />
+
+
+    <FrameLayout
+        android:id="@+id/loadingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#BA939393"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/loadingIndicator"
+            style="@style/CustomProgressBar"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:padding="10dp"
+            android:visibility="gone" />
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
