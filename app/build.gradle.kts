@@ -34,8 +34,6 @@ android {
     buildFeatures {
         viewBinding = true
     }
-
-
 }
 
 dependencies {
@@ -62,4 +60,3 @@ dependencies {
     //implementation(libs.play.services.auth)
     implementation("com.google.android.gms:play-services-auth:18.1.0")
 }
-
