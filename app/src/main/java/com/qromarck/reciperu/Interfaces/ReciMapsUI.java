@@ -39,9 +39,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.qromarck.reciperu.DAO.DAOImplements.LocationDAOImpl;
 import com.qromarck.reciperu.DAO.LocationDAO;
+import com.qromarck.reciperu.Entity.MenuUIManager;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
-import com.qromarck.reciperu.Utilities.CommonServiceUtilities;
+import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 
 import java.io.IOException;
 import java.util.List;
@@ -86,7 +87,6 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         super.onResume();
         if (!isConductor()) {
             updateUbicationOfConductor();
-//            configureUpdates();
         }
         configureUpdates();
         updateLastUbication();
@@ -130,9 +130,7 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-//        if (!isConductor()) {
-            updateLastUbication();
-//        }
+        updateLastUbication();
     }
 
     @Override
@@ -172,42 +170,38 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
                             })
                             .setCancelable(false) // Evita que se cierre tocando fuera del diálogo
                             .show();
-                    if (isConductor()) {
-                        handlerConductor.removeCallbacksAndMessages(null);
-                    } else {
-                        handlerUser.removeCallbacksAndMessages(null);
-                    }
                 }
-            }else{
+            } else {
                 System.out.println(provider);
             }
         }
     }
 
     public void updateLastUbication() {
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            moveCamera(location);
-                        } else {
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ReciMapsUI.this.updateLastUbication();
-                                }
-                            }, 1000);
+        if (!isFinishing() && !isDestroyed()) {
+            FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            // Got last known location. In some rare situations this can be null.
+                            if (location != null) {
+                                moveCamera(location);
+                            } else {
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ReciMapsUI.this.updateLastUbication();
+                                    }
+                                }, 50);
 
+                            }
                         }
-                    }
-                });
-
+                    });
+        }
     }
 
     private void updateMyUbicationAsConductor() {
@@ -264,12 +258,12 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
                         .build();
                 googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 saveOnFB(location);
-                CommonServiceUtilities.guardarUsuario(ReciMapsUI.this, userLoggedOnSystem);
+                InterfacesUtilities.guardarUsuario(ReciMapsUI.this, userLoggedOnSystem);
             } else {
-                new Handler().postDelayed(this::updateLastUbication, 1000);
+                new Handler().postDelayed(this::updateLastUbication, 50);
             }
         } else {
-            new Handler().postDelayed(this::updateLastUbication, 1000);
+            new Handler().postDelayed(this::updateLastUbication, 50);
         }
 
     }
@@ -331,12 +325,16 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         otherUserLocationRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // Obtener la ubicación del conductor desde el DataSnapshot
-                double latitude = dataSnapshot.child("latitude").getValue(Double.class);
-                double longitude = dataSnapshot.child("longitude").getValue(Double.class);
+                try {
+                    // Obtener la ubicación del conductor desde el DataSnapshot
+                    double latitude = dataSnapshot.child("latitude").getValue(Double.class);
+                    double longitude = dataSnapshot.child("longitude").getValue(Double.class);
 
-                // Agregar el marcador del conductor en el mapa
-                setMarkerOfConductor(latitude, longitude);
+                    // Agregar el marcador del conductor en el mapa
+                    setMarkerOfConductor(latitude, longitude);
+                }catch (Exception exception){
+                    exception.printStackTrace(System.out);
+                }
             }
 
             @Override
@@ -348,7 +346,7 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
     }
 
     private boolean isConductor() {
-        return CommonServiceUtilities.recuperarUsuario(ReciMapsUI.this).getType().equals("conductor");
+        return InterfacesUtilities.recuperarUsuario(ReciMapsUI.this).getType().equals("conductor");
     }
 
     private void destroyDialog() {
@@ -359,7 +357,7 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
 
 
     private void initializeUI() {
-        userLoggedOnSystem = CommonServiceUtilities.recuperarUsuario(ReciMapsUI.this);
+        userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciMapsUI.this);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         Objects.requireNonNull(mapFragment).getMapAsync(this);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -377,6 +375,9 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         } else {
             requestLocationPermission();
         }
+        MenuUI menuUI = MenuUIManager.getInstance().getMenuUI();
+        if (menuUI != null) {
+            menuUI.hideLoadingIndicator();
+        }
     }
-
 }

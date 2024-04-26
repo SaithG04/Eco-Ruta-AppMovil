@@ -1,43 +1,33 @@
 package com.qromarck.reciperu.Interfaces;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
-import com.qromarck.reciperu.Utilities.CommonServiceUtilities;
-import com.qromarck.reciperu.Utilities.DataAccessUtilities;
+import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 public class RegistroUsuarioUI extends AppCompatActivity {
 
@@ -51,7 +41,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registro_ui);
+        setContentView(R.layout.activity_registro_usuario_ui);
 
         retroceso = true;
         mFirestore = FirebaseFirestore.getInstance();
@@ -81,7 +71,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         super.onDestroy();
         hideLoadingIndicator();
         if(retroceso){
-            Intent intent = new Intent(RegistroUsuarioUI.this, LoginPrincipalUI.class);
+            Intent intent = new Intent(RegistroUsuarioUI.this, LoginUI.class);
             startActivity(intent);
         }
     }
@@ -103,18 +93,11 @@ public class RegistroUsuarioUI extends AppCompatActivity {
                                         usuario.setId(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
                                         usuario.setStatus("logged in");
 
-                                        CommonServiceUtilities.guardarUsuario(RegistroUsuarioUI.this, usuario);
+                                        InterfacesUtilities.guardarUsuario(RegistroUsuarioUI.this, usuario);
 
                                         UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, RegistroUsuarioUI.this);
                                         usuarioDAO.insertOnFireStore();
-
-//                                        usuario.setStatus("logged in");
-                                        CommonServiceUtilities.guardarUsuario(RegistroUsuarioUI.this, usuario);
-
-//                                        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, LoginPrincipalUI.this);
-//                                        usuarioDAO.updateOnFireStore();
-                                        // Después de agregar al usuario a Firestore
-//                                        FirebaseAuth.getInstance().signOut();
+                                        InterfacesUtilities.guardarUsuario(RegistroUsuarioUI.this, usuario);
                                     } else {
                                         System.out.println("NO SE AUTENTICO");
                                     }
@@ -189,13 +172,13 @@ public class RegistroUsuarioUI extends AppCompatActivity {
      * Método para mostrar el indicador de carga.
      */
     private void showLoadingIndicator() {
-        CommonServiceUtilities.showLoadingIndicator(RegistroUsuarioUI.this, loadingLayout, loadingIndicator);
+        InterfacesUtilities.showLoadingIndicator(RegistroUsuarioUI.this, loadingLayout, loadingIndicator);
     }
 
     /**
      * Método para ocultar el indicador de carga.
      */
     private void hideLoadingIndicator() {
-        CommonServiceUtilities.hideLoadingIndicator(RegistroUsuarioUI.this, loadingLayout, loadingIndicator);
+        InterfacesUtilities.hideLoadingIndicator(RegistroUsuarioUI.this, loadingLayout, loadingIndicator);
     }
 }

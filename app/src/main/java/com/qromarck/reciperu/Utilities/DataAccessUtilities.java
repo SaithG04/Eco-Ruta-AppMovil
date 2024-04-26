@@ -1,6 +1,6 @@
 package com.qromarck.reciperu.Utilities;
 
-import static com.qromarck.reciperu.Utilities.CommonServiceUtilities.*;
+import static com.qromarck.reciperu.Utilities.InterfacesUtilities.*;
 
 import android.os.Build;
 
@@ -406,7 +406,7 @@ public class DataAccessUtilities {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private <T> Map<String, Object> buildParameterMap(T entity, ArrayList<String> columnas) {
         Map<String, Object> parametros = new HashMap<>();
-        Object[] objects = new CommonServiceUtilities().entityToObjectArray(entity);
+        Object[] objects = new InterfacesUtilities().entityToObjectArray(entity);
         for (int i = 0; i < columnas.size(); i++) {
             parametros.put(columnas.get(i), objects[i]);
         }

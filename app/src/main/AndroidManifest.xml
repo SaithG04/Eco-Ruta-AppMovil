@@ -8,9 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-
     <application
-
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -22,11 +20,6 @@
         android:theme="@style/DarkTheme.ReciPeru"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity
-            android:name=".Interfaces.ReciMapsUI"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:label="@string/title_activity_reci_maps" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -34,15 +27,30 @@
         <meta-data
             android:name="asset_statements"
             android:resource="@string/asset_statements" />
+
+        <activity
+            android:name=".Interfaces.ValidacionUI"
+            android:exported="false" />
+        <activity
+            android:name=".Interfaces.ReciMapsUI"
+            android:exported="false"
+            android:label="@string/title_activity_reci_maps"
+            android:launchMode="singleTask" />
         <activity
             android:name=".Interfaces.MenuUI"
-            android:launchMode="singleTask"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTask" />
         <activity
             android:name=".Interfaces.RegistroUsuarioUI"
             android:exported="false" />
         <activity
-            android:name=".Interfaces.LoginPrincipalUI"
+            android:name=".Interfaces.TransitionUI"
+            android:exported="false" />
+        <activity
+            android:name=".Interfaces.LoginUI"
+            android:exported="false"/>
+        <activity
+            android:name=".Interfaces.CargaInicialUI"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,5 +59,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

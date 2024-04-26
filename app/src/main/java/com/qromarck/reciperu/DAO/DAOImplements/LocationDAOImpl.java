@@ -1,15 +1,11 @@
 package com.qromarck.reciperu.DAO.DAOImplements;
 
-import static com.qromarck.reciperu.Utilities.CommonServiceUtilities.entityToMap;
+import static com.qromarck.reciperu.Utilities.InterfacesUtilities.entityToMap;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.qromarck.reciperu.DAO.LocationDAO;
 import com.qromarck.reciperu.Entity.Location;
-import com.qromarck.reciperu.Interfaces.LoginPrincipalUI;
 import com.qromarck.reciperu.Utilities.DataAccessUtilities;
 
 import java.util.Map;

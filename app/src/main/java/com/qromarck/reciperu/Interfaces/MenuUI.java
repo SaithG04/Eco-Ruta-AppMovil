@@ -3,12 +3,15 @@ package com.qromarck.reciperu.Interfaces;
 import static com.qromarck.reciperu.Interfaces.ReciMapsUI.REQUEST_LOCATION_PERMISSION;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,17 +24,20 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
+import com.qromarck.reciperu.Entity.MenuUIManager;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
-import com.qromarck.reciperu.Utilities.CommonServiceUtilities;
-import com.qromarck.reciperu.Utilities.DataAccessUtilities;
+import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 
-public class MenuUI extends AppCompatActivity {
-    private Button VerMapa;
+import java.io.Serializable;
+
+public class MenuUI extends AppCompatActivity implements Serializable {
     private boolean requestMapPermission = false;
+    private FrameLayout loadingLayout;
+    private ProgressBar loadingIndicator;
+    public static String typeChange = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +45,7 @@ public class MenuUI extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_menu_ui);
 
-        Usuario userLoggedOnSystem = CommonServiceUtilities.recuperarUsuario(MenuUI.this);
+        Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(MenuUI.this);
 
         // Verifica si el objeto Usuario está inicializado
         if (userLoggedOnSystem != null) {
@@ -56,15 +62,21 @@ public class MenuUI extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        VerMapa = findViewById(R.id.btnVerMapa);
-        VerMapa.setOnClickListener(new View.OnClickListener() {
+
+        Button verMapa = findViewById(R.id.btnVerMapa);
+        loadingLayout = findViewById(R.id.loadingLayout);
+        loadingIndicator = findViewById(R.id.loadingIndicator);
+        MenuUIManager.getInstance().setMenuUI(this);
+        verMapa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showLoadingIndicator();
                 // Verifica si tienes los permisos de ubicación
                 if (ContextCompat.checkSelfPermission(MenuUI.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     // Si tienes los permisos, inicia la actividad ReciMapsUI
                     startActivity(new Intent(MenuUI.this, ReciMapsUI.class));
                 } else {
+                    hideLoadingIndicator();
                     // Si no tienes los permisos, solicítalos al usuario
                     requestMapPermission = true;
                     ActivityCompat.requestPermissions(MenuUI.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
@@ -79,10 +91,17 @@ public class MenuUI extends AppCompatActivity {
         cerrarSesionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                cerrarSesion();
+                showLogoutConfirmationDialog();
             }
         });
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        typeChange = "";
+        hideLoadingIndicator();
     }
 
     @Override
@@ -91,37 +110,64 @@ public class MenuUI extends AppCompatActivity {
         if (requestMapPermission) {
             if (requestCode == REQUEST_LOCATION_PERMISSION) {
 //                if (requestMapPermission) {
-                    // Si la solicitud de permisos es para iniciar la actividad ReciMapsUI
-                    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        // Si el usuario concede los permisos, inicia la actividad ReciMapsUI
-                        startActivity(new Intent(MenuUI.this, ReciMapsUI.class));
-                    } else {
-                        // Si el usuario deniega los permisos, muestra un mensaje
-                        Toast.makeText(MenuUI.this, "Para ver el mapa, necesitas conceder los permisos de ubicación.", Toast.LENGTH_SHORT).show();
-                    }
-                    requestMapPermission = false; // Restablece la variable a false
+                // Si la solicitud de permisos es para iniciar la actividad ReciMapsUI
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Si el usuario concede los permisos, inicia la actividad ReciMapsUI
+                    startActivity(new Intent(MenuUI.this, ReciMapsUI.class));
+                    hideLoadingIndicator();
+                } else {
+                    // Si el usuario deniega los permisos, muestra un mensaje
+                    Toast.makeText(MenuUI.this, "Para ver el mapa, necesitas conceder los permisos de ubicación.", Toast.LENGTH_SHORT).show();
+                }
+                requestMapPermission = false; // Restablece la variable a false
 //                }
             }
         }
     }
 
-    // Método para manejar el cierre de sesión
-    private void cerrarSesion() {
-        // Inicia la actividad principal
-        Intent intent = new Intent(MenuUI.this, LoginPrincipalUI.class); // Reemplaza `PrincipalUI` con el nombre de tu actividad principal
-        Usuario usuario = CommonServiceUtilities.recuperarUsuario(MenuUI.this);
-        usuario.setStatus("logged out");
-        desloguearUser(usuario);
-        CommonServiceUtilities.guardarUsuario(MenuUI.this, null);
-        startActivity(intent);
-        // Finaliza la actividad actual
-        finish();
+    // Método para mostrar el diálogo de confirmación para cerrar sesión
+    private void showLogoutConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Cerrar sesión");
+        builder.setMessage("¿Estás seguro de que deseas cerrar sesión?");
+        builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Acción al confirmar cerrar sesión
+                typeChange = "deslogueo";
+                showLoadingIndicator();
+                cerrarSesion();
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        // Mostrar el diálogo
+        builder.show();
     }
 
-    private void desloguearUser(Usuario usuario) {
+    // Método para manejar el cierre de sesión
+    private void cerrarSesion() {
+        Usuario usuario = InterfacesUtilities.recuperarUsuario(MenuUI.this);
+        usuario.setStatus("logged out");
         UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, MenuUI.this);
         usuarioDAO.updateOnFireStore();
-        FirebaseAuth.getInstance().signOut();
+    }
+
+    /**
+     * Método para mostrar el indicador de carga.
+     */
+    private void showLoadingIndicator() {
+        InterfacesUtilities.showLoadingIndicator(MenuUI.this, loadingLayout, loadingIndicator);
+    }
+
+    /**
+     * Método para ocultar el indicador de carga.
+     */
+    public void hideLoadingIndicator() {
+        InterfacesUtilities.hideLoadingIndicator(MenuUI.this, loadingLayout, loadingIndicator);
     }
 
 }
