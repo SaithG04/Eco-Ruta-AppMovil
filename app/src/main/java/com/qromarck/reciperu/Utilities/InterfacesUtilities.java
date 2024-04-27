@@ -18,12 +18,10 @@ import java.lang.reflect.Field;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class CommonServiceUtilities {
+public class InterfacesUtilities {
 
     public static SharedPreferences.Editor systemEditor;
 

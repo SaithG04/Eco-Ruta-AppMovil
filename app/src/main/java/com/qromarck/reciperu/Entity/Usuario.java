@@ -19,8 +19,7 @@ public class Usuario {
 
     // Constructor con todos los campos
 
-    public Usuario(String id, String full_name, String email, Timestamp registro_date, String status, String type) {
-        this.id = id;
+    public Usuario(String full_name, String email, Timestamp registro_date, String status, String type) {
         this.full_name = full_name;
         this.email = email;
         this.registro_date = registro_date;
@@ -76,5 +75,17 @@ public class Usuario {
     }
     public void setType(String type) {
         this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "id='" + id + '\'' +
+                ", full_name='" + full_name + '\'' +
+                ", email='" + email + '\'' +
+                ", registro_date=" + registro_date +
+                ", status='" + status + '\'' +
+                ", type='" + type + '\'' +
+                '}';
     }
 }
