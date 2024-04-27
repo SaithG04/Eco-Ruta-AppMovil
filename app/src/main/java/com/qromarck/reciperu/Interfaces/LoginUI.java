@@ -90,9 +90,9 @@ public class LoginUI extends AppCompatActivity {
         btnRegistrarse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(LoginUI.this, RegistroUsuarioUI.class);
-                startActivity(intent);
-                finish();
+                TransitionUI.destino = RegistroUsuarioUI.class;
+                startActivity(new Intent(LoginUI.this, TransitionUI.class));
+//                finish();
             }
         });
 
@@ -116,6 +116,14 @@ public class LoginUI extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        edtCorreo.setText("");
+        edtContrasena.setText("");
+        type = "";
     }
 
     @Override
@@ -168,7 +176,6 @@ public class LoginUI extends AppCompatActivity {
                     usuarioDAO.updateOnFireStore();
 
                     TransitionUI.destino = MenuUI.class;
-                    TransitionUI.SPLASH_SCREEN_TIMEOUT = 500;
                     startActivity(new Intent(LoginUI.this, TransitionUI.class)); // Abrir actividad del menú
                     finish();
                 }

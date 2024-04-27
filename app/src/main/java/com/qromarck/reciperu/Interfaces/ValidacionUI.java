@@ -78,7 +78,6 @@ public class ValidacionUI extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     TransitionUI.destino = MenuUI.class;
-                    TransitionUI.SPLASH_SCREEN_TIMEOUT = 500;
                     startActivity(new Intent(ValidacionUI.this, TransitionUI.class)); // Abrir actividad del menú
                     finish();
                 }

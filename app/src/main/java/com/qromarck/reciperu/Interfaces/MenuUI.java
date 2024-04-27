@@ -34,10 +34,11 @@ import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 import java.io.Serializable;
 
 public class MenuUI extends AppCompatActivity implements Serializable {
-    private boolean requestMapPermission = false;
     private FrameLayout loadingLayout;
     private ProgressBar loadingIndicator;
     public static String typeChange = "";
+
+    private static boolean exit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         loadingLayout = findViewById(R.id.loadingLayout);
         loadingIndicator = findViewById(R.id.loadingIndicator);
         MenuUIManager.getInstance().setMenuUI(this);
+        exit = true;
         verMapa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,12 +76,13 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                 // Verifica si tienes los permisos de ubicación
                 if (ContextCompat.checkSelfPermission(MenuUI.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     // Si tienes los permisos, inicia la actividad ReciMapsUI
-                    startActivity(new Intent(MenuUI.this, ReciMapsUI.class));
+                    exit = false;
+                    TransitionUI.destino = ReciMapsUI.class;
+                    startActivity(new Intent(MenuUI.this, TransitionUI.class));
                 } else {
-                    hideLoadingIndicator();
                     // Si no tienes los permisos, solicítalos al usuario
-                    requestMapPermission = true;
                     ActivityCompat.requestPermissions(MenuUI.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
+                    hideLoadingIndicator();
                 }
             }
         });
@@ -101,26 +104,25 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     protected void onDestroy() {
         super.onDestroy();
         typeChange = "";
-        hideLoadingIndicator();
+//        hideLoadingIndicator();
+        if (exit) {
+            finishAffinity();
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestMapPermission) {
-            if (requestCode == REQUEST_LOCATION_PERMISSION) {
-//                if (requestMapPermission) {
-                // Si la solicitud de permisos es para iniciar la actividad ReciMapsUI
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Si el usuario concede los permisos, inicia la actividad ReciMapsUI
-                    startActivity(new Intent(MenuUI.this, ReciMapsUI.class));
-                    hideLoadingIndicator();
-                } else {
-                    // Si el usuario deniega los permisos, muestra un mensaje
-                    Toast.makeText(MenuUI.this, "Para ver el mapa, necesitas conceder los permisos de ubicación.", Toast.LENGTH_SHORT).show();
-                }
-                requestMapPermission = false; // Restablece la variable a false
-//                }
+
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            hideLoadingIndicator();
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Si el usuario concede los permisos, inicia la actividad ReciMapsUI
+                startActivity(new Intent(MenuUI.this, ReciMapsUI.class));
+
+            } else {
+                // Si el usuario deniega los permisos, muestra un mensaje
+                Toast.makeText(MenuUI.this, "Para ver el mapa, necesitas conceder los permisos de ubicación.", Toast.LENGTH_SHORT).show();
             }
         }
     }
