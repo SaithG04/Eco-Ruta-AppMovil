@@ -54,6 +54,11 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             String nombreUsuario = userLoggedOnSystem.getFull_name();
             TextView txvnombreUSER = findViewById(R.id.txvUSERNAME);
             txvnombreUSER.setText(String.format("Bienvenido, %s", nombreUsuario));
+            // CAMBIOS
+            // Obtiene los puntos del usuario y los coloca en el texView
+            int recipoints = userLoggedOnSystem.getPuntos();
+            TextView reci = findViewById(R.id.txvReciPoints);
+            reci.setText(String.valueOf(recipoints));
         } else {
             System.out.println("Usuario no disponible");
         }
