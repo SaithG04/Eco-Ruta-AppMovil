@@ -112,8 +112,16 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         destroyDialog();
         handlerConductor.removeCallbacksAndMessages(null);
         handlerUser.removeCallbacksAndMessages(null);
+        startActivity(new Intent(ReciMapsUI.this, MenuUI.class));
+
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        TransitionUI.destino = MenuUI.class;
+        startActivity(new Intent(ReciMapsUI.this, TransitionUI.class));
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -354,7 +362,6 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
             dialog.dismiss();
         }
     }
-
 
     private void initializeUI() {
         userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciMapsUI.this);

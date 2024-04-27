@@ -91,7 +91,6 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
                         InterfacesUtilities.guardarUsuario(menuUIActivity.getApplicationContext(), null);
 
                         TransitionUI.destino = LoginUI.class;
-                        TransitionUI.SPLASH_SCREEN_TIMEOUT = 500;
                         menuUIActivity.startActivity(new Intent(menuUIActivity.getApplicationContext(), TransitionUI.class));
                         // Finaliza la actividad actual
                         menuUIActivity.finish();

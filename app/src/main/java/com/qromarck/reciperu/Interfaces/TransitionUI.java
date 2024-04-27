@@ -18,7 +18,7 @@ import com.qromarck.reciperu.Utilities.NetworkUtilities;
 
 public class TransitionUI extends AppCompatActivity {
 
-    public static int SPLASH_SCREEN_TIMEOUT = 0;
+    public static int SPLASH_SCREEN_TIMEOUT = 500;
     public static Class<?> destino = null;
 
     @Override
@@ -38,7 +38,7 @@ public class TransitionUI extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         destino = null;
-        SPLASH_SCREEN_TIMEOUT = 0;
+        SPLASH_SCREEN_TIMEOUT = 500;
     }
 
     public void cargar() {

@@ -34,7 +34,6 @@ public class RegistroUsuarioUI extends AppCompatActivity {
     private EditText edtUsuario, edtCorreo, edtContrasena;
     private FrameLayout loadingLayout;
     private ProgressBar loadingIndicator;
-    private boolean retroceso;
     FirebaseFirestore mFirestore;
     FirebaseAuth mAuth;
 
@@ -43,7 +42,6 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registro_usuario_ui);
 
-        retroceso = true;
         mFirestore = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         edtUsuario = findViewById(R.id.edtUsuarioREG);
@@ -70,10 +68,14 @@ public class RegistroUsuarioUI extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         hideLoadingIndicator();
-        if(retroceso){
-            Intent intent = new Intent(RegistroUsuarioUI.this, LoginUI.class);
-            startActivity(intent);
-        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        hideLoadingIndicator();
+        TransitionUI.destino = LoginUI.class;
+        startActivity(new Intent(RegistroUsuarioUI.this, TransitionUI.class));
     }
 
     private void registrarUsuarioOnFireStore(Usuario usuario) {
@@ -88,8 +90,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
 
-                                        retroceso = false;
-                                       //Se le asigna el id generado por firebase al nuevo usuario y se procede a registrar en firestore el resto de sus datos
+                                        //Se le asigna el id generado por firebase al nuevo usuario y se procede a registrar en firestore el resto de sus datos
                                         usuario.setId(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
                                         usuario.setStatus("logged in");
 
