@@ -4,10 +4,14 @@ import static com.qromarck.reciperu.Interfaces.ReciMapsUI.REQUEST_LOCATION_PERMI
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -29,7 +33,9 @@ import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.MenuUIManager;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
+import com.qromarck.reciperu.Utilities.DialogUtilities;
 import com.qromarck.reciperu.Utilities.InterfacesUtilities;
+import com.qromarck.reciperu.Utilities.NetworkUtilities;
 
 import java.io.Serializable;
 
@@ -78,16 +84,29 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             @Override
             public void onClick(View v) {
                 showLoadingIndicator();
-                // Verifica si tienes los permisos de ubicación
-                if (ContextCompat.checkSelfPermission(MenuUI.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    // Si tienes los permisos, inicia la actividad ReciMapsUI
-                    exit = false;
-                    TransitionUI.destino = ReciMapsUI.class;
-                    startActivity(new Intent(MenuUI.this, TransitionUI.class));
+                if (NetworkUtilities.isNetworkAvailable(getApplicationContext())) {
+                    // Verifica si tienes los permisos de ubicación
+                    if (ContextCompat.checkSelfPermission(MenuUI.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        // Verificar si el GPS está habilitado
+                        if (!isGPSEnabled()) {
+                            hideLoadingIndicator();
+                            // El GPS está apagado, mostrar un diálogo para pedir al usuario que lo active
+                            showEnableGPSDialog();
+                        } else {
+                            // El GPS está habilitado, realizar la acción deseada
+                            exit = false;
+                            TransitionUI.destino = ReciMapsUI.class;
+                            Log.d("DEBUG", "FROM: " + MenuUI.class.getSimpleName());
+                            startActivity(new Intent(MenuUI.this, TransitionUI.class));
+                        }
+                    } else {
+                        // Si no tienes los permisos, solicítalos al usuario
+                        ActivityCompat.requestPermissions(MenuUI.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
+                        hideLoadingIndicator();
+                    }
                 } else {
-                    // Si no tienes los permisos, solicítalos al usuario
-                    ActivityCompat.requestPermissions(MenuUI.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
                     hideLoadingIndicator();
+                    DialogUtilities.showNoInternetDialog(MenuUI.this);
                 }
             }
         });
@@ -109,7 +128,6 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     protected void onDestroy() {
         super.onDestroy();
         typeChange = "";
-//        hideLoadingIndicator();
         if (exit) {
             finishAffinity();
         }
@@ -122,9 +140,18 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         if (requestCode == REQUEST_LOCATION_PERMISSION) {
             hideLoadingIndicator();
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Si el usuario concede los permisos, inicia la actividad ReciMapsUI
-                startActivity(new Intent(MenuUI.this, ReciMapsUI.class));
 
+                // Verificar si el GPS está habilitado
+                if (!isGPSEnabled()) {
+                    hideLoadingIndicator();
+                    // El GPS está apagado, mostrar un diálogo para pedir al usuario que lo active
+                    showEnableGPSDialog();
+                } else {
+                    // El GPS está habilitado, realizar la acción deseada
+                    TransitionUI.destino = ReciMapsUI.class;
+                    Log.d("DEBUG", "FROM: " + MenuUI.class.getSimpleName());
+                    startActivity(new Intent(MenuUI.this, TransitionUI.class));
+                }
             } else {
                 // Si el usuario deniega los permisos, muestra un mensaje
                 Toast.makeText(MenuUI.this, "Para ver el mapa, necesitas conceder los permisos de ubicación.", Toast.LENGTH_SHORT).show();
@@ -152,6 +179,35 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             }
         });
         // Mostrar el diálogo
+        builder.show();
+    }
+
+    // Método para verificar si el GPS está habilitado
+    private boolean isGPSEnabled() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    // Método para mostrar un diálogo pidiendo al usuario que active el GPS
+    private void showEnableGPSDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("GPS Desactivado");
+        builder.setMessage("Para continuar, active el GPS en su dispositivo.");
+        builder.setPositiveButton("Configuración", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Abre la configuración de ubicación del dispositivo para que el usuario pueda habilitar el GPS
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        });
+        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setCancelable(false); // Evita que el diálogo se cierre al tocar fuera de él
         builder.show();
     }
 

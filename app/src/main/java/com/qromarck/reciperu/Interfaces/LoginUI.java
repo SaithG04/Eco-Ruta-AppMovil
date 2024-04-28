@@ -1,6 +1,7 @@
 package com.qromarck.reciperu.Interfaces;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.view.View;
 
@@ -91,6 +92,7 @@ public class LoginUI extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 TransitionUI.destino = RegistroUsuarioUI.class;
+                Log.d("DEBUG", "FROM: " + LoginUI.class.getSimpleName());
                 startActivity(new Intent(LoginUI.this, TransitionUI.class));
 //                finish();
             }
@@ -176,6 +178,7 @@ public class LoginUI extends AppCompatActivity {
                     usuarioDAO.updateOnFireStore();
 
                     TransitionUI.destino = MenuUI.class;
+                    Log.d("DEBUG", "FROM: " + LoginUI.class.getSimpleName());
                     startActivity(new Intent(LoginUI.this, TransitionUI.class)); // Abrir actividad del menú
                     finish();
                 }

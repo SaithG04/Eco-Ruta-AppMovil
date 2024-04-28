@@ -75,6 +75,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         super.onBackPressed();
         hideLoadingIndicator();
         TransitionUI.destino = LoginUI.class;
+        Log.d("DEBUG", "FROM: " + RegistroUsuarioUI.class.getSimpleName());
         startActivity(new Intent(RegistroUsuarioUI.this, TransitionUI.class));
     }
 
