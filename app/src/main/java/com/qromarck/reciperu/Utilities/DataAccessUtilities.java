@@ -78,6 +78,7 @@ public class DataAccessUtilities {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace(System.out);
                         if (insertionListener != null) {
                             insertionListener.onInsertionError(e.getMessage());
                         }

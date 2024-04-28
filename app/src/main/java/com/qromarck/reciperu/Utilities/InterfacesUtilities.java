@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.util.Base64;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -15,6 +16,7 @@ import com.google.gson.Gson;
 import com.qromarck.reciperu.Entity.Usuario;
 
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -136,24 +138,66 @@ public class InterfacesUtilities {
         return usuario;
     }
 
-    @Deprecated
-    public static byte[] hashPassword(String password, byte[] salt) {
+    public static String byteArrayToString(byte[] array){
+        return Base64.encodeToString(array, Base64.DEFAULT);
+    }
+
+    public static byte[] stringToByteArray(String string){
+        return Base64.decode(string, Base64.DEFAULT);
+    }
+
+    public static int hashPassword(String password, int salt) {
         try {
+            // Convertir el salt (entero) en un arreglo de bytes
+            byte[] saltBytes = ByteBuffer.allocate(4).putInt(salt).array();
+
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(salt);
-            return md.digest(password.getBytes());
+            md.update(saltBytes);
+            byte[] passwordBytes = md.digest(password.getBytes());
+
+            // Convertir los primeros 4 bytes del resultado hash a un entero
+            int hashedPassword = ByteBuffer.wrap(passwordBytes).getInt();
+
+            return hashedPassword;
         } catch (NoSuchAlgorithmException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    @Deprecated
-    public static byte[] generateSalt() {
+    public static int generateSalt() {
+        // Generar un salt aleatorio como un entero
         SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[16];
-        random.nextBytes(salt);
-        return salt;
+        return random.nextInt();
     }
+    public static byte[] intToBytes(int value) {
+        // Crear un ByteBuffer de tamaño 4 (tamaño de un entero en bytes)
+        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+
+        // Colocar el entero en el ByteBuffer (big-endian por defecto)
+        buffer.putInt(value);
+
+        // Obtener el arreglo de bytes desde el ByteBuffer
+        return buffer.array();
+    }
+
+//    @Deprecated
+//    public static byte[] hashPassword(String password, byte[] salt) {
+//        try {
+//            MessageDigest md = MessageDigest.getInstance("SHA-256");
+//            md.update(salt);
+//            return md.digest(password.getBytes());
+//        } catch (NoSuchAlgorithmException ex) {
+//            throw new RuntimeException(ex);
+//        }
+//    }
+//
+//    @Deprecated
+//    public static byte[] generateSalt() {
+//        SecureRandom random = new SecureRandom();
+//        byte[] salt = new byte[16];
+//        random.nextBytes(salt);
+//        return salt;
+//    }
 
     @Deprecated
     public static byte[] hexStringToByteArray(String hex) {
