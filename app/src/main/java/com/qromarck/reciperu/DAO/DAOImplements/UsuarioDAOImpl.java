@@ -82,7 +82,8 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
     public void updateOnFireStore() {
 
         boolean deslogueo = MenuUI.typeChange.equals("deslogueo");
-        MenuUI menuUIActivity = deslogueo ? (MenuUI) activity : null;
+        boolean sumaptos = MenuUI.typeChange.equals("sumaptos");
+        MenuUI menuUIActivity = (deslogueo || sumaptos) ? (MenuUI) activity : null;
 
         if (NetworkUtilities.isNetworkAvailable(activity.getApplicationContext())) {
             Map<String, Object> entityToMap = entityToMap(usuario);
@@ -91,22 +92,30 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
                 @Override
                 public void onUpdateComplete() {
                     if (menuUIActivity != null) {
-                        FirebaseAuth.getInstance().signOut();
-                        InterfacesUtilities.guardarUsuario(menuUIActivity.getApplicationContext(), null);
+                        if (MenuUI.typeChange.equals("sumaptos")) {
+                            InterfacesUtilities.guardarUsuario(menuUIActivity.getApplicationContext(),usuario);
+                            menuUIActivity.getReci().setText(String.valueOf(usuario.getPuntos()));
+                            menuUIActivity.hideLoadingIndicator();
+                            Toast.makeText(menuUIActivity.getApplicationContext(),"Puntos Agregados Correctamente",Toast.LENGTH_SHORT).show();
+                        }else{
+                            FirebaseAuth.getInstance().signOut();
+                            InterfacesUtilities.guardarUsuario(menuUIActivity.getApplicationContext(), null);
 
-                        TransitionUI.destino = LoginUI.class;
-                        Log.d("DEBUG", "FROM: " + UsuarioDAOImpl.class.getSimpleName());
-                        menuUIActivity.startActivity(new Intent(menuUIActivity.getApplicationContext(), TransitionUI.class));
-                        // Finaliza la actividad actual
-                        menuUIActivity.finish();
+                            TransitionUI.destino = LoginUI.class;
+                            Log.d("DEBUG", "FROM: " + UsuarioDAOImpl.class.getSimpleName());
+                            menuUIActivity.startActivity(new Intent(menuUIActivity.getApplicationContext(), TransitionUI.class));
+                            // Finaliza la actividad actual
+                            menuUIActivity.finish();
+                        }
+
                     }
                 }
 
                 @Override
                 public void onUpdateError(String errorMessage) {
                     if (menuUIActivity != null) {
-                        Toast.makeText(menuUIActivity.getApplicationContext(), "Error al cerrar sesión.", Toast.LENGTH_SHORT).show();
-                        menuUIActivity.hideLoadingIndicator();
+                            Toast.makeText(menuUIActivity.getApplicationContext(), MenuUI.typeChange.equals("sumaptos") ? "Error al agregar puntos." : "Error al cerrar sesión.", Toast.LENGTH_SHORT).show();
+                            menuUIActivity.hideLoadingIndicator();
                     }
                     System.out.println(errorMessage);
                 }

@@ -35,9 +35,7 @@ import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.MenuUIManager;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
-import com.qromarck.reciperu.Utilities.DialogUtilities;
-import com.qromarck.reciperu.Utilities.InterfacesUtilities;
-import com.qromarck.reciperu.Utilities.NetworkUtilities;
+import com.qromarck.reciperu.Utilities.*;
 
 import java.io.Serializable;
 
@@ -50,10 +48,15 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     private static boolean exit;
 
     //QR
-    private TextView txvscann;
+    private TextView reci;
     private Button scan_btn;
     private static final int REQUEST_LOCATION_PERMISSION = 1001;
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
+
+    public TextView getReci() {
+        return reci;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +74,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             // CAMBIOS
             // Obtiene los puntos del usuario y los coloca en el texView
             int recipoints = userLoggedOnSystem.getPuntos();
-            TextView reci = findViewById(R.id.txvReciPoints);
+            reci = findViewById(R.id.txvReciPoints);
             reci.setText(String.valueOf(recipoints));
         } else {
             System.out.println("Usuario no disponible");
@@ -131,17 +134,16 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         });
 
 
-
-
         //SCANNER QR
 
         scan_btn = findViewById(R.id.btnCamara);
-        txvscann = findViewById(R.id.txvScanner);
 
         scan_btn.setOnClickListener(view -> {
+            showLoadingIndicator();
             // Verificar y solicitar permiso de la cámara si no está concedido
             if (ContextCompat.checkSelfPermission(MenuUI.this, Manifest.permission.CAMERA)
                     != PackageManager.PERMISSION_GRANTED) {
+                hideLoadingIndicator();
                 ActivityCompat.requestPermissions(MenuUI.this,
                         new String[]{Manifest.permission.CAMERA},
                         CAMERA_PERMISSION_REQUEST_CODE);
@@ -155,16 +157,11 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 
 
     private void startBarcodeScanning() {
-        scan_btn.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                IntentIntegrator intentIntegrator = new IntentIntegrator(MenuUI.this);
-                intentIntegrator.setOrientationLocked(true);
-                intentIntegrator.setPrompt("Escanear un QR");
-                intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
-                intentIntegrator.initiateScan();
-            }
-        });
+        IntentIntegrator intentIntegrator = new IntentIntegrator(MenuUI.this);
+        intentIntegrator.setOrientationLocked(true);
+        intentIntegrator.setPrompt("Escanear un QR");
+        intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
+        intentIntegrator.initiateScan();
     }
 
     @Override
@@ -175,9 +172,17 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         if (intentResult != null) {
             String contents = intentResult.getContents();
             if (contents != null) {
-                txvscann.setText(contents);
-            } else {
-                txvscann.setText("No se encontraron datos en el QR");
+                String[] texto = contents.split(" ");
+                if (texto [0].equals(SecurityUtilities.CODEQR)) {
+                    int puntosObtenidos = Integer.parseInt(texto[1]);
+                    sumarpuntos(puntosObtenidos);
+                }else{
+                    Toast.makeText(getApplicationContext(),"QR INVALIDO CTM (QUE QUERIAS MARICON?)",Toast.LENGTH_SHORT).show();
+                    hideLoadingIndicator();
+                }
+            }else{
+                Toast.makeText(getApplicationContext(),"QR INVALIDO CTM (QUE QUERIAS MARICON?)",Toast.LENGTH_SHORT).show();
+                hideLoadingIndicator();
             }
         }
     }
@@ -290,6 +295,22 @@ public class MenuUI extends AppCompatActivity implements Serializable {
      */
     public void hideLoadingIndicator() {
         InterfacesUtilities.hideLoadingIndicator(MenuUI.this, loadingLayout, loadingIndicator);
+    }
+
+    public void sumarpuntos(int puntos) {
+        //Obtener usuario logeado en sistema en general
+        Usuario recuperarUsuario = InterfacesUtilities.recuperarUsuario(getApplicationContext());
+        //Recuperar ptos usuarios
+        int ptosactuales = recuperarUsuario.getPuntos();
+        ptosactuales += puntos;
+        //Actualizar ptos en usuario
+        recuperarUsuario.setPuntos(ptosactuales);
+        //Creamos usuario DAO
+        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(recuperarUsuario, MenuUI.this);
+        typeChange = "sumaptos";
+        //Actualiza en firestore
+        usuarioDAO.updateOnFireStore();
+
     }
 
 }
