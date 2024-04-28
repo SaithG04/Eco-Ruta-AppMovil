@@ -156,7 +156,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
             return true;
         }
     }
-
+    //MODIFICADO
     @NonNull
     private Usuario crearUsuario() {
 
@@ -165,8 +165,10 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         Timestamp registro_date = new Timestamp(new Date());
         String status = "logged out";
         String type = "usuario";
+        //NUEVO puntos
+        int puntos = 0;
 
-        return new Usuario(fullName, email, registro_date, status, type);
+        return new Usuario(fullName, email, registro_date, status, type , puntos);
     }
 
     /**

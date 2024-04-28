@@ -1,7 +1,7 @@
 package com.qromarck.reciperu.Entity;
-import com.google.firebase.Timestamp;
 
-import java.util.Date;
+
+import com.google.firebase.Timestamp;
 
 public class Usuario {
     private String id;
@@ -10,6 +10,7 @@ public class Usuario {
     private Timestamp registro_date;
     private String status;
     private String type;
+    private int puntos;
 
     // Constructores, getters y setters
 
@@ -19,12 +20,13 @@ public class Usuario {
 
     // Constructor con todos los campos
 
-    public Usuario(String full_name, String email, Timestamp registro_date, String status, String type) {
+    public Usuario(String full_name, String email, Timestamp registro_date, String status, String type , int puntos) {
         this.full_name = full_name;
         this.email = email;
         this.registro_date = registro_date;
         this.status = status;
         this.type = type;
+        this.puntos = puntos;
     }
 
 
@@ -77,6 +79,13 @@ public class Usuario {
         this.type = type;
     }
 
+    public int getPuntos() {
+        return puntos;
+    }
+    public void setPuntos(int puntos) {
+        this.puntos = puntos;
+    }
+
     @Override
     public String toString() {
         return "Usuario{" +
@@ -86,6 +95,7 @@ public class Usuario {
                 ", registro_date=" + registro_date +
                 ", status='" + status + '\'' +
                 ", type='" + type + '\'' +
+                ", puntos='" + puntos + '\'' +
                 '}';
     }
 }
