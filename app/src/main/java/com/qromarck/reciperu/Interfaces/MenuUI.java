@@ -30,9 +30,12 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.qromarck.reciperu.DAO.DAOImplements.QrDAOImpl;
 import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
+import com.qromarck.reciperu.DAO.QrDAO;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.MenuUIManager;
+import com.qromarck.reciperu.Entity.QR;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.*;
@@ -152,9 +155,23 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                 startBarcodeScanning();
             }
         });
-
+//        PROHIBIDO BORRAR O TE BORRO YO
+//        Button add = findViewById(R.id.add);
+//        add.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                String codeqr = SecurityUtilities.CODEQR;
+//                int salt = InterfacesUtilities.generateSalt();
+//                int hashPassword = InterfacesUtilities.hashPassword(codeqr, salt);
+//                QR qr = new QR();
+//                qr.setId("1");
+//                qr.setHashed_code(hashPassword);
+//                qr.setSalt(salt);
+//                QrDAO qrDAO = new QrDAOImpl(qr, MenuUI.this);
+//                qrDAO.insertOnFireStore();
+//            }
+//        });
     }
-
 
     private void startBarcodeScanning() {
         IntentIntegrator intentIntegrator = new IntentIntegrator(MenuUI.this);
@@ -172,16 +189,30 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         if (intentResult != null) {
             String contents = intentResult.getContents();
             if (contents != null) {
-                String[] texto = contents.split(" ");
-                if (texto [0].equals(SecurityUtilities.CODEQR)) {
-                    int puntosObtenidos = Integer.parseInt(texto[1]);
-                    sumarpuntos(puntosObtenidos);
-                }else{
-                    Toast.makeText(getApplicationContext(),"QR INVALIDO CTM (QUE QUERIAS MARICON?)",Toast.LENGTH_SHORT).show();
-                    hideLoadingIndicator();
-                }
-            }else{
-                Toast.makeText(getApplicationContext(),"QR INVALIDO CTM (QUE QUERIAS MARICON?)",Toast.LENGTH_SHORT).show();
+                QR qr = new QR();
+                qr.setId("1");
+                QrDAO qrDAO = new QrDAOImpl(qr, MenuUI.this);
+                qrDAO.getQROnFireBase(qr.getId(), new QrDAOImpl.OnQrRetrievedListener() {
+                    @Override
+                    public void onQrRetrieved(QR qr) {
+                        if (qr == null) { // Si no se encuentra el usuario
+                            hideLoadingIndicator(); // Ocultar indicador de carga
+                            Toast.makeText(MenuUI.this, "QR INVALIDO", Toast.LENGTH_LONG).show();
+                        } else {
+                            int hashPassword = InterfacesUtilities.hashPassword(contents, qr.getSalt());
+                            System.out.println(hashPassword);
+                            if (hashPassword == qr.getHashed_code()) {
+                                sumarpuntos(100);
+                            } else {
+                                Toast.makeText(getApplicationContext(), "QR INVALIDO", Toast.LENGTH_SHORT).show();
+                                hideLoadingIndicator();
+                            }
+                        }
+                    }
+                });
+
+            } else {
+                Toast.makeText(getApplicationContext(), "QR INVALIDO", Toast.LENGTH_SHORT).show();
                 hideLoadingIndicator();
             }
         }
