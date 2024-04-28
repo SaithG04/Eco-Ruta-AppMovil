@@ -39,6 +39,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.qromarck.reciperu.DAO.DAOImplements.LocationDAOImpl;
+import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.qromarck.reciperu.DAO.LocationDAO;
 import com.qromarck.reciperu.Entity.MenuUIManager;
 import com.qromarck.reciperu.Entity.Usuario;
@@ -136,7 +137,9 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         destroyDialog();
         handlerConductor.removeCallbacksAndMessages(null);
         handlerUser.removeCallbacksAndMessages(null);
-        startActivity(new Intent(ReciMapsUI.this, MenuUI.class));
+        TransitionUI.destino = MenuUI.class;
+        Log.d("DEBUG", "FROM: " + ReciMapsUI.class.getSimpleName());
+        startActivity(new Intent(ReciMapsUI.this, TransitionUI.class));
 
     }
 
@@ -144,6 +147,7 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
     public void onBackPressed() {
         super.onBackPressed();
         TransitionUI.destino = MenuUI.class;
+        Log.d("DEBUG", "FROM: " + ReciMapsUI.class.getSimpleName());
         startActivity(new Intent(ReciMapsUI.this, TransitionUI.class));
     }
 
@@ -173,7 +177,6 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
     @Override
     public void onProviderEnabled(@NonNull String provider) {
         if (!isFinishing() && !isDestroyed()) {
-            System.out.println("GPS ACTIVADO");
             destroyDialog();
             if (isConductor()) {
                 updateMyUbicationAsConductor();
@@ -186,10 +189,10 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
     @Override
     public void onProviderDisabled(@NonNull String provider) {
         if (!isFinishing() && !isDestroyed()) {
-            System.out.println("GPS DESACTIVADO");
             if (provider.equals(LocationManager.GPS_PROVIDER)) {
-                System.out.println(provider);
                 if (dialog == null || !dialog.isShowing()) {
+                    handlerConductor.removeCallbacksAndMessages(null);
+                    handlerUser.removeCallbacksAndMessages(null);
                     dialog = new AlertDialog.Builder(this)
                             .setMessage("Por favor, habilite su ubicación para continuar.")
                             .setPositiveButton("Configuración", (dialog, which) -> {
@@ -197,8 +200,9 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
                                 startActivity(intent);
                             })
                             .setNegativeButton("Cancelar", (dialog, which) -> {
+                                TransitionUI.destino = MenuUI.class;
+                                startActivity(new Intent(ReciMapsUI.this, TransitionUI.class));
                                 finish();
-                                startActivity(new Intent(ReciMapsUI.this, MenuUI.class));
                             })
                             .setCancelable(false) // Evita que se cierre tocando fuera del diálogo
                             .show();

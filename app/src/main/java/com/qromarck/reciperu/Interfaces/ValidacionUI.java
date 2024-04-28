@@ -2,6 +2,7 @@ package com.qromarck.reciperu.Interfaces;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -78,6 +79,7 @@ public class ValidacionUI extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     TransitionUI.destino = MenuUI.class;
+                    Log.d("DEBUG", "FROM: " + ValidacionUI.class.getSimpleName());
                     startActivity(new Intent(ValidacionUI.this, TransitionUI.class)); // Abrir actividad del menú
                     finish();
                 }
