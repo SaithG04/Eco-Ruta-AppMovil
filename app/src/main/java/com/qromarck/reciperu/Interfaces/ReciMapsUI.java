@@ -2,6 +2,7 @@ package com.qromarck.reciperu.Interfaces;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -50,6 +51,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+//SONIDO DE PROXIMIDAD
+import android.media.MediaPlayer;
+
 public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
 
     private GoogleMap googleMap;
@@ -64,6 +68,11 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
     private final Handler handlerConductor = new Handler();
     private final Handler handlerUser = new Handler();
 
+    //SONIDO PROXIMIDAD
+    private MediaPlayer mediaPlayer;
+    private static final int DISTANCE_THRESHOLD_METERS = 10;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +80,21 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
 
         initializeUI();
         checkLocationPermissions();
+        mediaPlayer = MediaPlayer.create(this,R.raw.camion);
+        play();
     }
+
+    //SONIDO
+    //===========================================================
+    public void play(){
+        mediaPlayer.start();
+    }
+
+    public void stop(){
+        mediaPlayer.release();
+        mediaPlayer = null;
+    }
+    //===========================================================
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -96,6 +119,7 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
     @Override
     protected void onStop() {
         super.onStop();
+        stop();
         destroyDialog();
         handlerUser.removeCallbacksAndMessages(null);
     }
@@ -307,10 +331,34 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         return null;
     }
 
+    private void getConductorUbication() {
+        String otherUserId = "2PEUsE6tkVRlvsm9KmVHVxutmBw1";
+        DatabaseReference otherUserLocationRef = FirebaseDatabase.getInstance().getReference("user_locations").child(otherUserId);
+        otherUserLocationRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                try {
+                    // Obtener la ubicación del conductor desde el DataSnapshot
+                    double latitude = dataSnapshot.child("latitude").getValue(Double.class);
+                    double longitude = dataSnapshot.child("longitude").getValue(Double.class);
+                    // Agregar el marcador del conductor en el mapa
+                    setMarkerOfConductor(latitude, longitude);
+                }catch (Exception exception){
+                    exception.printStackTrace(System.out);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Manejar errores de lectura de datos
+                Log.e("FirebaseDatabase", "Error al obtener la ubicación del conductor: " + databaseError.getMessage());
+            }
+        });
+    }
+
     private void setMarkerOfConductor(double latitude, double longitude) {
         if (googleMap != null) {
             LatLng otherUserLocation = new LatLng(latitude, longitude);
-
             // Cargar el icono personalizado desde los recursos
             BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.truck_icon);
             //BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
@@ -329,33 +377,6 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         }
     }
 
-
-    // Método para escuchar los cambios en la ubicación del otro usuario en Firebase Realtime Database
-    private void getConductorUbication() {
-        String otherUserId = "2PEUsE6tkVRlvsm9KmVHVxutmBw1";
-        DatabaseReference otherUserLocationRef = FirebaseDatabase.getInstance().getReference("user_locations").child(otherUserId);
-        otherUserLocationRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                try {
-                    // Obtener la ubicación del conductor desde el DataSnapshot
-                    double latitude = dataSnapshot.child("latitude").getValue(Double.class);
-                    double longitude = dataSnapshot.child("longitude").getValue(Double.class);
-
-                    // Agregar el marcador del conductor en el mapa
-                    setMarkerOfConductor(latitude, longitude);
-                }catch (Exception exception){
-                    exception.printStackTrace(System.out);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Manejar errores de lectura de datos
-                Log.e("FirebaseDatabase", "Error al obtener la ubicación del conductor: " + databaseError.getMessage());
-            }
-        });
-    }
 
     private boolean isConductor() {
         return InterfacesUtilities.recuperarUsuario(ReciMapsUI.this).getType().equals("conductor");
@@ -392,3 +413,7 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         }
     }
 }
+
+
+
+
