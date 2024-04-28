@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -24,6 +25,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.MenuUIManager;
@@ -34,12 +37,18 @@ import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 import java.io.Serializable;
 
 public class MenuUI extends AppCompatActivity implements Serializable {
+
     private FrameLayout loadingLayout;
     private ProgressBar loadingIndicator;
     public static String typeChange = "";
 
     private static boolean exit;
 
+    //QR
+    private TextView txvscann;
+    private Button scan_btn;
+
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,7 +112,58 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             }
         });
 
+
+
+
+        //SCANNER QR
+
+        scan_btn = findViewById(R.id.btnCamara);
+        txvscann = findViewById(R.id.txvScanner);
+
+        scan_btn.setOnClickListener(view -> {
+            // Verificar y solicitar permiso de la cámara si no está concedido
+            if (ContextCompat.checkSelfPermission(MenuUI.this, Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(MenuUI.this,
+                        new String[]{Manifest.permission.CAMERA},
+                        CAMERA_PERMISSION_REQUEST_CODE);
+            } else {
+                // Permiso de la cámara concedido, iniciar el escaneo
+                startBarcodeScanning();
+            }
+        });
+
     }
+
+
+    private void startBarcodeScanning() {
+        scan_btn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                IntentIntegrator intentIntegrator = new IntentIntegrator(MenuUI.this);
+                intentIntegrator.setOrientationLocked(true);
+                intentIntegrator.setPrompt("Escanear un QR");
+                intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
+                intentIntegrator.initiateScan();
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (intentResult != null) {
+            String contents = intentResult.getContents();
+            if (contents != null) {
+                txvscann.setText(contents);
+            } else {
+                txvscann.setText("No se encontraron datos en el QR");
+            }
+        }
+    }
+
 
     @Override
     protected void onDestroy() {
