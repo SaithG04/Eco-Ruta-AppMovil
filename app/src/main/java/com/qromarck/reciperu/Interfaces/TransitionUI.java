@@ -3,6 +3,7 @@ package com.qromarck.reciperu.Interfaces;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,8 +46,14 @@ public class TransitionUI extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(TransitionUI.this, destino));
-                finish();
+                if(destino!=null){
+                    Log.d("DEBUG", "DESTINO: "  + destino.getSimpleName());
+                    startActivity(new Intent(TransitionUI.this, destino));
+                    finish();
+                }else{
+                    Log.e("ERROR", "ORIGEN DESCONOCIDO");
+                    finish();
+                }
             }
         }, SPLASH_SCREEN_TIMEOUT);
     }

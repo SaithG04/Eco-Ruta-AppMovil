@@ -4,6 +4,7 @@ import static com.qromarck.reciperu.Utilities.InterfacesUtilities.*;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.*;
@@ -56,7 +57,10 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
                 new OnInsertionListener() {
                     @Override
                     public void onInsertionSuccess() {
+
+                        TransitionUI.destino = MenuUI.class;
                         Intent intent = new Intent(activity.getApplicationContext(), MenuUI.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         activity.startActivity(intent);
                         Toast.makeText(activity.getApplicationContext(), "¡En hora buena, ahora eres parte de esta familia!.", Toast.LENGTH_LONG).show();
                         activity.finish();
@@ -91,6 +95,7 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
                         InterfacesUtilities.guardarUsuario(menuUIActivity.getApplicationContext(), null);
 
                         TransitionUI.destino = LoginUI.class;
+                        Log.d("DEBUG", "FROM: " + UsuarioDAOImpl.class.getSimpleName());
                         menuUIActivity.startActivity(new Intent(menuUIActivity.getApplicationContext(), TransitionUI.class));
                         // Finaliza la actividad actual
                         menuUIActivity.finish();
