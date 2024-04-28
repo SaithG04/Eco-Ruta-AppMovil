@@ -40,13 +40,13 @@
         android:id="@+id/txvReciPoints"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="-----"
+        android:text=""
         android:textColor="#000000"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.39"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/lbl"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.432" />
 
@@ -92,6 +92,19 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.856" />
 
+    <Button
+        android:id="@+id/btnCamara"
+        android:layout_width="157dp"
+        android:layout_height="73dp"
+        android:backgroundTint="#589533"
+        android:text="Scanea"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.846"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.863" />
+
     <FrameLayout
         android:id="@+id/loadingLayout"
         android:layout_width="match_parent"
@@ -110,32 +123,10 @@
             android:indeterminate="true"
             android:padding="10dp"
             android:visibility="gone" />
+
+
     </FrameLayout>
 
-    <Button
-        android:id="@+id/btnCamara"
-        android:layout_width="157dp"
-        android:layout_height="73dp"
-        android:backgroundTint="#589533"
-        android:text="Scanea"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.846"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.863" />
 
-    <TextView
-        android:id="@+id/txvScanner"
-        android:layout_width="300dp"
-        android:layout_height="195dp"
-        android:textAlignment="viewStart"
-        android:textColor="#000000"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.652" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

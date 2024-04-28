@@ -82,8 +82,20 @@ public class Usuario {
     public int getPuntos() {
         return puntos;
     }
-    public void setPuntos(int puntos) {
+
+    /**
+     *Este metodo asigna puntos
+     *
+     *
+     * @param puntos Puntos que se asignan
+     *
+     *
+     * @return Este metodo retorna puntos sexo
+     **/
+
+    public int setPuntos(int puntos) {
         this.puntos = puntos;
+        return puntos;
     }
 
     @Override
