@@ -1,8 +1,6 @@
 package com.qromarck.reciperu.Interfaces;
 
 
-import static com.qromarck.reciperu.Interfaces.ReciMapsUI.REQUEST_LOCATION_PERMISSION;
-
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -48,7 +46,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     //QR
     private TextView txvscann;
     private Button scan_btn;
-
+    private static final int REQUEST_LOCATION_PERMISSION = 1001;
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

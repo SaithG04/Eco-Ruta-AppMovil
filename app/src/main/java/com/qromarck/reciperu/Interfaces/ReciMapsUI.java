@@ -51,7 +51,6 @@ import java.util.Locale;
 import java.util.Objects;
 
 //SONIDO DE PROXIMIDAD
-import android.location.Location;
 import android.media.MediaPlayer;
 
 public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
@@ -80,7 +79,21 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
 
         initializeUI();
         checkLocationPermissions();
+        mediaPlayer = MediaPlayer.create(this,R.raw.camion);
+        play();
     }
+
+    //SONIDO
+    //===========================================================
+    public void play(){
+        mediaPlayer.start();
+    }
+
+    public void stop(){
+        mediaPlayer.release();
+        mediaPlayer = null;
+    }
+    //===========================================================
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -105,6 +118,7 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
     @Override
     protected void onStop() {
         super.onStop();
+        stop();
         destroyDialog();
         handlerUser.removeCallbacksAndMessages(null);
     }
