@@ -15,6 +15,7 @@ import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.Interfaces.LoginUI;
 import com.qromarck.reciperu.Interfaces.MenuUI;
+import com.qromarck.reciperu.Interfaces.ReciShop;
 import com.qromarck.reciperu.Interfaces.TransitionUI;
 import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 import com.qromarck.reciperu.Utilities.DataAccessUtilities;
@@ -83,7 +84,9 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
 
         boolean deslogueo = MenuUI.typeChange.equals("deslogueo");
         boolean sumaptos = MenuUI.typeChange.equals("sumaptos");
+        boolean restaptos = ReciShop.typeChange.equals("restaptos");
         MenuUI menuUIActivity = (deslogueo || sumaptos) ? (MenuUI) activity : null;
+        ReciShop reciShop = restaptos ? (ReciShop) activity : null;
 
         if (NetworkUtilities.isNetworkAvailable(activity.getApplicationContext())) {
             Map<String, Object> entityToMap = entityToMap(usuario);
@@ -108,6 +111,21 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
                             menuUIActivity.finish();
                         }
 
+                    } else if (reciShop !=null) {
+                        if(ReciShop.typeChange.equals("restaptos")){
+                            InterfacesUtilities.guardarUsuario(reciShop.getApplicationContext(),usuario);
+                            reciShop.getPtos().setText(String.valueOf(usuario.getPuntos()));
+                            Toast.makeText(reciShop.getApplicationContext(),"Recompensa Canjeada!!!",Toast.LENGTH_SHORT).show();
+                        }else{
+                            FirebaseAuth.getInstance().signOut();
+                            InterfacesUtilities.guardarUsuario(reciShop.getApplicationContext(), null);
+
+                            TransitionUI.destino = LoginUI.class;
+                            Log.d("DEBUG", "FROM: " + UsuarioDAOImpl.class.getSimpleName());
+                            reciShop.startActivity(new Intent(reciShop.getApplicationContext(), TransitionUI.class));
+                            // Finaliza la actividad actual
+                            reciShop.finish();
+                        }
                     }
                 }
 
@@ -116,6 +134,9 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
                     if (menuUIActivity != null) {
                             Toast.makeText(menuUIActivity.getApplicationContext(), MenuUI.typeChange.equals("sumaptos") ? "Error al agregar puntos." : "Error al cerrar sesión.", Toast.LENGTH_SHORT).show();
                             menuUIActivity.hideLoadingIndicator();
+                    }else if(reciShop != null) {
+                        Toast.makeText(reciShop.getApplicationContext(), MenuUI.typeChange.equals("restaptos") ? "Error al canjear recompensa." : "Error al cerrar sesión.", Toast.LENGTH_SHORT).show();
+                        // reciShop.hideLoadingIndicator();
                     }
                     System.out.println(errorMessage);
                 }

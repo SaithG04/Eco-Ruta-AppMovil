@@ -20,6 +20,14 @@
         android:theme="@style/DarkTheme.ReciPeru"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".Interfaces.ReciShop"
+            android:exported="false"
+            android:label="@string/title_activity_reci_shop"
+            android:theme="@style/DarkTheme.ReciPeru.NoActionBar" />
+        <activity
+            android:name=".Entity.ReciShop"
+            android:exported="false" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -43,15 +51,15 @@
         <activity
             android:name=".Interfaces.RegistroUsuarioUI"
             android:exported="false"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask" />
         <activity
             android:name=".Interfaces.TransitionUI"
             android:exported="false"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask" />
         <activity
             android:name=".Interfaces.LoginUI"
             android:exported="false"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask" />
         <activity
             android:name=".Interfaces.CargaInicialUI"
             android:exported="true">
@@ -62,4 +70,5 @@
             </intent-filter>
         </activity>
     </application>
+
 </manifest>

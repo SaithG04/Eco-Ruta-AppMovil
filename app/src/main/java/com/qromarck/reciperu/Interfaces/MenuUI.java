@@ -2,6 +2,7 @@ package com.qromarck.reciperu.Interfaces;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,9 +58,12 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     private static final int REQUEST_LOCATION_PERMISSION = 1001;
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
 
+    private ImageView btnShop;
+
     public TextView getReci() {
         return reci;
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,22 +71,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_menu_ui);
 
-        Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(MenuUI.this);
-
-        // Verifica si el objeto Usuario está inicializado
-        if (userLoggedOnSystem != null) {
-            // Obtiene el nombre de usuario y lo muestra en el TextView
-            String nombreUsuario = userLoggedOnSystem.getFull_name();
-            TextView txvnombreUSER = findViewById(R.id.txvUSERNAME);
-            txvnombreUSER.setText(String.format("Bienvenido, %s", nombreUsuario));
-            // CAMBIOS
-            // Obtiene los puntos del usuario y los coloca en el texView
-            int recipoints = userLoggedOnSystem.getPuntos();
-            reci = findViewById(R.id.txvReciPoints);
-            reci.setText(String.valueOf(recipoints));
-        } else {
-            System.out.println("Usuario no disponible");
-        }
+        inicializarUser();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -171,7 +161,21 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 //                qrDAO.insertOnFireStore();
 //            }
 //        });
+
+
+        //TIENDA RECISHOP
+
+        btnShop = findViewById(R.id.imgShop);
+        btnShop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TransitionUI.destino = ReciShop.class;
+                startActivity(new Intent(MenuUI.this, TransitionUI.class));
+            }
+        });
     }
+
+
 
     private void startBarcodeScanning() {
         IntentIntegrator intentIntegrator = new IntentIntegrator(MenuUI.this);
@@ -218,6 +222,11 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        inicializarUser();
+    }
 
     @Override
     protected void onDestroy() {
@@ -227,6 +236,8 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             finishAffinity();
         }
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -342,6 +353,25 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         //Actualiza en firestore
         usuarioDAO.updateOnFireStore();
 
+    }
+
+    private void inicializarUser(){
+        Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(MenuUI.this);
+
+        // Verifica si el objeto Usuario está inicializado
+        if (userLoggedOnSystem != null) {
+            // Obtiene el nombre de usuario y lo muestra en el TextView
+            String nombreUsuario = userLoggedOnSystem.getFull_name();
+            TextView txvnombreUSER = findViewById(R.id.txvUSERNAME);
+            txvnombreUSER.setText(String.format("Bienvenido, %s", nombreUsuario));
+            // CAMBIOS
+            // Obtiene los puntos del usuario y los coloca en el texView
+            int recipoints = userLoggedOnSystem.getPuntos();
+            reci = findViewById(R.id.txvReciPoints);
+            reci.setText(String.valueOf(recipoints));
+        } else {
+            System.out.println("Usuario no disponible");
+        }
     }
 
 }
