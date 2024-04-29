@@ -1,9 +1,7 @@
 package com.qromarck.reciperu.Interfaces;
 
-import android.content.Intent;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.telephony.SmsManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -13,17 +11,24 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.DataAccessUtilities;
-import com.qromarck.reciperu.Utilities.EmailSender;
 import com.qromarck.reciperu.Utilities.InterfacesUtilities;
+import com.qromarck.reciperu.Utilities.SendEmail;
+
+import javax.mail.MessagingException;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.util.Properties;
+
 
 public class ReciShop extends AppCompatActivity {
 
@@ -41,9 +46,6 @@ public class ReciShop extends AppCompatActivity {
     int precio = 0;
 
     Button btn1,btn2,btn3;
-
-    //SMS
-    private static final String PHONE_NUMBER = "902207108"; // Número de teléfono de destino
 
 
     @Override
@@ -78,7 +80,11 @@ public class ReciShop extends AppCompatActivity {
                 precio = 5000;
                 if(recipointsstatus>=precio){
                     RestarPtos(precio);
-                    //enviarRecompensaCorreo();
+                    try {
+                        enviarEmail();
+                    } catch (MessagingException e) {
+                        throw new RuntimeException(e);
+                    }
                 }else{
                     Toast.makeText(ReciShop.this,"NO CUENTA CON ECOPOINTS SUFICIENTES!!!!",Toast.LENGTH_SHORT).show();
                 }
@@ -95,7 +101,11 @@ public class ReciShop extends AppCompatActivity {
                 precio = 7000;
                 if(recipointsstatus>=precio){
                     RestarPtos(precio);
-                    //enviarRecompensaCorreo();
+                    try {
+                        enviarEmail();
+                    } catch (MessagingException e) {
+                        throw new RuntimeException(e);
+                    }
                 }else{
                     Toast.makeText(ReciShop.this,"NO CUENTA CON ECOPOINTS SUFICIENTES!!!!",Toast.LENGTH_SHORT).show();
                 }
@@ -114,7 +124,11 @@ public class ReciShop extends AppCompatActivity {
                 precio = 9000;
                 if(recipointsstatus>=precio){
                     RestarPtos(precio);
-                    //enviarRecompensaCorreo();
+                    try {
+                        enviarEmail();
+                    } catch (MessagingException e) {
+                        throw new RuntimeException(e);
+                    }
                 }else{
                     Toast.makeText(ReciShop.this,"NO CUENTA CON ECOPOINTS SUFICIENTES!!!!",Toast.LENGTH_SHORT).show();
                 }
@@ -139,23 +153,16 @@ public class ReciShop extends AppCompatActivity {
         usuarioDAO.updateOnFireStore();
     }
 
-//    private void enviarRecompensaCorreo() {
-//        //Obtener usuario logeado en sistema en general
-//        Usuario recuperarUsuario = InterfacesUtilities.recuperarUsuario(getApplicationContext());
-//        //Recuperar ptos usuarios
-//        String Correousuario = recuperarUsuario.getEmail();
-//        String NombreUsuario = recuperarUsuario.getFull_name();
-//
-//        String senderEmail = "reciperu4@gmail.com";
-//        String senderPassword = "reciperu2024";
-//        String recipientEmail = Correousuario;
-//        String emailSubject = "RECOMPENSA CANJEADA!!!!";
-//        String emailMessage = "Hola, " + NombreUsuario +"\n\n Gracias por Canjear la recompensa , Sigue ASI!!!. \n CODIGO: Z4237642843283426734267823443";
-//
-//        EmailSender emailSender = new EmailSender(senderEmail, senderPassword, recipientEmail, emailSubject, emailMessage);
-//        emailSender.execute();
-//    }
+    private void enviarEmail() throws MessagingException {
 
+        Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciShop.this);
+        String nombre = userLoggedOnSystem.getFull_name();
 
+        String destinatarioCorreo = userLoggedOnSystem.getEmail();
 
+        String subject = "RECOMPENSA CANJEADA!!!!";
+        String content = "Hola : " + nombre +  "\n" + " Tu recompensa ah sido Canjeada Correctamente !!!" + "\n" +
+                "Este es tu codigo:" +"834JGHF76HJDHX67834FVDASFSD";
+        SendEmail.enviarMensaje(subject, content,destinatarioCorreo);
+    }
 }
