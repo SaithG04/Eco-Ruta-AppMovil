@@ -16,4 +16,13 @@
         <item name="android:windowBackground">@color/white</item>
         <item name="android:statusBarColor">@color/material_on_background_emphasis_medium</item>
     </style>
+
+    <style name="DarkTheme.ReciPeru.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="DarkTheme.ReciPeru.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="DarkTheme.ReciPeru.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>
