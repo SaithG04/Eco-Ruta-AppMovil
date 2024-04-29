@@ -83,7 +83,8 @@
                     android:id="@+id/imgEntradas"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:scaleType="centerCrop" />
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/entradas" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -130,7 +131,8 @@
                     android:id="@+id/imgRopa"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:scaleType="centerCrop" />
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/burger" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -177,7 +179,8 @@
                     android:id="@+id/imgComida"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:scaleType="centerCrop" />
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/ropa"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"

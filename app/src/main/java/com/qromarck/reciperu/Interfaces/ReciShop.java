@@ -3,6 +3,7 @@ package com.qromarck.reciperu.Interfaces;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -21,6 +22,7 @@ import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.DataAccessUtilities;
+import com.qromarck.reciperu.Utilities.EmailSender;
 import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 
 public class ReciShop extends AppCompatActivity {
@@ -39,6 +41,9 @@ public class ReciShop extends AppCompatActivity {
     int precio = 0;
 
     Button btn1,btn2,btn3;
+
+    //SMS
+    private static final String PHONE_NUMBER = "902207108"; // Número de teléfono de destino
 
 
     @Override
@@ -63,20 +68,37 @@ public class ReciShop extends AppCompatActivity {
         btn3 = findViewById(R.id.btnProd3);
 
         btn1.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
+                //Recuperamos puntos usuario logeado
+                Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciShop.this);
+                //Otener puntos de usuario logeado en sistema
+                int recipointsstatus = userLoggedOnSystem.getPuntos();
                 precio = 5000;
-                RestarPtos(precio);
-                //enviarRecompensa();
+                if(recipointsstatus>=precio){
+                    RestarPtos(precio);
+                    //enviarRecompensaCorreo();
+                }else{
+                    Toast.makeText(ReciShop.this,"NO CUENTA CON ECOPOINTS SUFICIENTES!!!!",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Recuperamos puntos usuario logeado
+                Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciShop.this);
+                //Otener puntos de usuario logeado en sistema
+                int recipointsstatus = userLoggedOnSystem.getPuntos();
                 precio = 7000;
-                RestarPtos(precio);
-               // enviarRecompensa();
+                if(recipointsstatus>=precio){
+                    RestarPtos(precio);
+                    //enviarRecompensaCorreo();
+                }else{
+                    Toast.makeText(ReciShop.this,"NO CUENTA CON ECOPOINTS SUFICIENTES!!!!",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -85,9 +107,17 @@ public class ReciShop extends AppCompatActivity {
         btn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Recuperamos puntos usuario logeado
+                Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciShop.this);
+                //Otener puntos de usuario logeado en sistema
+                int recipointsstatus = userLoggedOnSystem.getPuntos();
                 precio = 9000;
-                RestarPtos(precio);
-               // enviarRecompensa();
+                if(recipointsstatus>=precio){
+                    RestarPtos(precio);
+                    //enviarRecompensaCorreo();
+                }else{
+                    Toast.makeText(ReciShop.this,"NO CUENTA CON ECOPOINTS SUFICIENTES!!!!",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -107,24 +137,25 @@ public class ReciShop extends AppCompatActivity {
         typeChange = "restaptos";
         //Actualiza en firestore
         usuarioDAO.updateOnFireStore();
-
     }
 
-//    private void enviarRecompensa() {
+//    private void enviarRecompensaCorreo() {
+//        //Obtener usuario logeado en sistema en general
 //        Usuario recuperarUsuario = InterfacesUtilities.recuperarUsuario(getApplicationContext());
-//        Intent intent = new Intent(Intent.ACTION_SENDTO);
-//        intent.setData(Uri.parse("mailto:" + recuperarUsuario.getEmail())); // Especifica el destinatario (correo electrónico)
+//        //Recuperar ptos usuarios
+//        String Correousuario = recuperarUsuario.getEmail();
+//        String NombreUsuario = recuperarUsuario.getFull_name();
 //
-//        intent.putExtra(Intent.EXTRA_SUBJECT, "RECOMPENSA CANJEADA ECOPERU!!!!"); // Asunto del correo
+//        String senderEmail = "reciperu4@gmail.com";
+//        String senderPassword = "reciperu2024";
+//        String recipientEmail = Correousuario;
+//        String emailSubject = "RECOMPENSA CANJEADA!!!!";
+//        String emailMessage = "Hola, " + NombreUsuario +"\n\n Gracias por Canjear la recompensa , Sigue ASI!!!. \n CODIGO: Z4237642843283426734267823443";
 //
-//        String message = "Hola," +recuperarUsuario.getFull_name()+"\n\n Gracias por preferir ECOPeru aqui esta tu Recompensa Canjeada. \n ENTRADA CODIGO: XXXXXXXXXXXXXXXX";
-//        intent.putExtra(Intent.EXTRA_TEXT, message); // Cuerpo del correo
-//
-//        if (intent.resolveActivity(getPackageManager()) != null) {
-//            startActivity(Intent.createChooser(intent, "Enviar Correo"));
-//        } else {
-//            Toast.makeText(this, "No se encontró ninguna aplicación de correo.", Toast.LENGTH_SHORT).show();
-//        }
+//        EmailSender emailSender = new EmailSender(senderEmail, senderPassword, recipientEmail, emailSubject, emailMessage);
+//        emailSender.execute();
 //    }
+
+
 
 }

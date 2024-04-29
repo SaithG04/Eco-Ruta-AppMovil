@@ -63,6 +63,6 @@ dependencies {
     implementation("com.google.zxing:core:3.4.1")
     implementation("com.journeyapps:zxing-android-embedded:4.2.0")
     //GMAIL
-    implementation("com.sun.mail:android-mail:1.6.4")
-    implementation("com.sun.mail:android-activation:1.6.4")
+    implementation(libs.android.mail)
+    implementation(libs.android.activation)
 }
