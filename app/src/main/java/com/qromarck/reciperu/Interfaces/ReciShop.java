@@ -1,7 +1,6 @@
 package com.qromarck.reciperu.Interfaces;
 
-import android.content.Intent;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,9 +11,6 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
@@ -22,6 +18,17 @@ import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.DataAccessUtilities;
 import com.qromarck.reciperu.Utilities.InterfacesUtilities;
+import com.qromarck.reciperu.Utilities.SendEmail;
+
+import javax.mail.MessagingException;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.util.Properties;
+
 
 public class ReciShop extends AppCompatActivity {
 
@@ -63,20 +70,45 @@ public class ReciShop extends AppCompatActivity {
         btn3 = findViewById(R.id.btnProd3);
 
         btn1.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
+                //Recuperamos puntos usuario logeado
+                Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciShop.this);
+                //Otener puntos de usuario logeado en sistema
+                int recipointsstatus = userLoggedOnSystem.getPuntos();
                 precio = 5000;
-                RestarPtos(precio);
-                //enviarRecompensa();
+                if(recipointsstatus>=precio){
+                    RestarPtos(precio);
+                    try {
+                        enviarEmail();
+                    } catch (MessagingException e) {
+                        throw new RuntimeException(e);
+                    }
+                }else{
+                    Toast.makeText(ReciShop.this,"NO CUENTA CON ECOPOINTS SUFICIENTES!!!!",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Recuperamos puntos usuario logeado
+                Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciShop.this);
+                //Otener puntos de usuario logeado en sistema
+                int recipointsstatus = userLoggedOnSystem.getPuntos();
                 precio = 7000;
-                RestarPtos(precio);
-               // enviarRecompensa();
+                if(recipointsstatus>=precio){
+                    RestarPtos(precio);
+                    try {
+                        enviarEmail();
+                    } catch (MessagingException e) {
+                        throw new RuntimeException(e);
+                    }
+                }else{
+                    Toast.makeText(ReciShop.this,"NO CUENTA CON ECOPOINTS SUFICIENTES!!!!",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -85,9 +117,21 @@ public class ReciShop extends AppCompatActivity {
         btn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Recuperamos puntos usuario logeado
+                Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciShop.this);
+                //Otener puntos de usuario logeado en sistema
+                int recipointsstatus = userLoggedOnSystem.getPuntos();
                 precio = 9000;
-                RestarPtos(precio);
-               // enviarRecompensa();
+                if(recipointsstatus>=precio){
+                    RestarPtos(precio);
+                    try {
+                        enviarEmail();
+                    } catch (MessagingException e) {
+                        throw new RuntimeException(e);
+                    }
+                }else{
+                    Toast.makeText(ReciShop.this,"NO CUENTA CON ECOPOINTS SUFICIENTES!!!!",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -107,24 +151,18 @@ public class ReciShop extends AppCompatActivity {
         typeChange = "restaptos";
         //Actualiza en firestore
         usuarioDAO.updateOnFireStore();
-
     }
 
-//    private void enviarRecompensa() {
-//        Usuario recuperarUsuario = InterfacesUtilities.recuperarUsuario(getApplicationContext());
-//        Intent intent = new Intent(Intent.ACTION_SENDTO);
-//        intent.setData(Uri.parse("mailto:" + recuperarUsuario.getEmail())); // Especifica el destinatario (correo electrónico)
-//
-//        intent.putExtra(Intent.EXTRA_SUBJECT, "RECOMPENSA CANJEADA ECOPERU!!!!"); // Asunto del correo
-//
-//        String message = "Hola," +recuperarUsuario.getFull_name()+"\n\n Gracias por preferir ECOPeru aqui esta tu Recompensa Canjeada. \n ENTRADA CODIGO: XXXXXXXXXXXXXXXX";
-//        intent.putExtra(Intent.EXTRA_TEXT, message); // Cuerpo del correo
-//
-//        if (intent.resolveActivity(getPackageManager()) != null) {
-//            startActivity(Intent.createChooser(intent, "Enviar Correo"));
-//        } else {
-//            Toast.makeText(this, "No se encontró ninguna aplicación de correo.", Toast.LENGTH_SHORT).show();
-//        }
-//    }
+    private void enviarEmail() throws MessagingException {
 
+        Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciShop.this);
+        String nombre = userLoggedOnSystem.getFull_name();
+
+        String destinatarioCorreo = userLoggedOnSystem.getEmail();
+
+        String subject = "RECOMPENSA CANJEADA!!!!";
+        String content = "Hola : " + nombre +  "\n" + " Tu recompensa ah sido Canjeada Correctamente !!!" + "\n" +
+                "Este es tu codigo:" +"834JGHF76HJDHX67834FVDASFSD";
+        SendEmail.enviarMensaje(subject, content,destinatarioCorreo);
+    }
 }

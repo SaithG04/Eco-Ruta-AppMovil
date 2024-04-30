@@ -34,6 +34,22 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
+    packagingOptions {
+        exclude("META-INF/DEPENDENCIES")
+        exclude("META-INF/LICENSE")
+        exclude("META-INF/LICENSE.txt")
+        exclude("META-INF/license.txt")
+        exclude("META-INF/NOTICE")
+        exclude("META-INF/NOTICE.txt")
+        exclude("META-INF/notice.txt")
+        exclude("META-INF/ASL2.0")
+        exclude("META-INF/*.kotlin_module")
+    }
+
+    packagingOptions {
+        resources.excludes.add("META-INF/*")
+    }
 }
 
 dependencies {
@@ -62,7 +78,7 @@ dependencies {
     //QR
     implementation("com.google.zxing:core:3.4.1")
     implementation("com.journeyapps:zxing-android-embedded:4.2.0")
-    //GMAIL
-    implementation("com.sun.mail:android-mail:1.6.4")
-    implementation("com.sun.mail:android-activation:1.6.4")
+    //MAIL
+    implementation (libs.android.mail.v167)
+    implementation (libs.android.activation.v167)
 }
