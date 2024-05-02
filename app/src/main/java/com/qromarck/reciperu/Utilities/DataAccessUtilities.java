@@ -153,7 +153,7 @@ public class DataAccessUtilities {
         return taskCompletionSource.getTask();
     }
 
-    public void insertOnFireStoreRealtime(String collectionName, String documentId, Map<String, Object> data,
+    public static void insertOnFireStoreRealtime(String collectionName, String documentId, Map<String, Object> data,
                                   OnInsertionListener insertionListener) {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = db.getReference(collectionName).child(documentId);

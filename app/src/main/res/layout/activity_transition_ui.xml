@@ -17,5 +17,5 @@
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/reciperulogo" />
+        app:srcCompat="@drawable/eco_ruta_logo" />
 </androidx.constraintlayout.widget.ConstraintLayout>

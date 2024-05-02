@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
@@ -26,6 +27,7 @@ import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
@@ -95,17 +97,20 @@ public class RegistroUsuarioUI extends AppCompatActivity {
                                         usuario.setId(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
                                         usuario.setStatus("logged in");
 
-                                        InterfacesUtilities.guardarUsuario(RegistroUsuarioUI.this, usuario);
-
                                         UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, RegistroUsuarioUI.this);
                                         usuarioDAO.insertOnFireStore();
-                                        InterfacesUtilities.guardarUsuario(RegistroUsuarioUI.this, usuario);
+                                        usuarioDAO.getUserOnFireBase(usuario.getId(), new UsuarioDAOImpl.OnUserRetrievedListener() {
+                                            @Override
+                                            public void onUserRetrieved(Usuario usuario) {
+                                                InterfacesUtilities.guardarUsuario(RegistroUsuarioUI.this, usuario);
+                                            }
+                                        });
                                     } else {
                                         System.out.println("NO SE AUTENTICO");
                                     }
                                 }
                             });
-                }else{
+                } else {
                     Log.e("REGISTRO", "NO SE REGISTRO AL USUARIO");
                     hideLoadingIndicator();
                 }
@@ -157,19 +162,17 @@ public class RegistroUsuarioUI extends AppCompatActivity {
             return true;
         }
     }
+
     //MODIFICADO
     @NonNull
     private Usuario crearUsuario() {
 
         String fullName = edtUsuario.getText().toString();
         String email = edtCorreo.getText().toString();
-        Timestamp registro_date = new Timestamp(new Date());
         String status = "logged out";
         String type = "usuario";
-        //NUEVO puntos
         int puntos = 0;
-
-        return new Usuario(fullName, email, registro_date, status, type , puntos);
+        return new Usuario(fullName, email, null, status, type, puntos, null);
     }
 
     /**

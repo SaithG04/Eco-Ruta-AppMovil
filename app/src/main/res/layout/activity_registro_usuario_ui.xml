@@ -66,7 +66,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.004"
-        app:srcCompat="@drawable/reciperulogo" />
+        app:srcCompat="@drawable/eco_ruta_logo" />
 
     <Button
         android:id="@+id/btnREG"

@@ -12,6 +12,8 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.RequiresApi;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FieldValue;
 import com.google.gson.Gson;
 import com.qromarck.reciperu.Entity.Usuario;
 
@@ -20,6 +22,8 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +46,11 @@ public class InterfacesUtilities {
             field.setAccessible(true);
             try {
                 Object value = field.get(entity);
-                resultMap.put(field.getName(), value);
+                if(field.getType().getSimpleName().equals("Timestamp") && value == null){
+                    resultMap.put(field.getName(), FieldValue.serverTimestamp());
+                }else{
+                    resultMap.put(field.getName(), value);
+                }
             } catch (IllegalAccessException e) {
                 e.printStackTrace(System.out);
             }
@@ -178,6 +186,25 @@ public class InterfacesUtilities {
 
         // Obtener el arreglo de bytes desde el ByteBuffer
         return buffer.array();
+    }
+    public static int[] getDayMonthYear(Timestamp timestamp) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(timestamp.toDate());
+
+        int[] dayMonthYear = new int[3];
+        dayMonthYear[0] = calendar.get(Calendar.DAY_OF_MONTH); // Día
+        dayMonthYear[1] = calendar.get(Calendar.MONTH) + 1; // Mes (se suma 1 porque en Calendar los meses van de 0 a 11)
+        dayMonthYear[2] = calendar.get(Calendar.YEAR); // Año
+
+        return dayMonthYear;
+    }
+
+    public static boolean compareDatesWithoutHMS(Timestamp date1, Timestamp date2) {
+        int[] dayMonthYear1 = getDayMonthYear(date1);
+        int[] dayMonthYear2 = getDayMonthYear(date2);
+
+        // Comparar los valores de día, mes y año
+        return Arrays.equals(dayMonthYear1, dayMonthYear2);
     }
 
 //    @Deprecated
