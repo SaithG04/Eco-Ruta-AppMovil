@@ -32,6 +32,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.qromarck.reciperu.DAO.DAOImplements.QrDAOImpl;
@@ -45,11 +52,9 @@ import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.*;
 
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MenuUI extends AppCompatActivity implements Serializable {
 
@@ -209,24 +214,111 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                         } else {
                             int hashPassword = InterfacesUtilities.hashPassword(contents, qr.getSalt());
                             if (hashPassword == qr.getHashed_code()) {
-                                Usuario usuario = InterfacesUtilities.recuperarUsuario(getApplicationContext());
-                                Timestamp lastScanDate = usuario.getLast_scan_date();
-                                Timestamp registroDate = usuario.getRegistro_date();
-                                Timestamp fechaActual = Timestamp.now();
 
-                                long milliseconds = lastScanDate.toDate().getTime();
-                                LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.systemDefault());
-                                int dia = dateTime.getDayOfMonth();
-                                long milliseconds2 = registroDate.toDate().getTime();
-                                LocalDateTime dateTime2 = LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds2), ZoneId.systemDefault());
-                                int dia2 = dateTime2.getDayOfMonth();
+                                Map<String, Object> time = new HashMap<>();
+                                time.put("id", "1");
+                                time.put("time", ServerValue.TIMESTAMP);
 
-                                if (dia == dia2) {
-                                    Toast.makeText(getApplicationContext(), "LIMITE DE ESCANEOS POR DIA", Toast.LENGTH_SHORT).show();
-                                    hideLoadingIndicator();
-                                } else {
-                                    sumarpuntos(qr.getPoints_value());
-                                }
+                                DataAccessUtilities.insertOnFireStoreRealtime("time", "1", time, new DataAccessUtilities.OnInsertionListener() {
+                                    @Override
+                                    public void onInsertionSuccess() {
+
+                                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("time").child("1");
+                                        reference.addValueEventListener(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                try {
+                                                    boolean isPosible = false;
+
+                                                    Usuario usuario = InterfacesUtilities.recuperarUsuario(getApplicationContext());
+                                                    Timestamp lastScanDate = usuario.getLast_scan_date();
+                                                    Timestamp registroDate = usuario.getRegistro_date();
+
+                                                    if (lastScanDate == null || registroDate == null) {
+                                                        Toast.makeText(getApplicationContext(), "Algo salió mal. Cierre y inicie nuevamente la sesión en su cuenta.", Toast.LENGTH_SHORT).show();
+                                                        hideLoadingIndicator();
+                                                    } else {
+                                                        Object timeGet = dataSnapshot.child("time").getValue();
+                                                        if (timeGet instanceof Long) {
+                                                            Long timeMillis = (Long) timeGet;
+                                                            Date date = new Date(timeMillis);
+                                                            Timestamp actualDate = new Timestamp(date);
+
+                                                            if (InterfacesUtilities.compareDatesWithoutHMS(actualDate, registroDate)) {
+                                                                if (lastScanDate.equals(registroDate)) {
+                                                                    isPosible = true;
+                                                                }
+                                                            } else {
+                                                                if (!InterfacesUtilities.compareDatesWithoutHMS(actualDate, lastScanDate)) {
+                                                                    isPosible = true;
+                                                                }
+                                                            }
+
+                                                            if (isPosible) {
+                                                                sumarpuntos(qr.getPoints_value());
+                                                            } else {
+                                                                Toast.makeText(getApplicationContext(), "Podrás acumular más puntos mañana.", Toast.LENGTH_SHORT).show();
+                                                                hideLoadingIndicator();
+                                                            }
+                                                        } else {
+                                                            System.out.println("NO SE QUE CHUCHA");
+                                                            // Manejo para el caso en que no se obtenga un valor válido de la base de datos
+                                                        }
+
+//                                                    Object timeGet = dataSnapshot.child("time").getValue();
+//                                                    System.out.println(timeGet);
+//                                                    Date date = new Date((Long) timeGet);
+//                                                    Timestamp actualDate = new Timestamp(date);
+//                                                    if (InterfacesUtilities.compareDatesWithoutHMS(actualDate, registroDate)) {
+//                                                        if (lastScanDate.equals(registroDate)) {
+//                                                            isPosible = true;
+//                                                        }
+//                                                    } else {
+//                                                        if (!InterfacesUtilities.compareDatesWithoutHMS(actualDate, lastScanDate)) {
+//                                                            isPosible = true;
+//                                                        }
+//                                                    }
+//
+//                                                    if (isPosible) {
+//                                                        sumarpuntos(qr.getPoints_value());
+//                                                    } else {
+//                                                        Toast.makeText(getApplicationContext(), "Podrás acumular más puntos mañana.", Toast.LENGTH_SHORT).show();
+//                                                        hideLoadingIndicator();
+//                                                    }
+//                                                    }
+
+                                                    }
+
+//                                                    dataSnapshot.child("time").getValue();
+
+//                                                    Timestamp registrationDateTimeObj = (Timestamp) dataSnapshot.child("time").getValue();
+//                                                        if (registrationDateTimeObj instanceof Long) {
+//                                                        long registrationDateTimeMillis = (long) registrationDateTimeObj;
+//                                                        Date registrationDate = new Date(registrationDateTimeMillis);
+//                                                        Timestamp actualDate = (Timestamp) ;
+
+
+                                                } catch (Exception exception) {
+                                                    exception.printStackTrace(System.out);
+                                                    hideLoadingIndicator();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                                // Manejar errores de lectura de datos
+                                                Log.e("FirebaseDatabase", "Error al obtener el tiempo: " + databaseError.getMessage());
+                                                hideLoadingIndicator();
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onInsertionError(String errorMessage) {
+                                        Log.e("Firebase", errorMessage);
+                                        hideLoadingIndicator();
+                                    }
+                                });
 
                             } else {
                                 QRError();
@@ -366,7 +458,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         ptosactuales += puntos;
         //Actualizar ptos en usuario
         recuperarUsuario.setPuntos(ptosactuales);
-        recuperarUsuario.setLast_scan_date(Timestamp.now());
+        recuperarUsuario.setLast_scan_date(null);
         //Creamos usuario DAO
         UsuarioDAO usuarioDAO = new UsuarioDAOImpl(recuperarUsuario, MenuUI.this);
         typeChange = "sumaptos";

@@ -103,7 +103,6 @@ public class RegistroUsuarioUI extends AppCompatActivity {
                                             @Override
                                             public void onUserRetrieved(Usuario usuario) {
                                                 InterfacesUtilities.guardarUsuario(RegistroUsuarioUI.this, usuario);
-
                                             }
                                         });
                                     } else {
@@ -173,7 +172,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         String status = "logged out";
         String type = "usuario";
         int puntos = 0;
-        return new Usuario(fullName, email, Timestamp.now(), status, type, puntos, Timestamp.now());
+        return new Usuario(fullName, email, null, status, type, puntos, null);
     }
 
     /**
