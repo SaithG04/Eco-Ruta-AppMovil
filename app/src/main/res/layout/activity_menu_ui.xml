@@ -9,7 +9,7 @@
     tools:context=".Interfaces.MenuUI">
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/imgvPerfil"
         android:layout_width="224dp"
         android:layout_height="167dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -66,7 +66,7 @@
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.324" />
+        app:layout_constraintVertical_bias="0.32" />
 
     <Button
         android:id="@+id/btnCerrarSesion"
@@ -142,6 +142,18 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/icono_tienda" />
+
+    <Button
+        android:id="@+id/btnCargarImagen"
+        android:layout_width="58dp"
+        android:layout_height="52dp"
+        android:text="Button"
+        app:layout_constraintBottom_toBottomOf="@+id/imgvPerfil"
+        app:layout_constraintEnd_toEndOf="@+id/imgvPerfil"
+        app:layout_constraintHorizontal_bias="0.825"
+        app:layout_constraintStart_toStartOf="@+id/imgvPerfil"
+        app:layout_constraintTop_toTopOf="@+id/imgvPerfil"
+        app:layout_constraintVertical_bias="1.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

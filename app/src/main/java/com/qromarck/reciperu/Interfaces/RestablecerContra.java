@@ -3,6 +3,7 @@ package com.qromarck.reciperu.Interfaces;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -33,19 +34,31 @@ public class RestablecerContra extends AppCompatActivity {
             return insets;
         });
 
-        // Inicializa Firebase Authentication
-        mAuth = FirebaseAuth.getInstance();
+        Button enviar = findViewById(R.id.btnEnviarGmail);
 
-        // Obtén la referencia al botón de restablecimiento de contraseña en tu diseño XML
-        Button resetButton = findViewById(R.id.btnEnviarGmail);
-
-        // Asigna un OnClickListener al botón
-        resetButton.setOnClickListener(new View.OnClickListener() {
+        enviar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Obtén el correo electrónico del usuario
-                Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(RestablecerContra.this);
-                String email = userLoggedOnSystem.getEmail();
+                // Obtén la referencia al EditText donde se ingresa el correo
+                EditText gmailEditText = findViewById(R.id.edtGmail);
+
+                // Obtiene el texto ingresado en el EditText
+                String email = gmailEditText.getText().toString().trim();
+
+                // Verifica si el campo de correo electrónico no está vacío
+                if (email.isEmpty()) {
+                    Toast.makeText(RestablecerContra.this, "Ingrese su Correo, Por favor.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Validar el formato del correo electrónico usando una expresión regular
+                if (!isValidEmail(email)) {
+                    Toast.makeText(RestablecerContra.this, "Ingrese un correo electrónico válido.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Inicializa Firebase Authentication
+                mAuth = FirebaseAuth.getInstance();
 
                 // Envía el correo de restablecimiento de contraseña
                 mAuth.sendPasswordResetEmail(email)
@@ -54,19 +67,23 @@ public class RestablecerContra extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     // Correo de restablecimiento enviado con éxito
-                                    Toast.makeText(RestablecerContra.this,
-                                            "Se ha enviado un correo para restablecer tu contraseña",
-                                            Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(RestablecerContra.this, "Se ha enviado un correo para restablecer tu contraseña", Toast.LENGTH_SHORT).show();
                                     finish(); // Cierra la actividad actual
                                 } else {
                                     // Error al enviar el correo de restablecimiento
-                                    Toast.makeText(RestablecerContra.this,
-                                            "Error al enviar el correo de restablecimiento. " + task.getException(),
-                                            Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(RestablecerContra.this, "Error al enviar el correo de restablecimiento. " + task.getException(), Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
             }
+
+            // Método para validar el formato del correo electrónico usando expresión regular
+            private boolean isValidEmail(String email) {
+                String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+                return email.matches(emailPattern);
+            }
+
         });
+
     }
 }

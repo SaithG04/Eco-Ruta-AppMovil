@@ -215,7 +215,11 @@
         android:textAllCaps="false"
         android:textColor="#6EC3EA"
         android:textStyle="bold|italic"
-        tools:layout_editor_absoluteX="114dp"
-        tools:layout_editor_absoluteY="679dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.932"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.956" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
