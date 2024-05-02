@@ -25,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="235dp"
                 android:scaleType="centerCrop"
-                app:srcCompat="@drawable/packers___movers" />
+                app:srcCompat="@drawable/eco_ruta_logo" />
 
             <!-- Descripción de la tienda -->
             <TextView

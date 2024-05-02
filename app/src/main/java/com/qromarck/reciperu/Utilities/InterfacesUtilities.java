@@ -12,6 +12,8 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.RequiresApi;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FieldValue;
 import com.google.gson.Gson;
 import com.qromarck.reciperu.Entity.Usuario;
 
@@ -42,7 +44,11 @@ public class InterfacesUtilities {
             field.setAccessible(true);
             try {
                 Object value = field.get(entity);
-                resultMap.put(field.getName(), value);
+//                if(field.getType().getSimpleName().equals("Timestamp") && value == null){
+//                    resultMap.put(field.getName(), FieldValue.serverTimestamp());
+//                }else{
+                    resultMap.put(field.getName(), value);
+//                }
             } catch (IllegalAccessException e) {
                 e.printStackTrace(System.out);
             }

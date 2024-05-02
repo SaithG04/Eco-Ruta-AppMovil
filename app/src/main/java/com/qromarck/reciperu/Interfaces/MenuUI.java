@@ -2,13 +2,13 @@ package com.qromarck.reciperu.Interfaces;
 
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -23,6 +23,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -30,6 +31,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.Timestamp;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.qromarck.reciperu.DAO.DAOImplements.QrDAOImpl;
@@ -43,6 +45,11 @@ import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.*;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.Objects;
 
 public class MenuUI extends AppCompatActivity implements Serializable {
 
@@ -153,10 +160,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 //                String codeqr = SecurityUtilities.CODEQR;
 //                int salt = InterfacesUtilities.generateSalt();
 //                int hashPassword = InterfacesUtilities.hashPassword(codeqr, salt);
-//                QR qr = new QR();
-//                qr.setId("1");
-//                qr.setHashed_code(hashPassword);
-//                qr.setSalt(salt);
+//                QR qr = new QR("SgRzNBy3gm2CvR7hHSif", hashPassword, salt, "26 de Octubre");
 //                QrDAO qrDAO = new QrDAOImpl(qr, MenuUI.this);
 //                qrDAO.insertOnFireStore();
 //            }
@@ -176,7 +180,6 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     }
 
 
-
     private void startBarcodeScanning() {
         IntentIntegrator intentIntegrator = new IntentIntegrator(MenuUI.this);
         intentIntegrator.setOrientationLocked(true);
@@ -194,29 +197,45 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             String contents = intentResult.getContents();
             if (contents != null) {
                 QR qr = new QR();
-                qr.setId("1");
+                String sede = "26 de Octubre";
+                qr.setSede(sede);
                 QrDAO qrDAO = new QrDAOImpl(qr, MenuUI.this);
-                qrDAO.getQROnFireBase(qr.getId(), new QrDAOImpl.OnQrRetrievedListener() {
+                qrDAO.getQROnFireBase(qr.getSede(), new QrDAOImpl.OnQrRetrievedListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onQrRetrieved(QR qr) {
-                        if (qr == null) { // Si no se encuentra el usuario
-                            hideLoadingIndicator(); // Ocultar indicador de carga
-                            Toast.makeText(MenuUI.this, "QR INVALIDO", Toast.LENGTH_LONG).show();
+                        if (qr == null) {
+                            QRError();
                         } else {
                             int hashPassword = InterfacesUtilities.hashPassword(contents, qr.getSalt());
-                            System.out.println(hashPassword);
                             if (hashPassword == qr.getHashed_code()) {
-                                sumarpuntos(100);
+                                Usuario usuario = InterfacesUtilities.recuperarUsuario(getApplicationContext());
+                                Timestamp lastScanDate = usuario.getLast_scan_date();
+                                Timestamp registroDate = usuario.getRegistro_date();
+                                Timestamp fechaActual = Timestamp.now();
+
+                                long milliseconds = lastScanDate.toDate().getTime();
+                                LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.systemDefault());
+                                int dia = dateTime.getDayOfMonth();
+                                long milliseconds2 = registroDate.toDate().getTime();
+                                LocalDateTime dateTime2 = LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds2), ZoneId.systemDefault());
+                                int dia2 = dateTime2.getDayOfMonth();
+
+                                if (dia == dia2) {
+                                    Toast.makeText(getApplicationContext(), "LIMITE DE ESCANEOS POR DIA", Toast.LENGTH_SHORT).show();
+                                    hideLoadingIndicator();
+                                } else {
+                                    sumarpuntos(qr.getPoints_value());
+                                }
+
                             } else {
-                                Toast.makeText(getApplicationContext(), "QR INVALIDO", Toast.LENGTH_SHORT).show();
-                                hideLoadingIndicator();
+                                QRError();
                             }
                         }
                     }
                 });
 
             } else {
-                Toast.makeText(getApplicationContext(), "QR INVALIDO", Toast.LENGTH_SHORT).show();
                 hideLoadingIndicator();
             }
         }
@@ -236,7 +255,6 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             finishAffinity();
         }
     }
-
 
 
     @Override
@@ -282,6 +300,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
             }
         });
         // Mostrar el diálogo
@@ -347,6 +366,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         ptosactuales += puntos;
         //Actualizar ptos en usuario
         recuperarUsuario.setPuntos(ptosactuales);
+        recuperarUsuario.setLast_scan_date(Timestamp.now());
         //Creamos usuario DAO
         UsuarioDAO usuarioDAO = new UsuarioDAOImpl(recuperarUsuario, MenuUI.this);
         typeChange = "sumaptos";
@@ -355,7 +375,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 
     }
 
-    private void inicializarUser(){
+    private void inicializarUser() {
         Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(MenuUI.this);
 
         // Verifica si el objeto Usuario está inicializado
@@ -372,6 +392,11 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         } else {
             System.out.println("Usuario no disponible");
         }
+    }
+
+    private void QRError() {
+        Toast.makeText(getApplicationContext(), "QR INVALIDO", Toast.LENGTH_SHORT).show();
+        hideLoadingIndicator();
     }
 
 }

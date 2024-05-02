@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@drawable/iconoreciperu" />
-    <foreground android:drawable="@drawable/iconoreciperu" />
-    <monochrome android:drawable="@drawable/iconoreciperu" />
+    <background android:drawable="@drawable/eco_ruta_logo" />
+    <foreground android:drawable="@drawable/eco_ruta_logo" />
+    <monochrome android:drawable="@drawable/eco_ruta_logo" />
 </adaptive-icon>
