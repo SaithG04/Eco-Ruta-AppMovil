@@ -74,10 +74,10 @@ dependencies {
     //noinspection UseTomlInstead
     implementation("com.google.firebase:firebase-analytics")
     //implementation(libs.play.services.auth)
-    implementation("com.google.android.gms:play-services-auth:18.1.0")
+    implementation(libs.play.services.auth.v1810)
     //QR
-    implementation("com.google.zxing:core:3.4.1")
-    implementation("com.journeyapps:zxing-android-embedded:4.2.0")
+    implementation(libs.core)
+    implementation(libs.zxing.android.embedded)
     //MAIL
     implementation (libs.android.mail.v167)
     implementation (libs.android.activation.v167)

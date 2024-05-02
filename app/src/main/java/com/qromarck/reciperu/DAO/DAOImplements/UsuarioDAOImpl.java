@@ -171,8 +171,10 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
                         public void onSuccess(List<Usuario> usuarios) {
                             // Se obtuvieron los usuarios correctamente, llamar al método de devolución de llamada
                             if (!usuarios.isEmpty()) {
+                                System.out.println(usuarios.get(0).toString());
                                 listener.onUserRetrieved(usuarios.get(0)); // Pasar el primer usuario encontrado
                             } else {
+                                System.out.println("USUARIO ES NULL");
                                 listener.onUserRetrieved(null); // Pasar null si no se encontraron usuarios
                             }
                         }

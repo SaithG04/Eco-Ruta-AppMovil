@@ -2,13 +2,13 @@ package com.qromarck.reciperu.Interfaces;
 
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -23,6 +23,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -30,6 +31,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.qromarck.reciperu.DAO.DAOImplements.QrDAOImpl;
@@ -43,6 +52,9 @@ import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.*;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MenuUI extends AppCompatActivity implements Serializable {
 
@@ -153,10 +165,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 //                String codeqr = SecurityUtilities.CODEQR;
 //                int salt = InterfacesUtilities.generateSalt();
 //                int hashPassword = InterfacesUtilities.hashPassword(codeqr, salt);
-//                QR qr = new QR();
-//                qr.setId("1");
-//                qr.setHashed_code(hashPassword);
-//                qr.setSalt(salt);
+//                QR qr = new QR("SgRzNBy3gm2CvR7hHSif", hashPassword, salt, "26 de Octubre");
 //                QrDAO qrDAO = new QrDAOImpl(qr, MenuUI.this);
 //                qrDAO.insertOnFireStore();
 //            }
@@ -176,7 +185,6 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     }
 
 
-
     private void startBarcodeScanning() {
         IntentIntegrator intentIntegrator = new IntentIntegrator(MenuUI.this);
         intentIntegrator.setOrientationLocked(true);
@@ -194,29 +202,132 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             String contents = intentResult.getContents();
             if (contents != null) {
                 QR qr = new QR();
-                qr.setId("1");
+                String sede = "26 de Octubre";
+                qr.setSede(sede);
                 QrDAO qrDAO = new QrDAOImpl(qr, MenuUI.this);
-                qrDAO.getQROnFireBase(qr.getId(), new QrDAOImpl.OnQrRetrievedListener() {
+                qrDAO.getQROnFireBase(qr.getSede(), new QrDAOImpl.OnQrRetrievedListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onQrRetrieved(QR qr) {
-                        if (qr == null) { // Si no se encuentra el usuario
-                            hideLoadingIndicator(); // Ocultar indicador de carga
-                            Toast.makeText(MenuUI.this, "QR INVALIDO", Toast.LENGTH_LONG).show();
+                        if (qr == null) {
+                            QRError();
                         } else {
                             int hashPassword = InterfacesUtilities.hashPassword(contents, qr.getSalt());
-                            System.out.println(hashPassword);
                             if (hashPassword == qr.getHashed_code()) {
-                                sumarpuntos(100);
+
+                                Map<String, Object> time = new HashMap<>();
+                                time.put("id", "1");
+                                time.put("time", ServerValue.TIMESTAMP);
+
+                                DataAccessUtilities.insertOnFireStoreRealtime("time", "1", time, new DataAccessUtilities.OnInsertionListener() {
+                                    @Override
+                                    public void onInsertionSuccess() {
+
+                                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("time").child("1");
+                                        reference.addValueEventListener(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                try {
+                                                    boolean isPosible = false;
+
+                                                    Usuario usuario = InterfacesUtilities.recuperarUsuario(getApplicationContext());
+                                                    Timestamp lastScanDate = usuario.getLast_scan_date();
+                                                    Timestamp registroDate = usuario.getRegistro_date();
+
+                                                    if (lastScanDate == null || registroDate == null) {
+                                                        Toast.makeText(getApplicationContext(), "Algo salió mal. Cierre y inicie nuevamente la sesión en su cuenta.", Toast.LENGTH_SHORT).show();
+                                                        hideLoadingIndicator();
+                                                    } else {
+                                                        Object timeGet = dataSnapshot.child("time").getValue();
+                                                        if (timeGet instanceof Long) {
+                                                            Long timeMillis = (Long) timeGet;
+                                                            Date date = new Date(timeMillis);
+                                                            Timestamp actualDate = new Timestamp(date);
+
+                                                            if (InterfacesUtilities.compareDatesWithoutHMS(actualDate, registroDate)) {
+                                                                if (lastScanDate.equals(registroDate)) {
+                                                                    isPosible = true;
+                                                                }
+                                                            } else {
+                                                                if (!InterfacesUtilities.compareDatesWithoutHMS(actualDate, lastScanDate)) {
+                                                                    isPosible = true;
+                                                                }
+                                                            }
+
+                                                            if (isPosible) {
+                                                                sumarpuntos(qr.getPoints_value());
+                                                            } else {
+                                                                Toast.makeText(getApplicationContext(), "Podrás acumular más puntos mañana.", Toast.LENGTH_SHORT).show();
+                                                                hideLoadingIndicator();
+                                                            }
+                                                        } else {
+                                                            System.out.println("NO SE QUE CHUCHA");
+                                                            // Manejo para el caso en que no se obtenga un valor válido de la base de datos
+                                                        }
+
+//                                                    Object timeGet = dataSnapshot.child("time").getValue();
+//                                                    System.out.println(timeGet);
+//                                                    Date date = new Date((Long) timeGet);
+//                                                    Timestamp actualDate = new Timestamp(date);
+//                                                    if (InterfacesUtilities.compareDatesWithoutHMS(actualDate, registroDate)) {
+//                                                        if (lastScanDate.equals(registroDate)) {
+//                                                            isPosible = true;
+//                                                        }
+//                                                    } else {
+//                                                        if (!InterfacesUtilities.compareDatesWithoutHMS(actualDate, lastScanDate)) {
+//                                                            isPosible = true;
+//                                                        }
+//                                                    }
+//
+//                                                    if (isPosible) {
+//                                                        sumarpuntos(qr.getPoints_value());
+//                                                    } else {
+//                                                        Toast.makeText(getApplicationContext(), "Podrás acumular más puntos mañana.", Toast.LENGTH_SHORT).show();
+//                                                        hideLoadingIndicator();
+//                                                    }
+//                                                    }
+
+                                                    }
+
+//                                                    dataSnapshot.child("time").getValue();
+
+//                                                    Timestamp registrationDateTimeObj = (Timestamp) dataSnapshot.child("time").getValue();
+//                                                        if (registrationDateTimeObj instanceof Long) {
+//                                                        long registrationDateTimeMillis = (long) registrationDateTimeObj;
+//                                                        Date registrationDate = new Date(registrationDateTimeMillis);
+//                                                        Timestamp actualDate = (Timestamp) ;
+
+
+                                                } catch (Exception exception) {
+                                                    exception.printStackTrace(System.out);
+                                                    hideLoadingIndicator();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                                // Manejar errores de lectura de datos
+                                                Log.e("FirebaseDatabase", "Error al obtener el tiempo: " + databaseError.getMessage());
+                                                hideLoadingIndicator();
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onInsertionError(String errorMessage) {
+                                        Log.e("Firebase", errorMessage);
+                                        hideLoadingIndicator();
+                                    }
+                                });
+
                             } else {
-                                Toast.makeText(getApplicationContext(), "QR INVALIDO", Toast.LENGTH_SHORT).show();
-                                hideLoadingIndicator();
+                                QRError();
                             }
                         }
                     }
                 });
 
             } else {
-                Toast.makeText(getApplicationContext(), "QR INVALIDO", Toast.LENGTH_SHORT).show();
                 hideLoadingIndicator();
             }
         }
@@ -236,7 +347,6 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             finishAffinity();
         }
     }
-
 
 
     @Override
@@ -282,6 +392,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
             }
         });
         // Mostrar el diálogo
@@ -347,6 +458,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         ptosactuales += puntos;
         //Actualizar ptos en usuario
         recuperarUsuario.setPuntos(ptosactuales);
+        recuperarUsuario.setLast_scan_date(null);
         //Creamos usuario DAO
         UsuarioDAO usuarioDAO = new UsuarioDAOImpl(recuperarUsuario, MenuUI.this);
         typeChange = "sumaptos";
@@ -355,7 +467,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 
     }
 
-    private void inicializarUser(){
+    private void inicializarUser() {
         Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(MenuUI.this);
 
         // Verifica si el objeto Usuario está inicializado
@@ -372,6 +484,11 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         } else {
             System.out.println("Usuario no disponible");
         }
+    }
+
+    private void QRError() {
+        Toast.makeText(getApplicationContext(), "QR INVALIDO", Toast.LENGTH_SHORT).show();
+        hideLoadingIndicator();
     }
 
 }

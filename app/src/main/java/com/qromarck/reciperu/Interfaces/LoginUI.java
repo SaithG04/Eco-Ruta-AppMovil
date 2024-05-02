@@ -158,8 +158,13 @@ public class LoginUI extends AppCompatActivity {
                     hideLoadingIndicator(); // Ocultar indicador de carga
                     Toast.makeText(LoginUI.this, "No hay ninguna cuenta asociada a este correo.", Toast.LENGTH_LONG).show();
                 } else {
-                    // Iniciar sesión
-                    logIn(usuario, password);
+                    if (usuario.getStatus().equals("logged in")) {
+                        hideLoadingIndicator();
+                        Toast.makeText(LoginUI.this, "YA HAY UNA SESIÓN INICIADA EN OTRO DISPOSITIVO.", Toast.LENGTH_LONG).show();
+                    } else {
+                        // Iniciar sesión
+                        logIn(usuario, password);
+                    }
                 }
             }
         });

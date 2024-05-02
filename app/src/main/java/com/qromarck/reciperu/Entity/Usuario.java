@@ -11,22 +11,23 @@ public class Usuario {
     private String status;
     private String type;
     private int puntos;
+    private Timestamp last_scan_date;
 
     // Constructores, getters y setters
 
     // Constructor vacío
-    public Usuario() {
+    public Usuario(){
     }
 
     // Constructor con todos los campos
-
-    public Usuario(String full_name, String email, Timestamp registro_date, String status, String type , int puntos) {
+    public Usuario(String full_name, String email, Timestamp registro_date, String status, String type, int puntos, Timestamp last_scan_date) {
         this.full_name = full_name;
         this.email = email;
         this.registro_date = registro_date;
         this.status = status;
         this.type = type;
         this.puntos = puntos;
+        this.last_scan_date = last_scan_date;
     }
 
 
@@ -75,6 +76,7 @@ public class Usuario {
     public String getType() {
         return type;
     }
+
     public void setType(String type) {
         this.type = type;
     }
@@ -83,19 +85,16 @@ public class Usuario {
         return puntos;
     }
 
-    /**
-     *Este metodo asigna puntos
-     *
-     *
-     * @param puntos Puntos que se asignan
-     *
-     *
-     * @return Este metodo retorna puntos sexo
-     **/
-
-    public int setPuntos(int puntos) {
+    public void setPuntos(int puntos) {
         this.puntos = puntos;
-        return puntos;
+    }
+
+    public Timestamp getLast_scan_date() {
+        return last_scan_date;
+    }
+
+    public void setLast_scan_date(Timestamp last_scan_date) {
+        this.last_scan_date = last_scan_date;
     }
 
     @Override
@@ -107,7 +106,8 @@ public class Usuario {
                 ", registro_date=" + registro_date +
                 ", status='" + status + '\'' +
                 ", type='" + type + '\'' +
-                ", puntos='" + puntos + '\'' +
+                ", puntos=" + puntos +
+                ", last_scan_date=" + last_scan_date +
                 '}';
     }
 }
