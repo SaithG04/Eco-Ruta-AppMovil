@@ -21,6 +21,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".Interfaces.RestablecerContra"
+            android:exported="false" />
+        <activity
             android:name=".Interfaces.ReciShop"
             android:exported="false"
             android:label="@string/title_activity_reci_shop"

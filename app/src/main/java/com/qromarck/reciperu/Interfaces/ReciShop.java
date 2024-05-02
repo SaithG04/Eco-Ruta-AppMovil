@@ -1,5 +1,6 @@
 package com.qromarck.reciperu.Interfaces;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -48,6 +49,7 @@ public class ReciShop extends AppCompatActivity {
     Button btn1,btn2,btn3;
 
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +71,8 @@ public class ReciShop extends AppCompatActivity {
         btn2 = findViewById(R.id.btnProd2);
         btn3 = findViewById(R.id.btnProd3);
 
+        loadingLayout = findViewById(R.id.loadingLayout);
+        loadingIndicator = findViewById(R.id.loadingIndicator);
         btn1.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -136,6 +140,16 @@ public class ReciShop extends AppCompatActivity {
         });
 
 
+    }
+    private void showLoadingIndicator() {
+        InterfacesUtilities.showLoadingIndicator(ReciShop.this, loadingLayout, loadingIndicator);
+    }
+
+    /**
+     * Método para ocultar el indicador de carga.
+     */
+    public void hideLoadingIndicator() {
+        InterfacesUtilities.hideLoadingIndicator(ReciShop.this, loadingLayout, loadingIndicator);
     }
 
     public void RestarPtos(int puntos){
