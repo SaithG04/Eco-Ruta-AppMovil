@@ -30,8 +30,16 @@ public class Usuario {
         this.last_scan_date = last_scan_date;
     }
 
-
-    // Getters y setters para todos los campos
+    public Usuario(String full_name, String email) {
+        this.full_name = full_name;
+        this.email = email;
+        this.type = "usuario";
+        this.puntos = 0;
+        this.last_scan_date = null;
+        this.registro_date = null;
+        this.status = "logged out";
+    }
+// Getters y setters para todos los campos
 
     public String getId() {
         return id;

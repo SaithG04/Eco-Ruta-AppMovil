@@ -51,102 +51,40 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
     }
 
     @Override
-    public void insertOnFireStore() {
+    public void insertOnFireStore(OnInsertionListener insertionListener) {
         Map<String, Object> entityToMap = entityToMap(usuario);
         String documentId = Objects.requireNonNull(entityToMap.get("id")).toString();
         insertOnFireStore(COLLECTION_NAME, documentId, entityToMap,
                 new OnInsertionListener() {
                     @Override
                     public void onInsertionSuccess() {
-
-                        TransitionUI.destino = MenuUI.class;
-                        Intent intent = new Intent(activity.getApplicationContext(), MenuUI.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        activity.startActivity(intent);
-                        Toast.makeText(activity.getApplicationContext(), "¡En hora buena, ahora eres parte de esta familia!.", Toast.LENGTH_LONG).show();
-                        activity.finish();
+                        insertionListener.onInsertionSuccess();
                     }
 
                     @Override
                     public void onInsertionError(String errorMessage) {
-//                        // Manejar el fallo desde cualquier clase
-//                        Toast.makeText(activity.getApplicationContext(), "Error al registrar... ", Toast.LENGTH_SHORT).show();
-//                        activity.finish();
-//                        Intent intent = new Intent(activity.getApplicationContext(), LoginUI.class);
-//                        activity.startActivity(intent);
-                        System.out.println(errorMessage);
+                        insertionListener.onInsertionError(errorMessage);
                     }
                 });
     }
 
     @Override
-    public void updateOnFireStore() {
+    public void updateOnFireStore(OnUpdateListener onUpdateListener) {
 
-        boolean deslogueo = MenuUI.typeChange.equals("deslogueo");
-        boolean sumaptos = MenuUI.typeChange.equals("sumaptos");
-        boolean restaptos = ReciShop.typeChange.equals("restaptos");
-        MenuUI menuUIActivity = (deslogueo || sumaptos) ? (MenuUI) activity : null;
-        ReciShop reciShop = restaptos ? (ReciShop) activity : null;
-
-        if (NetworkUtilities.isNetworkAvailable(activity.getApplicationContext())) {
-            Map<String, Object> entityToMap = entityToMap(usuario);
-            String documentId = Objects.requireNonNull(entityToMap.get("id")).toString();
-            updateOnFireStore(COLLECTION_NAME, documentId, entityToMap, new OnUpdateListener() {
-                @Override
-                public void onUpdateComplete() {
-                    if (menuUIActivity != null) {
-                        if (MenuUI.typeChange.equals("sumaptos")) {
-                            InterfacesUtilities.guardarUsuario(menuUIActivity.getApplicationContext(),usuario);
-                            menuUIActivity.getReci().setText(String.valueOf(usuario.getPuntos()));
-                            menuUIActivity.hideLoadingIndicator();
-                            Toast.makeText(menuUIActivity.getApplicationContext(),"Puntos Agregados Correctamente",Toast.LENGTH_SHORT).show();
-                        }else{
-                            FirebaseAuth.getInstance().signOut();
-                            InterfacesUtilities.guardarUsuario(menuUIActivity.getApplicationContext(), null);
-
-                            TransitionUI.destino = LoginUI.class;
-                            Log.d("DEBUG", "FROM: " + UsuarioDAOImpl.class.getSimpleName());
-                            menuUIActivity.startActivity(new Intent(menuUIActivity.getApplicationContext(), TransitionUI.class));
-                            // Finaliza la actividad actual
-                            menuUIActivity.finish();
-                        }
-
-                    } else if (reciShop !=null) {
-                        if(ReciShop.typeChange.equals("restaptos")){
-                            InterfacesUtilities.guardarUsuario(reciShop.getApplicationContext(),usuario);
-                            reciShop.getPtos().setText(String.valueOf(usuario.getPuntos()));
-                            Toast.makeText(reciShop.getApplicationContext(),"Recompensa Canjeada!!!",Toast.LENGTH_SHORT).show();
-                        }else{
-                            FirebaseAuth.getInstance().signOut();
-                            InterfacesUtilities.guardarUsuario(reciShop.getApplicationContext(), null);
-
-                            TransitionUI.destino = LoginUI.class;
-                            Log.d("DEBUG", "FROM: " + UsuarioDAOImpl.class.getSimpleName());
-                            reciShop.startActivity(new Intent(reciShop.getApplicationContext(), TransitionUI.class));
-                            // Finaliza la actividad actual
-                            reciShop.finish();
-                        }
-                    }
-                }
-
-                @Override
-                public void onUpdateError(String errorMessage) {
-                    if (menuUIActivity != null) {
-                            Toast.makeText(menuUIActivity.getApplicationContext(), MenuUI.typeChange.equals("sumaptos") ? "Error al agregar puntos." : "Error al cerrar sesión.", Toast.LENGTH_SHORT).show();
-                            menuUIActivity.hideLoadingIndicator();
-                    }else if(reciShop != null) {
-                        Toast.makeText(reciShop.getApplicationContext(), MenuUI.typeChange.equals("restaptos") ? "Error al canjear recompensa." : "Error al cerrar sesión.", Toast.LENGTH_SHORT).show();
-                        // reciShop.hideLoadingIndicator();
-                    }
-                    System.out.println(errorMessage);
-                }
-            });
-        } else {
-            if (menuUIActivity != null) {
-                menuUIActivity.hideLoadingIndicator();
+        Map<String, Object> entityToMap = entityToMap(usuario);
+        String documentId = Objects.requireNonNull(entityToMap.get("id")).toString();
+        updateOnFireStore(COLLECTION_NAME, documentId, entityToMap, new OnUpdateListener() {
+            @Override
+            public void onUpdateComplete() {
+                onUpdateListener.onUpdateComplete();
             }
-            DialogUtilities.showNoInternetDialog(activity);
-        }
+
+            @Override
+            public void onUpdateError(String errorMessage) {
+                onUpdateListener.onUpdateError(errorMessage);
+            }
+        });
+
     }
 
     @Override
@@ -155,45 +93,24 @@ public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
     }
 
     @Override
-    public void getUserOnFireBase(Object parameter, OnUserRetrievedListener listener) {
+    public void getUserOnFireBase(Object parameter, OnSuccessListener<List<Usuario>> onSuccessListener, OnFailureListener onFailureListener) {
 
-        boolean login = LoginUI.type.equals("login");
-        LoginUI loginUIActivity = login ? (LoginUI) activity : null;
+        String[] infoAtributo = obtenerInfoAtributo(usuario, parameter);
+        String parameterName = infoAtributo[1];
 
-        if (NetworkUtilities.isNetworkAvailable(activity.getApplicationContext())) {
-
-            String[] infoAtributo = obtenerInfoAtributo(usuario, parameter);
-            String parameterName = infoAtributo[1];
-
-            getByCriteria(Usuario.class, parameterName, parameter)
-                    .addOnSuccessListener(new OnSuccessListener<List<Usuario>>() {
-                        @Override
-                        public void onSuccess(List<Usuario> usuarios) {
-                            // Se obtuvieron los usuarios correctamente, llamar al método de devolución de llamada
-                            if (!usuarios.isEmpty()) {
-                                System.out.println(usuarios.get(0).toString());
-                                listener.onUserRetrieved(usuarios.get(0)); // Pasar el primer usuario encontrado
-                            } else {
-                                System.out.println("USUARIO ES NULL");
-                                listener.onUserRetrieved(null); // Pasar null si no se encontraron usuarios
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            // Error al realizar la consulta, llamar al método de devolución de llamada con null
-                            listener.onUserRetrieved(null);
-                            e.printStackTrace(System.out);
-                        }
-                    });
-        } else {
-            if (loginUIActivity != null) {
-                loginUIActivity.hideLoadingIndicator();
-            }
-            DialogUtilities.showNoInternetDialog(activity);
-        }
-
+        getByCriteria(Usuario.class, parameterName, parameter)
+                .addOnSuccessListener(new OnSuccessListener<List<Usuario>>() {
+                    @Override
+                    public void onSuccess(List<Usuario> usuarios) {
+                        onSuccessListener.onSuccess(usuarios);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        onFailureListener.onFailure(e);
+                    }
+                });
     }
 
 }

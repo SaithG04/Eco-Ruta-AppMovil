@@ -36,41 +36,24 @@ public class QrDAOImpl extends DataAccessUtilities implements QrDAO {
     }
 
     @Override
-    public void getQROnFireBase(Object parameter, OnQrRetrievedListener listener) {
-        MenuUI menuUI = (MenuUI) activity;
-        if (NetworkUtilities.isNetworkAvailable(activity.getApplicationContext())) {
+    public void getQROnFireBase(Object parameter, OnSuccessListener<List<QR>> onSuccessListener, OnFailureListener onFailureListener) {
 
-            String[] infoAtributo = obtenerInfoAtributo(qr, parameter);
-            String parameterName = infoAtributo[1];
+        String[] infoAtributo = obtenerInfoAtributo(qr, parameter);
+        String parameterName = infoAtributo[1];
 
-            getByCriteria(QR.class, parameterName, parameter)
-                    .addOnSuccessListener(new OnSuccessListener<List<QR>>() {
-                        @Override
-                        public void onSuccess(List<QR> qr) {
-                            // Se obtuvieron los qr correctamente, llamar al método de devolución de llamada
-                            if (!qr.isEmpty()) {
-                                listener.onQrRetrieved(qr.get(0)); // Pasar el primer usuario encontrado
-                            } else {
-                                listener.onQrRetrieved(null); // Pasar null si no se encontraron qr
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            // Error al realizar la consulta, llamar al método de devolución de llamada con null
-                            listener.onQrRetrieved(null);
-                            e.printStackTrace(System.out);
-                        }
-                    });
-        } else {
-            menuUI.hideLoadingIndicator();
-            DialogUtilities.showNoInternetDialog(activity);
-        }
-    }
-
-    public interface OnQrRetrievedListener {
-        void onQrRetrieved(QR qr);
+        getByCriteria(QR.class, parameterName, parameter)
+                .addOnSuccessListener(new OnSuccessListener<List<QR>>() {
+                    @Override
+                    public void onSuccess(List<QR> qr) {
+                        onSuccessListener.onSuccess(qr);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        onFailureListener.onFailure(e);
+                    }
+                });
     }
 
     @Override
@@ -84,18 +67,20 @@ public class QrDAOImpl extends DataAccessUtilities implements QrDAO {
     }
 
     @Override
-    public void insertOnFireStore() {
+    public void insertOnFireStore(OnInsertionListener listener) {
         Map<String, Object> entityToMap = entityToMap(qr);
         String documentId = Objects.requireNonNull(entityToMap.get("id")).toString();
         insertOnFireStore(COLLECTION_NAME, documentId, entityToMap,
                 new DataAccessUtilities.OnInsertionListener() {
                     @Override
                     public void onInsertionSuccess() {
+                        listener.onInsertionSuccess();
                         Toast.makeText(activity.getApplicationContext(), "¡CORRECTO!.", Toast.LENGTH_LONG).show();
                     }
 
                     @Override
                     public void onInsertionError(String errorMessage) {
+                        listener.onInsertionError(errorMessage);
 //                        // Manejar el fallo desde cualquier clase
 //                        Toast.makeText(activity.getApplicationContext(), "Error al registrar... ", Toast.LENGTH_SHORT).show();
 //                        activity.finish();
@@ -107,7 +92,7 @@ public class QrDAOImpl extends DataAccessUtilities implements QrDAO {
     }
 
     @Override
-    public void updateOnFireStore() {
+    public void updateOnFireStore(OnUpdateListener listener) {
 
     }
 
