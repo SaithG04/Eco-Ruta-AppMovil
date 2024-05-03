@@ -33,6 +33,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -128,6 +129,20 @@ public class LoginUI extends AppCompatActivity {
 
             }
         });
+
+        TextView resta;
+
+        resta = findViewById(R.id.txvRestablecer);
+
+        resta.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TransitionUI.destino = RestablecerContra.class;
+                startActivity(new Intent(LoginUI.this, TransitionUI.class));
+            }
+        });
+
+
     }
 
     @Override

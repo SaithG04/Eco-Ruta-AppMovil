@@ -6,8 +6,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -87,6 +91,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
 
         Button verMapa = findViewById(R.id.btnVerMapa);
         loadingLayout = findViewById(R.id.loadingLayout);
@@ -184,7 +189,6 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             }
         });
     }
-
 
     private void startBarcodeScanning() {
         IntentIntegrator intentIntegrator = new IntentIntegrator(MenuUI.this);
