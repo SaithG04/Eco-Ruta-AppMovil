@@ -29,25 +29,25 @@ public class LocationDAOImpl extends DataAccessUtilities implements LocationDAO 
     }
 
     @Override
-    public void insertOnFireStore() {
+    public void insertOnFireStore(OnInsertionListener listener) {
         Map<String, Object> entityToMap = entityToMap(location);
         String documentId = Objects.requireNonNull(entityToMap.get("userId")).toString();
         insertOnFireStoreRealtime(COLLECTION_NAME, documentId, entityToMap,
                 new DataAccessUtilities.OnInsertionListener() {
                     @Override
                     public void onInsertionSuccess() {
-                        Log.d("Location", "Ubication updated. " + location.toString());
+                        listener.onInsertionSuccess();
                     }
 
                     @Override
                     public void onInsertionError(String errorMessage) {
-                        Log.e("Location", "Ubication not updated. Cause: " + errorMessage);
+                        listener.onInsertionError(errorMessage);
                     }
                 });
     }
 
     @Override
-    public void updateOnFireStore() {
+    public void updateOnFireStore(OnUpdateListener listener) {
         //DONT IMPLEMENT
     }
 

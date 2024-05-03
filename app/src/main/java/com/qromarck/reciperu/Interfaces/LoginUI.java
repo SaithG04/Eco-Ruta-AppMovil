@@ -1,5 +1,7 @@
 package com.qromarck.reciperu.Interfaces;
 
+import static com.qromarck.reciperu.Utilities.InterfacesUtilities.entityToMap;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -17,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,6 +36,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -109,7 +114,12 @@ public class LoginUI extends AppCompatActivity {
                 if (correo.isEmpty() || password.isEmpty()) {
                     Toast.makeText(LoginUI.this, "¡Ey, faltan datos!", Toast.LENGTH_SHORT).show();
                 } else {
-                    loginOnFireBase(correo, password); // Método para iniciar sesión en Firebase
+                    if (NetworkUtilities.isNetworkAvailable(getApplicationContext())) {
+                        loginOnFireBase(correo, password); // Método para iniciar sesión en Firebase
+                    } else {
+                        hideLoadingIndicator();
+                        DialogUtilities.showNoInternetDialog(LoginUI.this);
+                    }
                 }
             }
         });
@@ -166,9 +176,10 @@ public class LoginUI extends AppCompatActivity {
         UsuarioDAO usuarioDAO = new UsuarioDAOImpl(userSearched, LoginUI.this);
 
         // Buscar usuario en Firebase
-        usuarioDAO.getUserOnFireBase(userSearched.getEmail(), new UsuarioDAOImpl.OnUserRetrievedListener() {
+        usuarioDAO.getUserOnFireBase(userSearched.getEmail(), new OnSuccessListener<List<Usuario>>() {
             @Override
-            public void onUserRetrieved(Usuario usuario) {
+            public void onSuccess(List<Usuario> usuarios) {
+                Usuario usuario = usuarios.get(0);
                 if (usuario == null) { // Si no se encuentra el usuario
                     hideLoadingIndicator(); // Ocultar indicador de carga
                     Toast.makeText(LoginUI.this, "No hay ninguna cuenta asociada a este correo.", Toast.LENGTH_LONG).show();
@@ -182,8 +193,12 @@ public class LoginUI extends AppCompatActivity {
                     }
                 }
             }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                e.printStackTrace(System.out);
+            }
         });
-
     }
 
     private void logIn(Usuario usuario, String password) {
@@ -192,15 +207,24 @@ public class LoginUI extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     usuario.setStatus("logged in");
-                    InterfacesUtilities.guardarUsuario(LoginUI.this, usuario);
 
                     UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, LoginUI.this);
-                    usuarioDAO.updateOnFireStore();
+                    usuarioDAO.updateOnFireStore(new DataAccessUtilities.OnUpdateListener() {
+                        @Override
+                        public void onUpdateComplete() {
+                            InterfacesUtilities.guardarUsuario(LoginUI.this, usuario);
+                            TransitionUI.destino = MenuUI.class;
+                            Log.d("DEBUG", "FROM: " + LoginUI.class.getSimpleName());
+                            startActivity(new Intent(LoginUI.this, TransitionUI.class)); // Abrir actividad del menú
+                            finish();
+                        }
 
-                    TransitionUI.destino = MenuUI.class;
-                    Log.d("DEBUG", "FROM: " + LoginUI.class.getSimpleName());
-                    startActivity(new Intent(LoginUI.this, TransitionUI.class)); // Abrir actividad del menú
-                    finish();
+                        @Override
+                        public void onUpdateError(String errorMessage) {
+                            Log.w("ERROR", errorMessage);
+                            hideLoadingIndicator();
+                        }
+                    });
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {

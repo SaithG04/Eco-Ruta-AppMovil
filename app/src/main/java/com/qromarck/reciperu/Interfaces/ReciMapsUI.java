@@ -44,6 +44,7 @@ import com.qromarck.reciperu.DAO.LocationDAO;
 import com.qromarck.reciperu.Entity.MenuUIManager;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
+import com.qromarck.reciperu.Utilities.DataAccessUtilities;
 import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 
 import java.io.IOException;
@@ -80,17 +81,17 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
 
         initializeUI();
         checkLocationPermissions();
-        mediaPlayer = MediaPlayer.create(this,R.raw.camion);
+        mediaPlayer = MediaPlayer.create(this, R.raw.camion);
         play();
     }
 
     //SONIDO
     //===========================================================
-    public void play(){
+    public void play() {
         mediaPlayer.start();
     }
 
-    public void stop(){
+    public void stop() {
         mediaPlayer.release();
         mediaPlayer = null;
     }
@@ -313,7 +314,17 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         locationUp.setLongitude(location.getLongitude());
         locationUp.setCity(city);
         LocationDAO locationDAO = new LocationDAOImpl(locationUp);
-        locationDAO.insertOnFireStore();
+        locationDAO.insertOnFireStore(new DataAccessUtilities.OnInsertionListener() {
+            @Override
+            public void onInsertionSuccess() {
+                Log.d("Location", "Ubication updated. ");
+            }
+
+            @Override
+            public void onInsertionError(String errorMessage) {
+                Log.e("Location", "Ubication not updated. Cause: " + errorMessage);
+            }
+        });
     }
 
     private String getCityFromLocation(Location location, Geocoder geocoder) {
@@ -343,7 +354,7 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
                     double longitude = dataSnapshot.child("longitude").getValue(Double.class);
                     // Agregar el marcador del conductor en el mapa
                     setMarkerOfConductor(latitude, longitude);
-                }catch (Exception exception){
+                } catch (Exception exception) {
                     exception.printStackTrace(System.out);
                 }
             }

@@ -1,5 +1,7 @@
 package com.qromarck.reciperu.Interfaces;
 
+import static com.qromarck.reciperu.Utilities.InterfacesUtilities.obtenerInfoAtributo;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.AuthResult;
@@ -25,10 +28,14 @@ import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
+import com.qromarck.reciperu.Utilities.DataAccessUtilities;
+import com.qromarck.reciperu.Utilities.DialogUtilities;
 import com.qromarck.reciperu.Utilities.InterfacesUtilities;
+import com.qromarck.reciperu.Utilities.NetworkUtilities;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 public class RegistroUsuarioUI extends AppCompatActivity {
@@ -60,7 +67,8 @@ public class RegistroUsuarioUI extends AppCompatActivity {
             public void onClick(View v) {
                 if (validateCampos()) {
                     Usuario nuevoUsuario = crearUsuario();
-                    registrarUsuarioOnFireStore(nuevoUsuario);
+                    String password = edtContrasena.getText().toString();
+                    registrarUsuarioOnFireStore(nuevoUsuario, password);
                 }
             }
         });
@@ -81,67 +89,99 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         startActivity(new Intent(RegistroUsuarioUI.this, TransitionUI.class));
     }
 
-    private void registrarUsuarioOnFireStore(Usuario usuario) {
+    private void registrarUsuarioOnFireStore(Usuario usuario, String password) {
         showLoadingIndicator();
-        mAuth.createUserWithEmailAndPassword(usuario.getEmail(), edtContrasena.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    mAuth.signInWithEmailAndPassword(usuario.getEmail(), edtContrasena.getText().toString())
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
 
-                                        //Se le asigna el id generado por firebase al nuevo usuario y se procede a registrar en firestore el resto de sus datos
-                                        usuario.setId(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
-                                        usuario.setStatus("logged in");
+        if (NetworkUtilities.isNetworkAvailable(getApplicationContext())) {
+            mAuth.createUserWithEmailAndPassword(usuario.getEmail(), password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        mAuth.signInWithEmailAndPassword(usuario.getEmail(), password)
+                                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        if (task.isSuccessful()) {
 
-                                        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, RegistroUsuarioUI.this);
-                                        usuarioDAO.insertOnFireStore();
-                                        usuarioDAO.getUserOnFireBase(usuario.getId(), new UsuarioDAOImpl.OnUserRetrievedListener() {
-                                            @Override
-                                            public void onUserRetrieved(Usuario usuario) {
-                                                InterfacesUtilities.guardarUsuario(RegistroUsuarioUI.this, usuario);
-                                            }
-                                        });
-                                    } else {
-                                        System.out.println("NO SE AUTENTICO");
+                                            //Se le asigna el id generado por firebase al nuevo usuario y se procede a registrar en firestore el resto de sus datos
+                                            usuario.setId(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+                                            usuario.setStatus("logged in");
+
+                                            UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, RegistroUsuarioUI.this);
+                                            System.out.println(usuario.toString());
+                                            usuarioDAO.insertOnFireStore(new DataAccessUtilities.OnInsertionListener() {
+                                                @Override
+                                                public void onInsertionSuccess() {
+                                                    usuarioDAO.getUserOnFireBase(usuario.getId(), new OnSuccessListener<List<Usuario>>() {
+                                                        @Override
+                                                        public void onSuccess(List<Usuario> usuarios) {
+                                                            if (!usuarios.isEmpty()) {
+                                                                Usuario usuarioGet = usuarios.get(0);
+                                                                InterfacesUtilities.guardarUsuario(RegistroUsuarioUI.this, usuarioGet);
+                                                                TransitionUI.destino = MenuUI.class;
+                                                                Intent intent = new Intent(getApplicationContext(), MenuUI.class);
+                                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                                startActivity(intent);
+                                                                Toast.makeText(getApplicationContext(), "¡En hora buena, ahora eres parte de esta familia!.", Toast.LENGTH_LONG).show();
+                                                                finish();
+                                                            } else {
+                                                                System.out.println("USUARIO ES NULL");
+                                                            }
+                                                        }
+                                                    }, new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            e.printStackTrace(System.out);
+                                                        }
+                                                    });
+                                                }
+
+                                                @Override
+                                                public void onInsertionError(String errorMessage) {
+                                                    System.out.println(errorMessage);
+                                                }
+                                            });
+
+                                        } else {
+                                            System.out.println("NO SE AUTENTICO");
+                                        }
                                     }
-                                }
-                            });
-                } else {
-                    Log.e("REGISTRO", "NO SE REGISTRO AL USUARIO");
+                                });
+                    } else {
+                        Log.e("REGISTRO", "NO SE REGISTRO AL USUARIO");
+                        hideLoadingIndicator();
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    String errorMessage;
+                    if (Objects.requireNonNull(e.getMessage()).contains("The email address is already in use by another account.")) {
+                        errorMessage = "¡Ups! Parece que alguien más ya está usando ese email.";
+                        edtCorreo.setError("");
+                        edtCorreo.requestFocus();
+                    } else if (e.getMessage().contains("The email address is badly formatted.")) {
+                        errorMessage = "¡Ups! Parece que el email que has ingresado no es válido.";
+                        edtCorreo.setError("");
+                        edtCorreo.requestFocus();
+                    } else if (e.getMessage().contains("The given password is invalid. [ Password should be at least 6 characters ]")) {
+                        edtContrasena.setError("");
+                        errorMessage = "Tu contraseña debe contener al menos 6 caracteres.";
+                        edtContrasena.requestFocus();
+                    } else if (e.getMessage().contains("A network error (such as timeout, interrupted connection or unreachable host) has occurred.")) {
+                        errorMessage = "Parece que estamos desconectados :(";
+                    } else {
+                        errorMessage = "¡Ups! Algo salió mal.";
+                    }
                     hideLoadingIndicator();
+                    Toast.makeText(RegistroUsuarioUI.this, errorMessage, Toast.LENGTH_LONG).show();
+                    e.printStackTrace(System.out);
                 }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                String errorMessage;
-                if (Objects.requireNonNull(e.getMessage()).contains("The email address is already in use by another account.")) {
-                    errorMessage = "¡Ups! Parece que alguien más ya está usando ese email.";
-                    edtCorreo.setError("");
-                    edtCorreo.requestFocus();
-                } else if (e.getMessage().contains("The email address is badly formatted.")) {
-                    errorMessage = "¡Ups! Parece que el email que has ingresado no es válido.";
-                    edtCorreo.setError("");
-                    edtCorreo.requestFocus();
-                } else if (e.getMessage().contains("The given password is invalid. [ Password should be at least 6 characters ]")) {
-                    edtContrasena.setError("");
-                    errorMessage = "Tu contraseña debe contener al menos 6 caracteres.";
-                    edtContrasena.requestFocus();
-                } else if (e.getMessage().contains("A network error (such as timeout, interrupted connection or unreachable host) has occurred.")) {
-                    errorMessage = "Parece que estamos desconectados :(";
-                } else {
-                    errorMessage = "¡Ups! Algo salió mal.";
-                }
-                hideLoadingIndicator();
-                Toast.makeText(RegistroUsuarioUI.this, errorMessage, Toast.LENGTH_LONG).show();
-                e.printStackTrace(System.out);
-            }
-        });
-
+            });
+        } else {
+            hideLoadingIndicator();
+            DialogUtilities.showNoInternetDialog(RegistroUsuarioUI.this);
+        }
     }
 
     private boolean validateCampos() {
@@ -166,13 +206,8 @@ public class RegistroUsuarioUI extends AppCompatActivity {
     //MODIFICADO
     @NonNull
     private Usuario crearUsuario() {
-
-        String fullName = edtUsuario.getText().toString();
-        String email = edtCorreo.getText().toString();
-        String status = "logged out";
-        String type = "usuario";
-        int puntos = 0;
-        return new Usuario(fullName, email, null, status, type, puntos, null);
+        String fullName = edtUsuario.getText().toString(), email = edtCorreo.getText().toString();
+        return new Usuario(fullName, email);
     }
 
     /**

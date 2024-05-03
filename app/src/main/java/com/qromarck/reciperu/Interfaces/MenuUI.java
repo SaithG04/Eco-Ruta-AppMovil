@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,7 +26,6 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -33,14 +33,16 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.qromarck.reciperu.DAO.DAOImplements.QrDAOImpl;
@@ -56,7 +58,9 @@ import com.qromarck.reciperu.Utilities.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class MenuUI extends AppCompatActivity implements Serializable {
 
@@ -65,14 +69,9 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     public static String typeChange = "";
 
     private static boolean exit;
-
-    //QR
     private TextView reci;
-    private Button scan_btn;
     private static final int REQUEST_LOCATION_PERMISSION = 1001;
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
-
-    private ImageView btnShop;
 
     public TextView getReci() {
         return reci;
@@ -85,7 +84,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_menu_ui);
 
-        inicializarUser();
+        inicializarUsuario();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -107,7 +106,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                     // Verifica si tienes los permisos de ubicación
                     if (ContextCompat.checkSelfPermission(MenuUI.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         // Verificar si el GPS está habilitado
-                        if (!isGPSEnabled()) {
+                        if (isGPSEnabled()) {
                             hideLoadingIndicator();
                             // El GPS está apagado, mostrar un diálogo para pedir al usuario que lo active
                             showEnableGPSDialog();
@@ -141,10 +140,9 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             }
         });
 
-
         //SCANNER QR
 
-        scan_btn = findViewById(R.id.btnCamara);
+        Button scan_btn = findViewById(R.id.btnCamara);
 
         scan_btn.setOnClickListener(view -> {
             showLoadingIndicator();
@@ -156,8 +154,13 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                         new String[]{Manifest.permission.CAMERA},
                         CAMERA_PERMISSION_REQUEST_CODE);
             } else {
-                // Permiso de la cámara concedido, iniciar el escaneo
-                startBarcodeScanning();
+                if (NetworkUtilities.isNetworkAvailable(getApplicationContext())) {
+                    startBarcodeScanning();
+                } else {
+                    hideLoadingIndicator();
+                    DialogUtilities.showNoInternetDialog(MenuUI.this);
+                }
+
             }
         });
 //        PROHIBIDO BORRAR O TE BORRO YO
@@ -177,7 +180,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 
         //TIENDA RECISHOP
 
-        btnShop = findViewById(R.id.imgShop);
+        ImageView btnShop = findViewById(R.id.imgShop);
         btnShop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -198,19 +201,19 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        System.out.println("SE ESTA EJECUTANDO EL ON ACTIVITYRESULT");
         IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (intentResult != null) {
             String contents = intentResult.getContents();
             if (contents != null) {
-                QR qr = new QR();
                 String sede = "26 de Octubre";
+                QR qr = new QR();
                 qr.setSede(sede);
                 QrDAO qrDAO = new QrDAOImpl(qr, MenuUI.this);
-                qrDAO.getQROnFireBase(qr.getSede(), new QrDAOImpl.OnQrRetrievedListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.O)
+                qrDAO.getQROnFireBase(qr.getSede(), new OnSuccessListener<List<QR>>() {
                     @Override
-                    public void onQrRetrieved(QR qr) {
+                    public void onSuccess(List<QR> qrs) {
+                        QR qr = qrs.get(0);
                         if (qr == null) {
                             QRError();
                         } else {
@@ -226,7 +229,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                                     public void onInsertionSuccess() {
 
                                         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("time").child("1");
-                                        reference.addValueEventListener(new ValueEventListener() {
+                                        reference.addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                 try {
@@ -236,71 +239,29 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                                                     Timestamp lastScanDate = usuario.getLast_scan_date();
                                                     Timestamp registroDate = usuario.getRegistro_date();
 
-                                                    if (lastScanDate == null || registroDate == null) {
-                                                        Toast.makeText(getApplicationContext(), "Algo salió mal. Cierre y inicie nuevamente la sesión en su cuenta.", Toast.LENGTH_SHORT).show();
-                                                        hideLoadingIndicator();
-                                                    } else {
-                                                        Object timeGet = dataSnapshot.child("time").getValue();
-                                                        if (timeGet instanceof Long) {
-                                                            Long timeMillis = (Long) timeGet;
-                                                            Date date = new Date(timeMillis);
-                                                            Timestamp actualDate = new Timestamp(date);
+                                                    Object timeGet = Objects.requireNonNull(dataSnapshot.child("time").getValue());
+                                                    Long timeMillis = (Long) timeGet;
+                                                    Date date = new Date(timeMillis);
+                                                    Timestamp actualDate = new Timestamp(date);
 
-                                                            if (InterfacesUtilities.compareDatesWithoutHMS(actualDate, registroDate)) {
-                                                                if (lastScanDate.equals(registroDate)) {
-                                                                    isPosible = true;
-                                                                }
-                                                            } else {
-                                                                if (!InterfacesUtilities.compareDatesWithoutHMS(actualDate, lastScanDate)) {
-                                                                    isPosible = true;
-                                                                }
-                                                            }
-
-                                                            if (isPosible) {
-                                                                sumarpuntos(qr.getPoints_value());
-                                                            } else {
-                                                                Toast.makeText(getApplicationContext(), "Podrás acumular más puntos mañana.", Toast.LENGTH_SHORT).show();
-                                                                hideLoadingIndicator();
-                                                            }
-                                                        } else {
-                                                            System.out.println("NO SE QUE CHUCHA");
-                                                            // Manejo para el caso en que no se obtenga un valor válido de la base de datos
+                                                    if (InterfacesUtilities.compareDatesWithoutHMS(actualDate, registroDate)) {
+                                                        if (lastScanDate.equals(registroDate)) {
+                                                            isPosible = true;
                                                         }
-
-//                                                    Object timeGet = dataSnapshot.child("time").getValue();
-//                                                    System.out.println(timeGet);
-//                                                    Date date = new Date((Long) timeGet);
-//                                                    Timestamp actualDate = new Timestamp(date);
-//                                                    if (InterfacesUtilities.compareDatesWithoutHMS(actualDate, registroDate)) {
-//                                                        if (lastScanDate.equals(registroDate)) {
-//                                                            isPosible = true;
-//                                                        }
-//                                                    } else {
-//                                                        if (!InterfacesUtilities.compareDatesWithoutHMS(actualDate, lastScanDate)) {
-//                                                            isPosible = true;
-//                                                        }
-//                                                    }
-//
-//                                                    if (isPosible) {
-//                                                        sumarpuntos(qr.getPoints_value());
-//                                                    } else {
-//                                                        Toast.makeText(getApplicationContext(), "Podrás acumular más puntos mañana.", Toast.LENGTH_SHORT).show();
-//                                                        hideLoadingIndicator();
-//                                                    }
-//                                                    }
-
+                                                    } else {
+                                                        if (!InterfacesUtilities.compareDatesWithoutHMS(actualDate, lastScanDate)) {
+                                                            isPosible = true;
+                                                        }
                                                     }
 
-//                                                    dataSnapshot.child("time").getValue();
-
-//                                                    Timestamp registrationDateTimeObj = (Timestamp) dataSnapshot.child("time").getValue();
-//                                                        if (registrationDateTimeObj instanceof Long) {
-//                                                        long registrationDateTimeMillis = (long) registrationDateTimeObj;
-//                                                        Date registrationDate = new Date(registrationDateTimeMillis);
-//                                                        Timestamp actualDate = (Timestamp) ;
-
-
+                                                    if (isPosible) {
+                                                        sumarpuntos(qr.getPoints_value());
+                                                    } else {
+                                                        Toast.makeText(getApplicationContext(), "Podrás acumular más puntos mañana.", Toast.LENGTH_SHORT).show();
+                                                        hideLoadingIndicator();
+                                                    }
                                                 } catch (Exception exception) {
+                                                    Toast.makeText(getApplicationContext(), "Algo salió mal.", Toast.LENGTH_SHORT).show();
                                                     exception.printStackTrace(System.out);
                                                     hideLoadingIndicator();
                                                 }
@@ -321,11 +282,16 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                                         hideLoadingIndicator();
                                     }
                                 });
-
                             } else {
                                 QRError();
                             }
                         }
+                    }
+                }, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace(System.out);
+                        hideLoadingIndicator();
                     }
                 });
 
@@ -338,7 +304,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     @Override
     protected void onResume() {
         super.onResume();
-        inicializarUser();
+        inicializarUsuario();
     }
 
     @Override
@@ -350,7 +316,6 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         }
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -360,7 +325,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 // Verificar si el GPS está habilitado
-                if (!isGPSEnabled()) {
+                if (isGPSEnabled()) {
                     hideLoadingIndicator();
                     // El GPS está apagado, mostrar un diálogo para pedir al usuario que lo active
                     showEnableGPSDialog();
@@ -388,7 +353,12 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                 // Acción al confirmar cerrar sesión
                 typeChange = "deslogueo";
                 showLoadingIndicator();
-                cerrarSesion();
+                if (NetworkUtilities.isNetworkAvailable(getApplicationContext())) {
+                    cerrarSesion();
+                } else {
+                    hideLoadingIndicator();
+                    DialogUtilities.showNoInternetDialog(MenuUI.this);
+                }
             }
         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -403,8 +373,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 
     // Método para verificar si el GPS está habilitado
     private boolean isGPSEnabled() {
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        return locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        return (LocationManager) getSystemService(Context.LOCATION_SERVICE) == null || !((LocationManager) getSystemService(Context.LOCATION_SERVICE)).isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     // Método para mostrar un diálogo pidiendo al usuario que active el GPS
@@ -435,7 +404,26 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         Usuario usuario = InterfacesUtilities.recuperarUsuario(MenuUI.this);
         usuario.setStatus("logged out");
         UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, MenuUI.this);
-        usuarioDAO.updateOnFireStore();
+        usuarioDAO.updateOnFireStore(new DataAccessUtilities.OnUpdateListener() {
+            @Override
+            public void onUpdateComplete() {
+                FirebaseAuth.getInstance().signOut();
+                InterfacesUtilities.guardarUsuario(getApplicationContext(), null);
+
+                TransitionUI.destino = LoginUI.class;
+                Log.d("DEBUG", "FROM: " + UsuarioDAOImpl.class.getSimpleName());
+                startActivity(new Intent(getApplicationContext(), TransitionUI.class));
+                // Finaliza la actividad actual
+                finish();
+            }
+
+            @Override
+            public void onUpdateError(String errorMessage) {
+                Toast.makeText(getApplicationContext(), "Error al cerrar sesión.", Toast.LENGTH_SHORT).show();
+                hideLoadingIndicator();
+                Log.w("ERROR", errorMessage);
+            }
+        });
     }
 
     /**
@@ -454,22 +442,51 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 
     public void sumarpuntos(int puntos) {
         //Obtener usuario logeado en sistema en general
-        Usuario recuperarUsuario = InterfacesUtilities.recuperarUsuario(getApplicationContext());
+        Usuario systemUser = InterfacesUtilities.recuperarUsuario(getApplicationContext());
         //Recuperar ptos usuarios
-        int ptosactuales = recuperarUsuario.getPuntos();
+        int ptosactuales = systemUser.getPuntos();
         ptosactuales += puntos;
         //Actualizar ptos en usuario
-        recuperarUsuario.setPuntos(ptosactuales);
-        recuperarUsuario.setLast_scan_date(null);
+        systemUser.setPuntos(ptosactuales);
+        systemUser.setLast_scan_date(null);
         //Creamos usuario DAO
-        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(recuperarUsuario, MenuUI.this);
+        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(systemUser, MenuUI.this);
         typeChange = "sumaptos";
         //Actualiza en firestore
-        usuarioDAO.updateOnFireStore();
+        usuarioDAO.updateOnFireStore(new DataAccessUtilities.OnUpdateListener() {
+            @Override
+            public void onUpdateComplete() {
+
+                usuarioDAO.getUserOnFireBase(systemUser.getId(), new OnSuccessListener<List<Usuario>>() {
+                    @Override
+                    public void onSuccess(List<Usuario> usuarios) {
+                        Usuario usuario = usuarios.get(0);
+                        InterfacesUtilities.guardarUsuario(getApplicationContext(), usuario);
+                        getReci().setText(String.valueOf(usuario.getPuntos()));
+                        hideLoadingIndicator();
+                        Toast.makeText(getApplicationContext(), "Puntos Agregados Correctamente", Toast.LENGTH_SHORT).show();
+                    }
+                }, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), "Error al agregar puntos.", Toast.LENGTH_SHORT).show();
+                        hideLoadingIndicator();
+                        e.printStackTrace(System.out);
+                    }
+                });
+
+
+            }
+
+            @Override
+            public void onUpdateError(String errorMessage) {
+
+            }
+        });
 
     }
 
-    private void inicializarUser() {
+    private void inicializarUsuario() {
         Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(MenuUI.this);
 
         // Verifica si el objeto Usuario está inicializado

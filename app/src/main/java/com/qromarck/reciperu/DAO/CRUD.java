@@ -9,9 +9,9 @@ public interface CRUD<T> {
     void setEntity(T entity);
     void listarFromFireStore(DataAccessUtilities.OnDataRetrievedListener<T> listener);
 
-    void insertOnFireStore();
+    void insertOnFireStore(DataAccessUtilities.OnInsertionListener listener);
 
-    void updateOnFireStore();
+    void updateOnFireStore(DataAccessUtilities.OnUpdateListener listener);
 
     void deleteFromFireStore();
 }
