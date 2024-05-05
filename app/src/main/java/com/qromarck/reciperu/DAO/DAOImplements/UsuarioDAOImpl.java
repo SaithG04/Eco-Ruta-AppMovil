@@ -29,16 +29,10 @@ import java.util.Objects;
 public class UsuarioDAOImpl extends DataAccessUtilities implements UsuarioDAO {
 
     private Usuario usuario;
-    private final Activity activity;
     private final static String COLLECTION_NAME = "usuarios";
 
-    public interface OnUserRetrievedListener {
-        void onUserRetrieved(Usuario usuario);
-    }
-
-    public UsuarioDAOImpl(Usuario usuario, Activity activity) {
+    public UsuarioDAOImpl(Usuario usuario) {
         this.usuario = usuario;
-        this.activity = activity;
     }
 
     public void setEntity(Usuario usuario) {

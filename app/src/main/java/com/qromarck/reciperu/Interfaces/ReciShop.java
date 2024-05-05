@@ -184,7 +184,7 @@ public class ReciShop extends AppCompatActivity {
         //Actualizar ptos en usuario
         systemUser.setPuntos(ptosactuales);
         //Creamos usuario DAO
-        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(systemUser, ReciShop.this);
+        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(systemUser);
         typeChange = "restaptos";
         //Actualiza en firestore
         usuarioDAO.updateOnFireStore(new DataAccessUtilities.OnUpdateListener() {

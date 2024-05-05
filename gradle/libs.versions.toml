@@ -1,17 +1,17 @@
 [versions]
 agp = "8.3.2"
 androidActivation = "1.6.7"
-androidMail = "1.6.4"
+androidMail = "1.6.7"
 androidMailVersion = "1.6.7"
 core = "3.4.1"
-credentials = "1.3.0-alpha02"
+credentials = "1.3.0-alpha03"
 firebaseBom = "32.8.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 appcompat = "1.6.1"
-material = "1.11.0"
-activity = "1.8.2"
+material = "1.12.0"
+activity = "1.9.0"
 constraintlayout = "2.1.4"
 playServicesAuthVersion = "18.1.0"
 volley = "1.2.1"
@@ -20,7 +20,7 @@ okhttp = "4.12.0"
 json = "20240303"
 gson = "2.10.1"
 playServicesMapsVersion = "18.2.0"
-firebaseDatabase = "20.3.1"
+firebaseDatabaseRealtime = "20.3.1"
 playServicesLocation = "21.2.0"
 firebaseFirestore = "24.11.1"
 firebaseAuth = "22.3.1"
@@ -51,7 +51,7 @@ okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhtt
 json = { group = "org.json", name = "json", version.ref = "json" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 play-services-maps= { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMapsVersion" }
-firebaseDatabase = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabase" }
+firebaseDatabaseRealtime = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabaseRealtime" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }

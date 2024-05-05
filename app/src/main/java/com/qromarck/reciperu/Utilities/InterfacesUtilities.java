@@ -29,15 +29,6 @@ import java.util.Map;
 
 public class InterfacesUtilities {
 
-    public static SharedPreferences.Editor systemEditor;
-
-    public static SharedPreferences.Editor getSystemEditor(Activity activity) {
-        if (systemEditor == null) {
-            systemEditor = activity.getSharedPreferences("com.qromarck.reciperu.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE).edit();
-        }
-        return systemEditor;
-    }
-
     public static <T> Map<String, Object> entityToMap(T entity) {
         Map<String, Object> resultMap = new HashMap<>();
         Class<?> clazz = entity.getClass();
@@ -205,6 +196,12 @@ public class InterfacesUtilities {
 
         // Comparar los valores de día, mes y año
         return Arrays.equals(dayMonthYear1, dayMonthYear2);
+    }
+
+    // Método para validar el formato del correo electrónico usando expresión regular
+    public static boolean isValidEmail(String email) {
+        String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+        return email.matches(emailPattern);
     }
 
 //    @Deprecated
