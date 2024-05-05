@@ -59,8 +59,8 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.volley)
-    implementation(libs.firebase.firestore)
-    implementation(libs.firebase.auth)
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -69,10 +69,12 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
-    implementation(libs.firebaseDatabase)
     implementation(platform(libs.firebase.bom))
-    //noinspection UseTomlInstead
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebaseDatabaseRealtime)
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging")
     //implementation(libs.play.services.auth)
     implementation(libs.play.services.auth.v1810)
     //QR

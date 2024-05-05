@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    android:background="@color/white"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".Interfaces.MenuUI">
 
     <ImageView
@@ -73,7 +73,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="#589633"
-        android:text="Cerrar Sesion"
+        android:text="Cerrar sesión"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -87,7 +87,7 @@
         android:layout_width="155dp"
         android:layout_height="68dp"
         android:backgroundTint="#589433"
-        android:text="Ver Mapa"
+        android:text="Ver camión de la basura"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.128"
@@ -100,7 +100,7 @@
         android:layout_width="157dp"
         android:layout_height="73dp"
         android:backgroundTint="#589533"
-        android:text="Scanea"
+        android:text="Ganar puntos"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.846"
@@ -108,6 +108,30 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.863" />
 
+
+    <ImageView
+        android:id="@+id/imgShop"
+        android:layout_width="38dp"
+        android:layout_height="34dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.997"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/icono_tienda" />
+
+    <Button
+        android:id="@+id/btnCargarImagen"
+        android:layout_width="58dp"
+        android:layout_height="52dp"
+        android:text=""
+        app:layout_constraintBottom_toBottomOf="@+id/imgvPerfil"
+        app:layout_constraintEnd_toEndOf="@+id/imgvPerfil"
+        app:layout_constraintHorizontal_bias="0.825"
+        app:layout_constraintStart_toStartOf="@+id/imgvPerfil"
+        app:layout_constraintTop_toTopOf="@+id/imgvPerfil"
+        app:layout_constraintVertical_bias="1.0" />
 
     <FrameLayout
         android:id="@+id/loadingLayout"
@@ -128,32 +152,6 @@
             android:padding="10dp"
             android:visibility="gone" />
 
-
     </FrameLayout>
-
-    <ImageView
-        android:id="@+id/imgShop"
-        android:layout_width="38dp"
-        android:layout_height="34dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.997"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/icono_tienda" />
-
-    <Button
-        android:id="@+id/btnCargarImagen"
-        android:layout_width="58dp"
-        android:layout_height="52dp"
-        android:text="Button"
-        app:layout_constraintBottom_toBottomOf="@+id/imgvPerfil"
-        app:layout_constraintEnd_toEndOf="@+id/imgvPerfil"
-        app:layout_constraintHorizontal_bias="0.825"
-        app:layout_constraintStart_toStartOf="@+id/imgvPerfil"
-        app:layout_constraintTop_toTopOf="@+id/imgvPerfil"
-        app:layout_constraintVertical_bias="1.0" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

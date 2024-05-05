@@ -87,6 +87,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
         TransitionUI.destino = LoginUI.class;
         Log.d("DEBUG", "FROM: " + RegistroUsuarioUI.class.getSimpleName());
         startActivity(new Intent(RegistroUsuarioUI.this, TransitionUI.class));
+        finish();
     }
 
     private void registrarUsuarioOnFireStore(Usuario usuario, String password) {
@@ -107,7 +108,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
                                             usuario.setId(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
                                             usuario.setStatus("logged in");
 
-                                            UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, RegistroUsuarioUI.this);
+                                            UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario);
                                             System.out.println(usuario.toString());
                                             usuarioDAO.insertOnFireStore(new DataAccessUtilities.OnInsertionListener() {
                                                 @Override

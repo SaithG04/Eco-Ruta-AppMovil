@@ -27,12 +27,10 @@ import java.util.Objects;
 
 public class QrDAOImpl extends DataAccessUtilities implements QrDAO {
     private QR qr;
-    private final Activity activity;
     private final static String COLLECTION_NAME = "qrs";
 
-    public QrDAOImpl(QR qr, Activity activity) {
+    public QrDAOImpl(QR qr) {
         this.qr = qr;
-        this.activity = activity;
     }
 
     @Override
@@ -75,18 +73,11 @@ public class QrDAOImpl extends DataAccessUtilities implements QrDAO {
                     @Override
                     public void onInsertionSuccess() {
                         listener.onInsertionSuccess();
-                        Toast.makeText(activity.getApplicationContext(), "¡CORRECTO!.", Toast.LENGTH_LONG).show();
                     }
 
                     @Override
                     public void onInsertionError(String errorMessage) {
                         listener.onInsertionError(errorMessage);
-//                        // Manejar el fallo desde cualquier clase
-//                        Toast.makeText(activity.getApplicationContext(), "Error al registrar... ", Toast.LENGTH_SHORT).show();
-//                        activity.finish();
-//                        Intent intent = new Intent(activity.getApplicationContext(), LoginUI.class);
-//                        activity.startActivity(intent);
-                        System.out.println("ERROR DE INSERCION: " + errorMessage);
                     }
                 });
     }

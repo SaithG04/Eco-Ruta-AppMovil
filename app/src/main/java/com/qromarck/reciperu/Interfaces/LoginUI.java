@@ -67,7 +67,6 @@ public class LoginUI extends AppCompatActivity {
      * Instancia de FirebaseAuth para la autenticación de Firebase.
      */
     private FirebaseAuth mAuth;
-    public static String type = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +107,6 @@ public class LoginUI extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                type = "login";
                 String correo = edtCorreo.getText().toString();
                 String password = edtContrasena.getText().toString();
                 if (correo.isEmpty() || password.isEmpty()) {
@@ -150,15 +148,17 @@ public class LoginUI extends AppCompatActivity {
         super.onStop();
         edtCorreo.setText("");
         edtContrasena.setText("");
-        type = "";
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        edtCorreo.setText("");
-        edtContrasena.setText("");
-        type = "";
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finishAffinity();
     }
 
     /**
@@ -173,17 +173,18 @@ public class LoginUI extends AppCompatActivity {
         // Crear un usuario con el correo proporcionado
         Usuario userSearched = new Usuario();
         userSearched.setEmail(correo);
-        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(userSearched, LoginUI.this);
+        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(userSearched);
 
         // Buscar usuario en Firebase
         usuarioDAO.getUserOnFireBase(userSearched.getEmail(), new OnSuccessListener<List<Usuario>>() {
             @Override
             public void onSuccess(List<Usuario> usuarios) {
-                Usuario usuario = usuarios.get(0);
-                if (usuario == null) { // Si no se encuentra el usuario
+                if (usuarios.isEmpty()) {
                     hideLoadingIndicator(); // Ocultar indicador de carga
+                    edtCorreo.requestFocus();
                     Toast.makeText(LoginUI.this, "No hay ninguna cuenta asociada a este correo.", Toast.LENGTH_LONG).show();
                 } else {
+                    Usuario usuario = usuarios.get(0);
                     if (usuario.getStatus().equals("logged in")) {
                         hideLoadingIndicator();
                         Toast.makeText(LoginUI.this, "YA HAY UNA SESIÓN INICIADA EN OTRO DISPOSITIVO.", Toast.LENGTH_LONG).show();
@@ -208,7 +209,7 @@ public class LoginUI extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     usuario.setStatus("logged in");
 
-                    UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, LoginUI.this);
+                    UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario);
                     usuarioDAO.updateOnFireStore(new DataAccessUtilities.OnUpdateListener() {
                         @Override
                         public void onUpdateComplete() {

@@ -209,7 +209,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                 String sede = "26 de Octubre";
                 QR qr = new QR();
                 qr.setSede(sede);
-                QrDAO qrDAO = new QrDAOImpl(qr, MenuUI.this);
+                QrDAO qrDAO = new QrDAOImpl(qr);
                 qrDAO.getQROnFireBase(qr.getSede(), new OnSuccessListener<List<QR>>() {
                     @Override
                     public void onSuccess(List<QR> qrs) {
@@ -403,7 +403,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     private void cerrarSesion() {
         Usuario usuario = InterfacesUtilities.recuperarUsuario(MenuUI.this);
         usuario.setStatus("logged out");
-        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario, MenuUI.this);
+        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario);
         usuarioDAO.updateOnFireStore(new DataAccessUtilities.OnUpdateListener() {
             @Override
             public void onUpdateComplete() {
@@ -450,7 +450,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         systemUser.setPuntos(ptosactuales);
         systemUser.setLast_scan_date(null);
         //Creamos usuario DAO
-        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(systemUser, MenuUI.this);
+        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(systemUser);
         typeChange = "sumaptos";
         //Actualiza en firestore
         usuarioDAO.updateOnFireStore(new DataAccessUtilities.OnUpdateListener() {
