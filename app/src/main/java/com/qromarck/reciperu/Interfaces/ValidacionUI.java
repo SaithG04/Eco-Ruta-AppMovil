@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -79,7 +80,15 @@ public class ValidacionUI extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    TransitionUI.destino = MenuUI.class;
+
+                    Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ValidacionUI.this);
+
+                    // Determine the destination UI based on user type
+                    if (userLoggedOnSystem.getType().equals("conductor")) {
+                        TransitionUI.destino = ConductorUI.class; // Redirect to Conductor UI
+                    } else {
+                        TransitionUI.destino = MenuUI.class; // Redirect to default Menu UI
+                    }
                     Log.d("DEBUG", "FROM: " + ValidacionUI.class.getSimpleName());
                     startActivity(new Intent(ValidacionUI.this, TransitionUI.class)); // Abrir actividad del menú
                     finish();

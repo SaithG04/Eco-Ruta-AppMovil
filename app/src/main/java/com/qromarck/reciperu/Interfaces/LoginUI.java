@@ -214,7 +214,15 @@ public class LoginUI extends AppCompatActivity {
                         @Override
                         public void onUpdateComplete() {
                             InterfacesUtilities.guardarUsuario(LoginUI.this, usuario);
-                            TransitionUI.destino = MenuUI.class;
+
+
+                            // Determine the destination UI based on user type
+                            if (usuario.getType().equals("conductor")) {
+                                TransitionUI.destino = ConductorUI.class; // Redirect to Conductor UI
+                            } else {
+                                TransitionUI.destino = MenuUI.class; // Redirect to default Menu UI
+                            }
+
                             Log.d("DEBUG", "FROM: " + LoginUI.class.getSimpleName());
                             startActivity(new Intent(LoginUI.this, TransitionUI.class)); // Abrir actividad del menú
                             finish();

@@ -41,6 +41,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.qromarck.reciperu.DAO.DAOImplements.LocationDAOImpl;
 import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.qromarck.reciperu.DAO.LocationDAO;
+import com.qromarck.reciperu.Entity.ConductorUIManager;
 import com.qromarck.reciperu.Entity.MenuUIManager;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
@@ -81,8 +82,10 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
 
         initializeUI();
         checkLocationPermissions();
-        mediaPlayer = MediaPlayer.create(this, R.raw.camion);
-        play();
+        // Inicializar MediaPlayer
+        if (mediaPlayer == null) {
+            mediaPlayer = MediaPlayer.create(this, R.raw.camion);
+        }
     }
 
     //SONIDO
@@ -112,6 +115,7 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         super.onResume();
         if (!isConductor()) {
             updateUbicationOfConductor();
+            getAndCompareLocations();
         }
         configureUpdates();
         updateLastUbication();
@@ -138,18 +142,44 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         destroyDialog();
         handlerConductor.removeCallbacksAndMessages(null);
         handlerUser.removeCallbacksAndMessages(null);
-        TransitionUI.destino = MenuUI.class;
+        Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciMapsUI.this);
+
+        // Determine the destination UI based on user type
+        if (userLoggedOnSystem.getType().equals("conductor")) {
+            TransitionUI.destino = ConductorUI.class; // Redirect to Conductor UI
+            startActivity(new Intent(ReciMapsUI.this, TransitionUI.class));
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
+        } else {
+            TransitionUI.destino = MenuUI.class; // Redirect to default Menu UI
+            startActivity(new Intent(ReciMapsUI.this, TransitionUI.class));
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
+        }
+
         Log.d("DEBUG", "FROM: " + ReciMapsUI.class.getSimpleName());
-        startActivity(new Intent(ReciMapsUI.this, TransitionUI.class));
 
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        TransitionUI.destino = MenuUI.class;
+        Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciMapsUI.this);
+
+        // Determine the destination UI based on user type
+        if (userLoggedOnSystem.getType().equals("conductor")) {
+            TransitionUI.destino = ConductorUI.class; // Redirect to Conductor UI
+            startActivity(new Intent(ReciMapsUI.this, TransitionUI.class));
+        } else {
+            TransitionUI.destino = MenuUI.class; // Redirect to default Menu UI
+            startActivity(new Intent(ReciMapsUI.this, TransitionUI.class));
+        }
+
         Log.d("DEBUG", "FROM: " + ReciMapsUI.class.getSimpleName());
-        startActivity(new Intent(ReciMapsUI.this, TransitionUI.class));
     }
 
     @Override
@@ -422,7 +452,82 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         if (menuUI != null) {
             menuUI.hideLoadingIndicator();
         }
+        ConductorUI conductorUI = ConductorUIManager.getInstance().getConductorUI();
+        if (conductorUI != null) {
+            conductorUI.hideLoadingIndicator();
+        }
     }
+
+    private void getAndCompareLocations() {
+        //  ID del usuario logeado
+        String userId = userLoggedOnSystem.getId();
+
+        // Referencia a la ubicación del usuario logeado en Firebase
+        DatabaseReference userLocationRef = FirebaseDatabase.getInstance().getReference("user_locations").child(userId);
+
+        // Referencia a la ubicación del conductor en Firebase
+        String conductorId = "2PEUsE6tkVRlvsm9KmVHVxutmBw1"; // Cambia esto al ID real del conductor
+        DatabaseReference conductorLocationRef = FirebaseDatabase.getInstance().getReference("user_locations").child(conductorId);
+
+        // Obtener la ubicación del usuario logeado
+        userLocationRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                Double userLatitude = userSnapshot.child("latitude").getValue(Double.class);
+                Double userLongitude = userSnapshot.child("longitude").getValue(Double.class);
+
+                if (userLatitude != null && userLongitude != null) {
+                    Location userLocation = new Location("userLocation");
+                    userLocation.setLatitude(userLatitude);
+                    userLocation.setLongitude(userLongitude);
+
+                    // Obtener la ubicación del conductor
+                    conductorLocationRef.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot conductorSnapshot) {
+                            Double conductorLatitude = conductorSnapshot.child("latitude").getValue(Double.class);
+                            Double conductorLongitude = conductorSnapshot.child("longitude").getValue(Double.class);
+
+                            if (conductorLatitude != null && conductorLongitude != null) {
+                                Location conductorLocation = new Location("conductorLocation");
+                                conductorLocation.setLatitude(conductorLatitude);
+                                conductorLocation.setLongitude(conductorLongitude);
+
+                                // Calcular la distancia entre el usuario y el conductor
+                                float distance = userLocation.distanceTo(conductorLocation);
+
+                                // Verificar si mediaPlayer es nulo y inicializar si es necesario
+                                if (mediaPlayer == null) {
+                                    mediaPlayer = MediaPlayer.create(ReciMapsUI.this, R.raw.camion);
+                                }
+
+                                if (distance <= DISTANCE_THRESHOLD_METERS) {
+                                    if (!mediaPlayer.isPlaying()) {
+                                        play();
+                                    }
+                                } else {
+                                    if (mediaPlayer.isPlaying()) {
+                                        stop();
+                                    }
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Log.e("FirebaseDatabase", "Error al obtener la ubicación del conductor: " + databaseError.getMessage());
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("FirebaseDatabase", "Error al obtener la ubicación del usuario: " + databaseError.getMessage());
+            }
+        });
+    }
+
 }
 
 
