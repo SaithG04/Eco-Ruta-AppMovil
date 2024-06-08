@@ -82,23 +82,42 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
 
         initializeUI();
         checkLocationPermissions();
-        // Inicializar MediaPlayer
+        initializeMediaPlayer();
+    }
+
+    // SONIDO
+// ===========================================================
+    private void initializeMediaPlayer() {
         if (mediaPlayer == null) {
             mediaPlayer = MediaPlayer.create(this, R.raw.camion);
+            mediaPlayer.setLooping(true); // Reproduce en bucle
         }
     }
 
-    //SONIDO
-    //===========================================================
-    public void play() {
-        mediaPlayer.start();
+    public void start() {
+        if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
+            mediaPlayer.start();
+        }
     }
 
     public void stop() {
-        mediaPlayer.release();
-        mediaPlayer = null;
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause(); // Use pause instead of stop to allow resuming
+            mediaPlayer.seekTo(0); // Reset to start position
+        }
     }
-    //===========================================================
+
+    public void release() {
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+// ===========================================================
+
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -119,6 +138,11 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         }
         configureUpdates();
         updateLastUbication();
+
+        // Verificar la distancia y reproducir el audio si el camión sigue en la zona
+        if (lastKnownLocation != null) {
+            getAndCompareLocations();
+        }
     }
 
     @Override
@@ -127,21 +151,27 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
         stop();
         destroyDialog();
         handlerUser.removeCallbacksAndMessages(null);
+        handlerConductor.removeCallbacksAndMessages(null);
     }
+
 
     @Override
     protected void onPause() {
         super.onPause();
+        stop();
         destroyDialog();
         handlerUser.removeCallbacksAndMessages(null);
+        handlerConductor.removeCallbacksAndMessages(null);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        stop();
         destroyDialog();
         handlerConductor.removeCallbacksAndMessages(null);
         handlerUser.removeCallbacksAndMessages(null);
+
         Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciMapsUI.this);
 
         // Determine the destination UI based on user type
@@ -168,6 +198,7 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        stop();
         Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(ReciMapsUI.this);
 
         // Determine the destination UI based on user type
@@ -496,19 +527,10 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
                                 // Calcular la distancia entre el usuario y el conductor
                                 float distance = userLocation.distanceTo(conductorLocation);
 
-                                // Verificar si mediaPlayer es nulo y inicializar si es necesario
-                                if (mediaPlayer == null) {
-                                    mediaPlayer = MediaPlayer.create(ReciMapsUI.this, R.raw.camion);
-                                }
-
                                 if (distance <= DISTANCE_THRESHOLD_METERS) {
-                                    if (!mediaPlayer.isPlaying()) {
-                                        play();
-                                    }
+                                        start();
                                 } else {
-                                    if (mediaPlayer.isPlaying()) {
                                         stop();
-                                    }
                                 }
                             }
                         }
@@ -529,7 +551,4 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
     }
 
 }
-
-
-
 
