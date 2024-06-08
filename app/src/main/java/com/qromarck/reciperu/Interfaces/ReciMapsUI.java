@@ -72,7 +72,7 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
 
     //SONIDO PROXIMIDAD
     private MediaPlayer mediaPlayer;
-    private static final int DISTANCE_THRESHOLD_METERS = 10;
+    private static final int DISTANCE_THRESHOLD_METERS = 20;
 
 
     @Override
@@ -95,15 +95,15 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
     }
 
     public void start() {
-        if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
+        if (mediaPlayer != null && !mediaPlayer.isPlaying() && !isConductor()) {
             mediaPlayer.start();
         }
     }
 
     public void stop() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause(); // Use pause instead of stop to allow resuming
-            mediaPlayer.seekTo(0); // Reset to start position
+        if (mediaPlayer != null && mediaPlayer.isPlaying() && !isConductor()) {
+            mediaPlayer.pause();
+            mediaPlayer.seekTo(0);
         }
     }
 
@@ -490,7 +490,7 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
     }
 
     private void getAndCompareLocations() {
-        //  ID del usuario logeado
+        // ID del usuario logeado
         String userId = userLoggedOnSystem.getId();
 
         // Referencia a la ubicación del usuario logeado en Firebase
@@ -527,10 +527,12 @@ public class ReciMapsUI extends AppCompatActivity implements OnMapReadyCallback,
                                 // Calcular la distancia entre el usuario y el conductor
                                 float distance = userLocation.distanceTo(conductorLocation);
 
-                                if (distance <= DISTANCE_THRESHOLD_METERS) {
+                                if (!isConductor()) {
+                                    if (distance <= DISTANCE_THRESHOLD_METERS) {
                                         start();
-                                } else {
+                                    } else {
                                         stop();
+                                    }
                                 }
                             }
                         }
