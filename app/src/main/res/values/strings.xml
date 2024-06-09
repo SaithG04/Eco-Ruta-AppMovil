@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ReciPeru</string>
+    <string name="app_name">EcoRuta</string>
     <string name="title_activity_reci_maps">ReciMaps</string>
     <string name="asset_statements" translatable="false">
 [{

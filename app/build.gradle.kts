@@ -75,7 +75,7 @@ dependencies {
     implementation(libs.firebaseDatabaseRealtime)
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-messaging")
-    //implementation(libs.play.services.auth)
+    implementation(libs.play.services.auth)
     implementation(libs.play.services.auth.v1810)
     //QR
     implementation(libs.core)

@@ -17,12 +17,20 @@ import android.content.Intent;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.qromarck.reciperu.DAO.DAOImplements.UsuarioDAOImpl;
 import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.Usuario;
@@ -44,6 +52,7 @@ import java.util.Objects;
  * Clase que representa la interfaz de usuario principal de la aplicación.
  */
 public class LoginUI extends AppCompatActivity {
+
 
     // Declaración de variables
 
@@ -67,6 +76,7 @@ public class LoginUI extends AppCompatActivity {
      * Instancia de FirebaseAuth para la autenticación de Firebase.
      */
     private FirebaseAuth mAuth;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -215,12 +225,10 @@ public class LoginUI extends AppCompatActivity {
                         public void onUpdateComplete() {
                             InterfacesUtilities.guardarUsuario(LoginUI.this, usuario);
 
-
-                            // Determine the destination UI based on user type
                             if (usuario.getType().equals("conductor")) {
-                                TransitionUI.destino = ConductorUI.class; // Redirect to Conductor UI
+                                TransitionUI.destino = ConductorUI.class;
                             } else {
-                                TransitionUI.destino = MenuUI.class; // Redirect to default Menu UI
+                                TransitionUI.destino = MenuUI.class;
                             }
 
                             Log.d("DEBUG", "FROM: " + LoginUI.class.getSimpleName());
