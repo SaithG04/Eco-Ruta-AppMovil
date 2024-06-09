@@ -2,7 +2,11 @@ package com.qromarck.reciperu.Interfaces;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,10 +32,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -56,6 +64,7 @@ import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.*;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +94,8 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         setContentView(R.layout.activity_menu_ui);
 
         inicializarUsuario();
+        showNotification();
+        showTrashNotification();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -188,6 +199,98 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                 startActivity(new Intent(MenuUI.this, TransitionUI.class));
             }
         });
+
+
+    }
+
+    //NOTIFICACION
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        inicializarUsuario();
+    }
+
+    private void showNotification() {
+        Log.d("Notification", "Mostrando notificación...");
+
+        // Verificar si el SDK del dispositivo es compatible con los canales de notificación
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Crear el canal de notificación
+            String channelId = "1";
+            CharSequence channelName = "Nombre del canal";
+            String channelDescription = "Descripción del canal";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
+            notificationChannel.setDescription(channelDescription);
+
+            // Registrar el canal en el sistema
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
+        // Crear un Intent para abrir la actividad MenuUI cuando se toque la notificación
+        Intent intent = new Intent(this, MenuUI.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        // Construir la notificación
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(MenuUI.this, "1")
+                .setSmallIcon(R.drawable.eco_ruta_logo)
+                .setContentTitle("¡Bienvenido de nuevo!")
+                .setContentText("¡Gracias por utilizar nuestra aplicación!")
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true);
+
+        // Mostrar la notificación si se tienen los permisos necesarios
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NOTIFICATION_POLICY) == PackageManager.PERMISSION_GRANTED) {
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+            notificationManager.notify(123, builder.build());
+            Log.d("Notification", "Notificación mostrada correctamente.");
+        } else {
+            Log.e("Notification", "No se tienen los permisos necesarios para mostrar la notificación.");
+        }
+    }
+
+    private void showTrashNotification() {
+        Log.d("Notification", "Mostrando notificación de recordatorio de basura...");
+
+        // Verificar si el SDK del dispositivo es compatible con los canales de notificación
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Crear el canal de notificación
+            String channelId = "2"; // Cambia el ID del canal si ya tienes uno con el ID "1"
+            CharSequence channelName = "Recordatorio de basura";
+            String channelDescription = "Notificación para recordar botar la basura";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
+            notificationChannel.setDescription(channelDescription);
+
+            // Registrar el canal en el sistema
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
+        // Crear un Intent para abrir la actividad MenuUI cuando se toque la notificación
+        Intent intent = new Intent(this, MenuUI.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        // Construir la notificación
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(MenuUI.this, "2") // Cambia el ID del canal si ya tienes uno con el ID "1"
+                .setSmallIcon(R.drawable.eco_ruta_logo)
+                .setContentTitle("¡Recuerda botar tu basura!")
+                .setContentText("Ayuda a mantener limpio el ambiente.")
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true);
+
+        // Mostrar la notificación si se tienen los permisos necesarios
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NOTIFICATION_POLICY) == PackageManager.PERMISSION_GRANTED) {
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+            notificationManager.notify(124, builder.build()); // Cambia el ID de la notificación si ya tienes una con el ID "123"
+            Log.d("Notification", "Notificación de recordatorio de basura mostrada correctamente.");
+        } else {
+            Log.e("Notification", "No se tienen los permisos necesarios para mostrar la notificación de recordatorio de basura.");
+        }
     }
 
     private void startBarcodeScanning() {
@@ -301,11 +404,6 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        inicializarUsuario();
-    }
 
     @Override
     protected void onDestroy() {

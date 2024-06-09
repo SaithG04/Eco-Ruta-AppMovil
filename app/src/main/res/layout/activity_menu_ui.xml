@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -20,21 +19,6 @@
         app:layout_constraintVertical_bias="0.053"
         app:srcCompat="@drawable/vectorlogin" />
 
-    <TextView
-        android:id="@+id/lbl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-light"
-        android:text="ECOPoints:"
-        android:textColor="#589533"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.055"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.429" />
 
     <TextView
         android:id="@+id/txvReciPoints"
@@ -48,10 +32,10 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.39"
+        app:layout_constraintHorizontal_bias="0.483"
         app:layout_constraintStart_toEndOf="@+id/lbl"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.432" />
+        app:layout_constraintVertical_bias="0.382" />
 
     <TextView
         android:id="@+id/txvUSERNAME"
@@ -66,7 +50,125 @@
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.32" />
+        app:layout_constraintVertical_bias="0.307" />
+
+
+    <!-- Consejos sobre reciclaje -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnCamara"
+        app:layout_constraintTop_toBottomOf="@+id/textView9">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Primer consejo sobre reciclaje -->
+            <LinearLayout
+                android:layout_width="427dp"
+                android:layout_height="201dp"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Imagen del consejo -->
+
+                <!-- Contenedor para título y descripción -->
+                <ImageView
+                    android:layout_width="139dp"
+                    android:layout_height="100dp"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/reducir_consumo_plastico" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Título del consejo -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Reduce el consumo de plástico:"
+                        android:textColor="#000000"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- Descripción del consejo -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Opta por productos reutilizables y evita el uso de botellas de plástico de un solo uso."
+                        android:textColor="#6E6E6E"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Segundo consejo sobre reciclaje -->
+            <LinearLayout
+                android:layout_width="397dp"
+                android:layout_height="211dp"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Imagen del consejo -->
+                <ImageView
+                    android:layout_width="176dp"
+                    android:layout_height="93dp"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/clasificacion_residuos" />
+
+                <!-- Contenedor para título y descripción -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Título del consejo -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Separa tus residuos:"
+                        android:textColor="#000000"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- Descripción del consejo -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="57dp"
+                        android:text="Clasifica tus desechos en contenedores adecuados para reciclar papel, plástico, vidrio y metal."
+                        android:textColor="#6E6E6E"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Agrega más consejos de la misma manera -->
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/lbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-light"
+        android:text="ECOPoints:"
+        android:textColor="#589533"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.055"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.381" />
 
     <Button
         android:id="@+id/btnCerrarSesion"
@@ -88,12 +190,13 @@
         android:layout_height="68dp"
         android:backgroundTint="#589433"
         android:text="Ver camión de la basura"
+        android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.128"
+        app:layout_constraintHorizontal_bias="0.132"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.856" />
+        app:layout_constraintVertical_bias="0.877" />
 
     <Button
         android:id="@+id/btnCamara"
@@ -101,13 +204,13 @@
         android:layout_height="73dp"
         android:backgroundTint="#589533"
         android:text="Ganar puntos"
+        android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.846"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.863" />
-
+        app:layout_constraintVertical_bias="0.876" />
 
     <ImageView
         android:id="@+id/imgShop"
@@ -153,5 +256,19 @@
             android:visibility="gone" />
 
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:fontFamily="serif"
+        android:text="Consejos de Reciclaje"
+        android:textColor="#000000"
+        android:textStyle="bold|italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txvReciPoints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
