@@ -67,6 +67,8 @@
             android:orientation="horizontal">
 
             <!-- Primer consejo sobre reciclaje -->
+
+            <!-- Segundo consejo sobre reciclaje -->
             <LinearLayout
                 android:layout_width="427dp"
                 android:layout_height="201dp"
@@ -77,8 +79,8 @@
 
                 <!-- Contenedor para título y descripción -->
                 <ImageView
-                    android:layout_width="139dp"
-                    android:layout_height="100dp"
+                    android:layout_width="96dp"
+                    android:layout_height="98dp"
                     android:scaleType="centerCrop"
                     app:srcCompat="@drawable/reducir_consumo_plastico" />
 
@@ -108,7 +110,6 @@
 
             </LinearLayout>
 
-            <!-- Segundo consejo sobre reciclaje -->
             <LinearLayout
                 android:layout_width="397dp"
                 android:layout_height="211dp"
