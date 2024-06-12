@@ -1,6 +1,6 @@
 package com.qromarck.reciperu.Utilities;
 
-import static com.qromarck.reciperu.Utilities.CommonServiceUtilities.*;
+import static com.qromarck.reciperu.Utilities.InterfacesUtilities.*;
 
 import android.os.Build;
 
@@ -13,16 +13,21 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.j2objc.annotations.AutoreleasePool;
 import com.qromarck.reciperu.Entity.Usuario;
 
+import org.checkerframework.checker.units.qual.A;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,28 +38,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+
 public class DataAccessUtilities {
 
     public static final String URL = "https://reciperu2024.000webhostapp.com/";
     private static final int MY_SOCKET_TIMEOUT_MS = 5000; // 5 segundos
     public static String message = "";
     private boolean success = false;
-
-    public static Usuario usuario;
+    public static Usuario userLoggedOnSystem;
     private CollectionReference reference;
-
-
-    public interface OnDataRetrievedListener<T> {
-        void onDataRetrieved(ArrayList<T> data);
-
-        void onError(String errorMessage);
-    }
 
 
     public interface OnInsertionListener {
         void onInsertionSuccess();
 
         void onInsertionError(String errorMessage);
+    }
+
+    public interface OnUpdateListener {
+        void onUpdateComplete();
+
+        void onUpdateError(String errorMessage);
     }
 
 
@@ -74,8 +78,31 @@ public class DataAccessUtilities {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace(System.out);
                         if (insertionListener != null) {
                             insertionListener.onInsertionError(e.getMessage());
+                        }
+                    }
+                });
+    }
+
+    public void updateOnFireStore(String collectionName, String documentId, Map<String, Object> data,
+                                  OnUpdateListener updateListener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection(collectionName).document(documentId).update(data)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (updateListener != null) {
+                            updateListener.onUpdateComplete();
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (updateListener != null) {
+                            updateListener.onUpdateError(e.getMessage());
                         }
                     }
                 });
@@ -124,6 +151,29 @@ public class DataAccessUtilities {
                 });
 
         return taskCompletionSource.getTask();
+    }
+
+    public static void insertOnFireStoreRealtime(String collectionName, String documentId, Map<String, Object> data,
+                                  OnInsertionListener insertionListener) {
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = db.getReference(collectionName).child(documentId);
+
+        databaseReference.setValue(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                if (insertionListener != null) {
+                    insertionListener.onInsertionSuccess();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (insertionListener != null) {
+                    insertionListener.onInsertionError(e.getMessage());
+                    e.printStackTrace(System.err);
+                }
+            }
+        });
     }
 
     @Deprecated
@@ -191,8 +241,8 @@ public class DataAccessUtilities {
                                         String salt = jsonObject.getString("salt");
                                         byte[] hashedPasswordBytes = hexStringToByteArray(hashedPasswordHex);
                                         byte[] saltBytes = hexStringToByteArray(salt);
-                                        usuario.setHashedPassword(hashedPasswordBytes);
-                                        usuario.setSalt(saltBytes);
+//                                        usuario.setHashedPassword(hashedPasswordBytes);
+//                                        usuario.setSalt(saltBytes);
                                         usuario.setStatus(jsonObject.getString("status"));
                                         System.out.println(usuario.toString());
                                         entityArrayList.add((T) usuario);
@@ -263,8 +313,8 @@ public class DataAccessUtilities {
                                     String salt = jsonObject.getString("salt");
                                     byte[] hashedPasswordBytes = hexStringToByteArray(hashedPasswordHex);
                                     byte[] saltBytes = hexStringToByteArray(salt);
-                                    usuario.setHashedPassword(hashedPasswordBytes);
-                                    usuario.setSalt(saltBytes);
+//                                    usuario.setHashedPassword(hashedPasswordBytes);
+//                                    usuario.setSalt(saltBytes);
                                     usuario.setStatus(jsonObject.getString("status"));
                                     System.out.println(usuario.toString());
                                     entity = (T) usuario;
@@ -360,7 +410,7 @@ public class DataAccessUtilities {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private <T> Map<String, Object> buildParameterMap(T entity, ArrayList<String> columnas) {
         Map<String, Object> parametros = new HashMap<>();
-        Object[] objects = new CommonServiceUtilities().entityToObjectArray(entity);
+        Object[] objects = new InterfacesUtilities().entityToObjectArray(entity);
         for (int i = 0; i < columnas.size(); i++) {
             parametros.put(columnas.get(i), objects[i]);
         }
@@ -444,4 +494,12 @@ public class DataAccessUtilities {
 
         void onError(String errorMessage);
     }
+
+    @Deprecated
+    public interface OnDataRetrievedListener<T> {
+        void onDataRetrieved(ArrayList<T> data);
+
+        void onError(String errorMessage);
+    }
+
 }

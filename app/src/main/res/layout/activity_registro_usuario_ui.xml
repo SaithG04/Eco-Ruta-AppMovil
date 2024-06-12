@@ -45,7 +45,7 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Contraseña:"
+        android:text="Clave:"
         android:textColor="#000000"
         android:textSize="14sp"
         android:textStyle="bold"
@@ -66,7 +66,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.004"
-        app:srcCompat="@drawable/reciperulogo" />
+        app:srcCompat="@drawable/eco_ruta_logo" />
 
     <Button
         android:id="@+id/btnREG"
@@ -75,6 +75,7 @@
         android:backgroundTint="#589633"
         android:text="UNIRME A RECIPERU"
         android:textAllCaps="true"
+        android:textColor="@color/black"
         android:textStyle="bold"
         android:typeface="monospace"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -82,15 +83,16 @@
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.837" />
+        app:layout_constraintVertical_bias="0.939" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="359dp"
-        android:layout_height="179dp"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:text="¡Únete a ReciPeru y haz la diferencia en el cuidado del medio ambiente!  Con ReciPeru, podrás estar al tanto de los horarios de recolección de basura en tu área y tomar medidas para mantener limpio nuestro entorno. ¿Tienes problemas ambientales que quieres reportar? ¡No te preocupes! Con nuestra aplicación, puedes informar fácilmente sobre cualquier situación que requiera atención, desde vertederos ilegales hasta áreas contaminadas.  Además, podrás conectarte con otros ciudadanos comprometidos con la protección del medio ambiente, compartir ideas y encontrar soluciones juntos. Únete a nuestra comunidad y juntos hagamos de ReciPeru un lugar más limpio y sostenible para todos.  ¡Regístrate ahora y comienza a marcar la diferencia!"
         android:textSize="10sp"
+        android:textColor="@color/gray"
         android:textStyle="italic"
         android:typeface="monospace"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -104,8 +106,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Crea una contraseña que puedas recordar fácilmente."
+        android:text="Cree una clave de 6 dígitos"
         android:textAllCaps="false"
+        android:textColor="@color/colorHint"
         android:textSize="10sp"
         android:textStyle="italic"
         android:typeface="monospace"
@@ -116,15 +119,34 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.693" />
 
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Confirme su clave"
+        android:textAllCaps="false"
+        android:textColor="@color/colorHint"
+        android:textSize="10sp"
+        android:textStyle="italic"
+        android:typeface="monospace"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.775" />
+
     <EditText
         android:id="@+id/edtUsuarioREG"
         android:layout_width="match_parent"
         android:layout_height="51dp"
         android:ems="10"
-        android:hint="Ingresa tus nombres y apellidos"
+        android:hint="Ingrese sus nombres y apellidos"
         android:inputType="text"
         android:textAlignment="center"
         android:textColor="#000000"
+        android:textColorHint="@color/gray"
         android:textSize="12sp"
         android:typeface="monospace"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -138,9 +160,11 @@
         android:layout_width="match_parent"
         android:layout_height="49dp"
         android:ems="10"
-        android:hint="Ingresa aquí tu correo electrónico"
+        android:hint="Ingrese aquí su correo electrónico"
         android:inputType="textEmailAddress"
         android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray"
         android:textSize="12sp"
         android:typeface="monospace"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -155,10 +179,12 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:ems="10"
-        android:hint="Ingresa una contraseña"
-        android:inputType="textPassword"
+        android:hint="Ingrese aquí su clave"
+        android:maxLength="6"
+        android:inputType="numberPassword"
         android:textAlignment="center"
         android:textColor="#000000"
+        android:textColorHint="@color/gray"
         android:textSize="12sp"
         android:typeface="monospace"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -167,6 +193,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.743" />
+
+    <EditText
+        android:id="@+id/edtContrasenaConfirmREG"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:ems="10"
+        android:hint="Ingrese aquí nuevamente su clave"
+        android:maxLength="6"
+        android:inputType="numberPassword"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        android:textColorHint="@color/gray"
+        android:textSize="12sp"
+        android:typeface="monospace"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.833" />
 
     <FrameLayout
         android:id="@+id/loadingLayout"

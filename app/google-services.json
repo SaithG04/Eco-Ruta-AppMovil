@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "790248094002",
+    "firebase_url": "https://reciperu-9ab32-default-rtdb.firebaseio.com",
     "project_id": "reciperu-9ab32",
     "storage_bucket": "reciperu-9ab32.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "790248094002-7nbg03j1nc3e61h3b1s1bqsml1gts48v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.qromarck.reciperu",
+            "certificate_hash": "d586070f8de89de29c55c69e89285f7f515dc64e"
+          }
+        },
         {
           "client_id": "790248094002-nhlom2819g7sqda5g4v5dp0ugilsasg9.apps.googleusercontent.com",
           "client_type": 3

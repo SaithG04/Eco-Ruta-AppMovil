@@ -35,7 +35,21 @@ android {
         viewBinding = true
     }
 
+    packagingOptions {
+        exclude("META-INF/DEPENDENCIES")
+        exclude("META-INF/LICENSE")
+        exclude("META-INF/LICENSE.txt")
+        exclude("META-INF/license.txt")
+        exclude("META-INF/NOTICE")
+        exclude("META-INF/NOTICE.txt")
+        exclude("META-INF/notice.txt")
+        exclude("META-INF/ASL2.0")
+        exclude("META-INF/*.kotlin_module")
+    }
 
+    packagingOptions {
+        resources.excludes.add("META-INF/*")
+    }
 }
 
 dependencies {
@@ -45,8 +59,8 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.volley)
-    implementation(libs.firebase.firestore)
-    implementation(libs.firebase.auth)
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -55,11 +69,18 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
-    implementation(libs.firebaseDatabase)
     implementation(platform(libs.firebase.bom))
-    //noinspection UseTomlInstead
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebaseDatabaseRealtime)
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging")
     implementation(libs.play.services.auth)
-    implementation("com.google.android.gms:play-services-auth:18.1.0")
+    implementation(libs.play.services.auth.v1810)
+    //QR
+    implementation(libs.core)
+    implementation(libs.zxing.android.embedded)
+    //MAIL
+    implementation (libs.android.mail.v167)
+    implementation (libs.android.activation.v167)
 }
-
