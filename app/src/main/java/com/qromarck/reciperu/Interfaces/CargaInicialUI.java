@@ -17,6 +17,7 @@ import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 import com.qromarck.reciperu.Utilities.DialogUtilities;
 import com.qromarck.reciperu.Utilities.NetworkUtilities;
+import com.qromarck.reciperu.Utilities.NotificationUtilities;
 
 public class CargaInicialUI extends AppCompatActivity {
 
@@ -40,14 +41,18 @@ public class CargaInicialUI extends AppCompatActivity {
             @Override
             public void run() {
                 if (NetworkUtilities.isNetworkAvailable(getApplicationContext())) {
-                    Usuario usuario = InterfacesUtilities.recuperarUsuario(getApplicationContext());
-                    if (usuario != null) {
-                        // El usuario está logueado
-                        startActivity(new Intent(CargaInicialUI.this, ValidacionUI.class));
-                        finish();
-                    } else {
-                        startActivity(new Intent(CargaInicialUI.this, LoginUI.class));
-                        finish();
+                    if(!NotificationUtilities.areNotificationsEnabled(getApplicationContext())){
+                        DialogUtilities.showNotificationSettingsDialog(CargaInicialUI.this);
+                    }else{
+                        Usuario usuario = InterfacesUtilities.recuperarUsuario(getApplicationContext());
+                        if (usuario != null) {
+                            // El usuario está logueado
+                            startActivity(new Intent(CargaInicialUI.this, ValidacionUI.class));
+                            finish();
+                        } else {
+                            startActivity(new Intent(CargaInicialUI.this, LoginUI.class));
+                            finish();
+                        }
                     }
                 } else {
                     DialogUtilities.showNoInternetDialog(CargaInicialUI.this);
