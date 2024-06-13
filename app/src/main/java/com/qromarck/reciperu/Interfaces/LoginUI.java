@@ -197,7 +197,7 @@ public class LoginUI extends AppCompatActivity {
                     Usuario usuario = usuarios.get(0);
                     if (usuario.getStatus().equals("logged in")) {
                         hideLoadingIndicator();
-                        Toast.makeText(LoginUI.this, "YA HAY UNA SESIÓN INICIADA EN OTRO DISPOSITIVO.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(LoginUI.this, "Ya hay una sesión iniciada en este dispositivo.", Toast.LENGTH_LONG).show();
                     } else {
                         // Iniciar sesión
                         logIn(usuario, password);

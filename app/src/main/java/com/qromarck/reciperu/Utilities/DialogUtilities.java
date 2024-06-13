@@ -41,4 +41,28 @@ public class DialogUtilities {
         }
     }
 
+
+    public static void showNotificationSettingsDialog(Activity activity) {
+        if (!activity.isFinishing() && !activity.isDestroyed()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setTitle("Notificaciones deshabilitadas");
+            builder.setMessage("Las notificaciones están deshabilitadas. Habilítelas para recibir notificaciones importantes.");
+            builder.setPositiveButton("Ir a configuración", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    NotificationUtilities.openNotificationSettings(activity);
+                }
+            });
+            builder.setNegativeButton("En otro momento", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    activity.finishAffinity();
+//                    System.exit(0);
+                }
+            });
+            builder.setCancelable(false); // Evita que el usuario cierre el diálogo con el botón de retroceso
+            builder.show();
+        }
+    }
+
 }

@@ -7,10 +7,11 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+
 
 
     <application
@@ -36,10 +37,6 @@
             android:exported="false"
             android:label="@string/title_activity_reci_shop"
             android:theme="@style/DarkTheme.ReciPeru.NoActionBar" />
-        <activity
-            android:name=".Entity.ReciShop"
-            android:exported="false" />
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAq5z0qk55XkZdcc8FJbHywmXCcve4pkN4" />
