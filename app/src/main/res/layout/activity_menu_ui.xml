@@ -66,9 +66,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <!-- Primer consejo sobre reciclaje -->
-
-            <!-- Segundo consejo sobre reciclaje -->
             <LinearLayout
                 android:layout_width="427dp"
                 android:layout_height="201dp"
@@ -150,7 +147,91 @@
 
             </LinearLayout>
 
+
             <!-- Agrega más consejos de la misma manera -->
+
+
+            <LinearLayout
+                android:layout_width="409dp"
+                android:layout_height="211dp"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Imagen del consejo -->
+                <ImageView
+                    android:layout_width="162dp"
+                    android:layout_height="93dp"
+                    android:scaleType="centerCrop"
+                    app:srcCompat=""
+                    tools:srcCompat="@drawable/ahorrar_agua" />
+
+                <!-- Contenedor para título y descripción -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Título del consejo -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ahorro de Agua"
+                        android:textColor="#000000"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- Descripción del consejo -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="57dp"
+                        android:text="Instala dispositivos de bajo flujo en grifos y duchas, y repara fugas de inmediato."
+                        android:textColor="#6E6E6E"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="420dp"
+                android:layout_height="211dp"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Imagen del consejo -->
+                <ImageView
+                    android:layout_width="176dp"
+                    android:layout_height="93dp"
+                    android:scaleType="centerCrop"
+                    app:srcCompat=""
+                    tools:srcCompat="@drawable/transporte_Eclogico" />
+
+                <!-- Contenedor para título y descripción -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Título del consejo -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Transporte Sostenible"
+                        android:textColor="#000000"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- Descripción del consejo -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="57dp"
+                        android:text="Usa transporte público, bicicletas o camina siempre que sea posible. "
+                        android:textColor="#6E6E6E"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
     </HorizontalScrollView>
