@@ -162,7 +162,6 @@
                     android:layout_width="162dp"
                     android:layout_height="93dp"
                     android:scaleType="centerCrop"
-                    app:srcCompat=""
                     tools:srcCompat="@drawable/ahorrar_agua" />
 
                 <!-- Contenedor para título y descripción -->
@@ -203,8 +202,7 @@
                     android:layout_width="176dp"
                     android:layout_height="93dp"
                     android:scaleType="centerCrop"
-                    app:srcCompat=""
-                    tools:srcCompat="@drawable/transporte_Eclogico" />
+                    tools:srcCompat="@drawable/transporte_ecologico" />
 
                 <!-- Contenedor para título y descripción -->
                 <LinearLayout
