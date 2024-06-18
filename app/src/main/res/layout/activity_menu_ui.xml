@@ -147,19 +147,15 @@
 
             </LinearLayout>
 
-
-            <!-- Agrega más consejos de la misma manera -->
-
-
             <LinearLayout
-                android:layout_width="409dp"
+                android:layout_width="397dp"
                 android:layout_height="211dp"
                 android:orientation="vertical"
                 android:padding="16dp">
 
                 <!-- Imagen del consejo -->
                 <ImageView
-                    android:layout_width="162dp"
+                    android:layout_width="176dp"
                     android:layout_height="93dp"
                     android:scaleType="centerCrop"
                     app:srcCompat="@drawable/ahorrar_agua" />
@@ -183,7 +179,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="57dp"
-                        android:text="Instala dispositivos de bajo flujo en grifos y duchas, y repara fugas de inmediato."
+                        android:text="Instala dispositivos de bajo flujo en grifos y duchas, y repara fugas de inmediato. "
                         android:textColor="#6E6E6E"
                         android:textSize="16sp" />
 
@@ -192,7 +188,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="396dp"
+                android:layout_width="397dp"
                 android:layout_height="211dp"
                 android:orientation="vertical"
                 android:padding="16dp">
@@ -223,13 +219,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="57dp"
-                        android:text="Usa transporte público, bicicletas o camina siempre que sea posible. "
+                        android:text="Usa transporte público, bicicletas o camina siempre que sea posible."
                         android:textColor="#6E6E6E"
                         android:textSize="16sp" />
 
                 </LinearLayout>
 
             </LinearLayout>
+            <!-- Agrega más consejos de la misma manera -->
 
         </LinearLayout>
     </HorizontalScrollView>

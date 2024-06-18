@@ -96,14 +96,6 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             DialogUtilities.showNotificationSettingsDialog(MenuUI.this);
         }
 
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
-
         Button verMapa = findViewById(R.id.btnVerMapa);
         loadingLayout = findViewById(R.id.loadingLayout);
         loadingIndicator = findViewById(R.id.loadingIndicator);
