@@ -1,6 +1,15 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".Interfaces.MenuUI">
+
+
+<androidx.constraintlayout.widget.ConstraintLayout
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,7 +17,7 @@
     tools:context=".Interfaces.MenuUI">
 
     <ImageView
-        android:id="@+id/imgvPerfil"
+        android:id="@+id/userImageView"
         android:layout_width="224dp"
         android:layout_height="167dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -55,6 +64,7 @@
 
     <!-- Consejos sobre reciclaje -->
     <HorizontalScrollView
+        android:id="@+id/horizontalScrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -298,19 +308,19 @@
         app:layout_constraintHorizontal_bias="0.997"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintVertical_bias="0.022"
         app:srcCompat="@drawable/icono_tienda" />
 
     <Button
-        android:id="@+id/btnCargarImagen"
+        android:id="@+id/btnUploadImage"
         android:layout_width="58dp"
         android:layout_height="52dp"
         android:text=""
-        app:layout_constraintBottom_toBottomOf="@+id/imgvPerfil"
-        app:layout_constraintEnd_toEndOf="@+id/imgvPerfil"
+        app:layout_constraintBottom_toBottomOf="@+id/userImageView"
+        app:layout_constraintEnd_toEndOf="@+id/userImageView"
         app:layout_constraintHorizontal_bias="0.825"
-        app:layout_constraintStart_toStartOf="@+id/imgvPerfil"
-        app:layout_constraintTop_toTopOf="@+id/imgvPerfil"
+        app:layout_constraintStart_toStartOf="@+id/userImageView"
+        app:layout_constraintTop_toTopOf="@+id/userImageView"
         app:layout_constraintVertical_bias="1.0" />
 
     <FrameLayout
@@ -348,4 +358,34 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txvReciPoints" />
 
+
+    <!-- Botón de menú -->
+    <ImageButton
+        android:id="@+id/btn_menu"
+        android:layout_width="28dp"
+        android:layout_height="34dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="16dp"
+        android:src="@drawable/menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.015"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.022" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Menú desplegable -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="#589433"
+        app:headerLayout="@layout/nav_header"
+        app:itemTextColor="#FFFFFF"
+        app:menu="@menu/nav_menu"
+        app:subheaderColor="#FFFFFF" />
+
+</androidx.drawerlayout.widget.DrawerLayout>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_direccion"
+        android:title="Mi Direccion"
+        android:titleTextColor="#FFFFFF"/>
+
+    <item
+        android:id="@+id/nav_rutas"
+        android:title="Rutas"
+        android:titleTextColor="#FFFFFF"/>
+
+    <item
+        android:id="@+id/nav_cambiarcontra"
+        android:title="Restablecer Contrasena"
+        android:titleTextColor="#FFFFFF"/>
+
+</menu>

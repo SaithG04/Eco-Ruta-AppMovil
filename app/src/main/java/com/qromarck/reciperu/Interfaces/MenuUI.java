@@ -2,6 +2,7 @@ package com.qromarck.reciperu.Interfaces;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -14,11 +15,14 @@ import android.location.LocationManager;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -33,8 +37,10 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
+import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -81,12 +87,53 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         return reci;
     }
 
+    //CONSEJOS
 
+    private HorizontalScrollView horizontalScrollView;
+    private Handler handler = new Handler();
+    private int scrollMax;
+    private int scrollPos = 0;
+    private boolean scrollViewForward = true;
+    private int[] scrollPositions = {0,1600,3100,4800}; // Ejemplo de posiciones específicas
+    private int currentPosIndex = 0;
+    private static final int STOP_DURATION = 2000; // Tiempo en milisegundos para detenerse en cada posición
+    //CONSEJOS
+    private static final int SCROLL_DELAY = 10; // Tiempo en milisegundos entre cada scroll
+    private static final int SCROLL_DELAY_FAST = 5; // Tiempo en milisegundos entre cada scroll rápido en reversa
+    private static final int SCROLL_INCREMENT = 20; // Cantidad de píxeles para desplazarse en cada iteración
+
+
+    //MENU
+    private DrawerLayout drawerLayout;
+    private ImageButton btnMenu;
+
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_menu_ui);
+
+
+        //CONSEJOS
+        horizontalScrollView = findViewById(R.id.horizontalScrollView);
+
+        horizontalScrollView.post(() -> {
+            scrollMax = horizontalScrollView.getChildAt(0).getMeasuredWidth() - getWindowManager().getDefaultDisplay().getWidth();
+            autoScroll();
+        });
+
+        //MENU
+        drawerLayout = findViewById(R.id.drawer_layout);
+        btnMenu = findViewById(R.id.btn_menu);
+
+        btnMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+
 
         inicializarUsuario();
         //Falta validar para cuando se desactivan de un canal en específico
@@ -194,6 +241,61 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 
 
     }
+
+    //CONSEJOS
+    private void autoScroll() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Verifica si se ha alcanzado el final del desplazamiento
+                if (scrollPos >= scrollMax) {
+                    // Agrega una pausa al final
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Inicia el desplazamiento en reversa
+                            autoScrollReverse();
+                        }
+                    }, STOP_DURATION); // Pausa antes de iniciar el desplazamiento en reversa
+                } else {
+                    // Verifica si se ha alcanzado una posición específica
+                    if (currentPosIndex < scrollPositions.length && scrollPos >= scrollPositions[currentPosIndex]) {
+                        currentPosIndex++;
+                        handler.postDelayed(this, STOP_DURATION); // Detiene en la posición específica
+                        return;
+                    }
+                    // Desplaza gradualmente
+                    if (currentPosIndex < scrollPositions.length) {
+                        int nextPos = scrollPositions[currentPosIndex];
+                        scrollPos = Math.min(scrollPos + SCROLL_INCREMENT, nextPos);
+                    } else {
+                        scrollPos += SCROLL_INCREMENT;
+                    }
+                    horizontalScrollView.scrollTo(scrollPos, 0);
+                    handler.postDelayed(this, SCROLL_DELAY);
+                }
+            }
+        }, SCROLL_DELAY);
+    }
+
+    private void autoScrollReverse() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Verifica si se ha alcanzado el principio del desplazamiento
+                if (scrollPos <= 0) {
+                    // Inicia el desplazamiento hacia adelante
+                    currentPosIndex = 0; // Reinicia el índice de las posiciones específicas
+                    autoScroll();
+                } else {
+                    scrollPos -= SCROLL_INCREMENT; // Desplazamiento rápido hacia atrás
+                    horizontalScrollView.scrollTo(scrollPos, 0);
+                    handler.postDelayed(this, SCROLL_DELAY_FAST);
+                }
+            }
+        }, SCROLL_DELAY_FAST);
+    }
+
 
     //NOTIFICACION
 
