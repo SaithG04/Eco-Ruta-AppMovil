@@ -44,6 +44,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -71,6 +72,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.qromarck.reciperu.Interfaces.RestablecerContraMenuUser;
+import android.view.MenuItem;
 
 public class MenuUI extends AppCompatActivity implements Serializable {
 
@@ -103,9 +106,11 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     private static final int SCROLL_INCREMENT = 20; // Cantidad de píxeles para desplazarse en cada iteración
 
 
+
     //MENU
     private DrawerLayout drawerLayout;
     private ImageButton btnMenu;
+    private NavigationView navigationView;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -133,6 +138,43 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                 drawerLayout.openDrawer(GravityCompat.START);
             }
         });
+
+        // Ensure you are using the correct ID
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        if (navigationView != null) {
+            navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(MenuItem item) {
+                    // Handle navigation view item clicks here.
+                    int id = item.getItemId();
+
+                    if (id == R.id.nav_direccion) {
+
+                    } else if (id == R.id.nav_rutas) {
+                        // Inicia la nueva actividad ChangePasswordUI
+
+                        Intent intent = new Intent(MenuUI.this, RutasUI.class);
+                        startActivity(intent);
+                        drawerLayout.closeDrawer(GravityCompat.START); // Cerrar el menú
+                        return true;
+                    }else if (id == R.id.nav_cambiarcontra) {
+                        // Inicia la nueva actividad ChangePasswordUI
+
+                        Intent intent = new Intent(MenuUI.this, RestablecerContraMenuUser.class);
+                        startActivity(intent);
+                        drawerLayout.closeDrawer(GravityCompat.START); // Cerrar el menú
+                        return true;
+                    }
+
+                    DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                    drawer.closeDrawer(GravityCompat.START);
+                    return true;
+                }
+            });
+        } else {
+            Log.e("MenuUI", "NavigationView is null");
+        }
+
 
 
         inicializarUsuario();
