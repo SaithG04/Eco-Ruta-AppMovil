@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.LocationManager;
 
 import android.net.Uri;
@@ -156,7 +157,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 
     //IMAGEN PROFILE
 
-    private Button btnSelectImage;
+    private ImageView imgUser,btnSelectImage;
     private Bitmap bitmap;
     private ProgressDialog progressDialog;
     private String UPLOAD_URL = "https://reciperu2024.000webhostapp.com/upload.php"; // URL de tu script PHP en el servidor
@@ -172,13 +173,11 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_menu_ui);
 
-
-
-        //FOTO USUARIO
+        //SUBIR FOTO
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Subiendo imagen...");
 
-        btnSelectImage = findViewById(R.id.btnUploadImage);
+        btnSelectImage = findViewById(R.id.btnSelectImage);
 
         btnSelectImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,6 +185,21 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                 selectImage(); // Llama primero a selectImage para obtener la imagen desde la galería
             }
         });
+
+        //LISTAR FOTO
+
+        imgUser = findViewById(R.id.userImageView);
+
+        Usuario nombreUsuarioLogged = InterfacesUtilities.recuperarUsuario(MenuUI.this);
+        String nameuserLogged = nombreUsuarioLogged.getFull_name().toString();
+
+        // Aquí deberías tener un método o evento que obtenga el nombre de usuario
+        String nombre = nameuserLogged; // Nombre de usuario para la prueba
+
+        // Llamar a AsyncTask para obtener la imagen del servidor
+        new GetImageTask().execute(nombre);
+
+
 
         //CONSEJOS
         horizontalScrollView = findViewById(R.id.horizontalScrollView);
@@ -262,25 +276,25 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             public void onClick(View v) {
                 showLoadingIndicator();
                 if (NetworkUtilities.isNetworkAvailable(getApplicationContext())) {
-                        // Verifica si tienes los permisos de ubicación
-                        if (ContextCompat.checkSelfPermission(MenuUI.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                            // Verificar si el GPS está habilitado
-                            if (isGPSEnabled()) {
-                                hideLoadingIndicator();
-                                // El GPS está apagado, mostrar un diálogo para pedir al usuario que lo active
-                                showEnableGPSDialog();
-                            } else {
-                                // El GPS está habilitado, realizar la acción deseada
-                                exit = false;
-                                TransitionUI.destino = ReciMapsUI.class;
-                                Log.d("DEBUG", "FROM: " + MenuUI.class.getSimpleName());
-                                startActivity(new Intent(MenuUI.this, TransitionUI.class));
-                            }
-                        } else {
-                            // Si no tienes los permisos, solicítalos al usuario
-                            ActivityCompat.requestPermissions(MenuUI.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
+                    // Verifica si tienes los permisos de ubicación
+                    if (ContextCompat.checkSelfPermission(MenuUI.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        // Verificar si el GPS está habilitado
+                        if (isGPSEnabled()) {
                             hideLoadingIndicator();
+                            // El GPS está apagado, mostrar un diálogo para pedir al usuario que lo active
+                            showEnableGPSDialog();
+                        } else {
+                            // El GPS está habilitado, realizar la acción deseada
+                            exit = false;
+                            TransitionUI.destino = ReciMapsUI.class;
+                            Log.d("DEBUG", "FROM: " + MenuUI.class.getSimpleName());
+                            startActivity(new Intent(MenuUI.this, TransitionUI.class));
                         }
+                    } else {
+                        // Si no tienes los permisos, solicítalos al usuario
+                        ActivityCompat.requestPermissions(MenuUI.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
+                        hideLoadingIndicator();
+                    }
                 } else {
                     hideLoadingIndicator();
                     DialogUtilities.showNoInternetDialog(MenuUI.this);
@@ -352,6 +366,68 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     }
 
     //FOTO PERFIL
+
+    //LISTAR FOTO
+
+    private class GetImageTask extends AsyncTask<String, Void, Bitmap> {
+
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(MenuUI.this);
+            progressDialog.setMessage("Cargando imagen...");
+            progressDialog.setCancelable(false); // Evita que se pueda cancelar
+            progressDialog.show();
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            String nombre = params[0];
+            String serverUrl = "https://reciperu2024.000webhostapp.com/obtener_imagen.php"; // URL de tu script PHP
+
+            try {
+                URL url = new URL(serverUrl);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoOutput(true);
+
+                // Enviar el nombre de usuario al servidor
+                String postData = "nombre=" + nombre;
+                connection.getOutputStream().write(postData.getBytes());
+
+                // Obtener la respuesta del servidor (la imagen)
+                InputStream inputStream = connection.getInputStream();
+                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                connection.disconnect();
+
+                return bitmap;
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            progressDialog.dismiss(); // Oculta el ProgressDialog cuando se completa la tarea
+
+            if (result != null) {
+                // Mostrar la imagen en el ImageView
+                imgUser.setImageBitmap(result);
+            } else {
+                // Manejar el caso donde no se pudo obtener la imagen
+                // Puedes mostrar una imagen por defecto o un mensaje de error
+                Toast.makeText(MenuUI.this, "Error al obtener la imagen", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+    //SUBIR FOTO AL SERVER
     private void selectImage() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -380,6 +456,14 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                     public void onResponse(String response) {
                         progressDialog.dismiss();
                         Toast.makeText(MenuUI.this, response, Toast.LENGTH_SHORT).show();
+                        Usuario nombreUsuarioLogged = InterfacesUtilities.recuperarUsuario(MenuUI.this);
+                        String nameuserLogged = nombreUsuarioLogged.getFull_name().toString();
+
+                        // Aquí deberías tener un método o evento que obtenga el nombre de usuario
+                        String nombre = nameuserLogged; // Nombre de usuario para la prueba
+
+                        // Llamar a AsyncTask para obtener la imagen del servidor
+                        new GetImageTask().execute(nombre);
                     }
                 },
                 new Response.ErrorListener() {
@@ -396,7 +480,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                 Usuario usuarionombre = InterfacesUtilities.recuperarUsuario(MenuUI.this);
                 String usuarionombrestring = usuarionombre.getFull_name().toString();
 
-                params.put(KEY_NAME, usuarionombrestring);
+                params.put(KEY_NAME, usuarionombrestring); // Nombre de ejemplo, ajusta según sea necesario
                 params.put(KEY_IMAGE, imageString);
                 return params;
             }
