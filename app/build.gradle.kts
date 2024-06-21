@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.volley)
+    implementation(libs.firebase.crashlytics.buildtools)
 
 
     testImplementation(libs.junit)
@@ -83,4 +84,9 @@ dependencies {
     //MAIL
     implementation (libs.android.mail.v167)
     implementation (libs.android.activation.v167)
+
+    //Forp perfil
+    implementation (libs.volley)
+    implementation (libs.retrofit2.retrofit)
+    implementation (libs.converter.gson)
 }
