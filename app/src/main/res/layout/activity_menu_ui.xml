@@ -25,7 +25,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.722"
-        app:srcCompat="@drawable/vectorlogin" />
+        app:srcCompat="@color/white" />
 
     <TextView
         android:id="@+id/txvReciPoints"
@@ -350,6 +350,17 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.256"
         app:srcCompat="@drawable/camara" />
+
+    <ImageView
+        android:id="@+id/loading_profilegif"
+        android:layout_width="143dp"
+        android:layout_height="104dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/userImageView"
+        app:layout_constraintEnd_toEndOf="@+id/userImageView"
+        app:layout_constraintStart_toStartOf="@+id/userImageView"
+        app:layout_constraintTop_toTopOf="@+id/userImageView"
+        app:srcCompat="@drawable/loading" />
 
     <FrameLayout
         android:id="@+id/loadingLayout"

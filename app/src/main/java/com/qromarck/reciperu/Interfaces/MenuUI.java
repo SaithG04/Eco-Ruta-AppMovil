@@ -49,6 +49,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
@@ -157,7 +158,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 
     //IMAGEN PROFILE
 
-    private ImageView imgUser,btnSelectImage;
+    private ImageView imgUser,btnSelectImage,imgloading;
     private Bitmap bitmap;
     private ProgressDialog progressDialog;
     private String UPLOAD_URL = "https://reciperu2024.000webhostapp.com/upload.php"; // URL de tu script PHP en el servidor
@@ -189,6 +190,8 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         //LISTAR FOTO
 
         imgUser = findViewById(R.id.userImageView);
+
+        imgloading = findViewById(R.id.loading_profilegif);
 
         Usuario nombreUsuarioLogged = InterfacesUtilities.recuperarUsuario(MenuUI.this);
         String nameuserLogged = nombreUsuarioLogged.getFull_name().toString();
@@ -371,15 +374,14 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 
     private class GetImageTask extends AsyncTask<String, Void, Bitmap> {
 
-        private ProgressDialog progressDialog;
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(MenuUI.this);
-            progressDialog.setMessage("Cargando imagen...");
-            progressDialog.setCancelable(false); // Evita que se pueda cancelar
-            progressDialog.show();
+            // Mostrar el GIF de carga en el ImageView
+            Glide.with(imgloading.getContext())
+                    .asGif()
+                    .load(R.drawable.loading_profile) // Reemplaza con el nombre de tu archivo GIF de carga
+                    .into(imgloading);
         }
 
         @Override
@@ -413,11 +415,11 @@ public class MenuUI extends AppCompatActivity implements Serializable {
 
         @Override
         protected void onPostExecute(Bitmap result) {
-            progressDialog.dismiss(); // Oculta el ProgressDialog cuando se completa la tarea
 
             if (result != null) {
                 // Mostrar la imagen en el ImageView
                 imgUser.setImageBitmap(result);
+                imgloading.setImageBitmap(null);
             } else {
                 // Manejar el caso donde no se pudo obtener la imagen
                 // Puedes mostrar una imagen por defecto o un mensaje de error
