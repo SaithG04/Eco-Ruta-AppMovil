@@ -421,7 +421,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             } else {
                 // Manejar el caso donde no se pudo obtener la imagen
                 // Puedes mostrar una imagen por defecto o un mensaje de error
-                Toast.makeText(MenuUI.this, "Error al obtener la imagen", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MenuUI.this, "Error al obtener la imagen / Suba foto de perfil", Toast.LENGTH_SHORT).show();
             }
         }
     }
