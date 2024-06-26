@@ -232,10 +232,15 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                     // Handle navigation view item clicks here.
                     int id = item.getItemId();
 
-                    if (id == R.id.nav_direccion) {
-
-                    } else if (id == R.id.nav_rutas) {
+                    if (id == R.id.nav_reportar) {
                         // Inicia la nueva actividad ChangePasswordUI
+
+                        Intent intent = new Intent(MenuUI.this, ReportarUI.class);
+                        startActivity(intent);
+                        drawerLayout.closeDrawer(GravityCompat.START); // Cerrar el menú
+                        return true;
+                    } else if (id == R.id.nav_rutas) {
+                        // Inicia la nueva actividad RutasUI
 
                         Intent intent = new Intent(MenuUI.this, RutasUI.class);
                         startActivity(intent);
