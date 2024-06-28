@@ -29,22 +29,32 @@ import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 
 import java.util.List;
-
-public class RestablecerContra extends AppCompatActivity {
+public class RestablecerContraMenuUser extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FrameLayout loadingLayout;
     private ProgressBar loadingIndicator;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_restablecer_contra);
+        setContentView(R.layout.activity_restablecer_contra_menu_user);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        Usuario userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(RestablecerContraMenuUser.this);
+
+
+        // Obtén la referencia al EditText donde se ingresa el correo
+        EditText gmailEditText = findViewById(R.id.edtGmailUser);
+
+        // Obtiene el texto ingresado en el EditText
+        String email = userLoggedOnSystem.getEmail().toString();
+
+        //Coloca Automaticamente el gmail del usuario
+        gmailEditText.setText(email);
 
         Button enviar = findViewById(R.id.btnEnviarGmailUser);
         mAuth = FirebaseAuth.getInstance();
@@ -55,22 +65,18 @@ public class RestablecerContra extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showLoadingIndicator();
-                // Obtén la referencia al EditText donde se ingresa el correo
-                EditText gmailEditText = findViewById(R.id.edtGmailUser);
 
-                // Obtiene el texto ingresado en el EditText
-                String email = gmailEditText.getText().toString().trim();
 
                 // Verifica si el campo de correo electrónico no está vacío
                 if (email.isEmpty()) {
-                    Toast.makeText(RestablecerContra.this, "Ingrese su correo, Por favor.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RestablecerContraMenuUser.this, "Ingrese su correo, Por favor.", Toast.LENGTH_SHORT).show();
                     hideLoadingIndicator();
                     return;
                 }
 
                 // Validar el formato del correo electrónico usando una expresión regular
                 if (!InterfacesUtilities.isValidEmail(email)) {
-                    Toast.makeText(RestablecerContra.this, "Ingrese un correo válido.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RestablecerContraMenuUser.this, "Ingrese un correo válido.", Toast.LENGTH_SHORT).show();
                     hideLoadingIndicator();
                     return;
                 }
@@ -95,7 +101,7 @@ public class RestablecerContra extends AppCompatActivity {
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
                                                 // Correo de restablecimiento enviado con éxito
-                                                Toast.makeText(RestablecerContra.this, "Se ha enviado un correo para restablecer tu contraseña", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(RestablecerContraMenuUser.this, "Se ha enviado un correo para restablecer tu contraseña", Toast.LENGTH_SHORT).show();
                                                 hideLoadingIndicator();
                                                 finish(); // Cierra la actividad actual
                                             }
@@ -105,7 +111,7 @@ public class RestablecerContra extends AppCompatActivity {
                                         public void onFailure(@NonNull Exception e) {
                                             // Error al enviar el correo de restablecimiento
                                             hideLoadingIndicator();
-                                            Toast.makeText(RestablecerContra.this, "Error al enviar el correo de restablecimiento. ", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(RestablecerContraMenuUser.this, "Error al enviar el correo de restablecimiento. ", Toast.LENGTH_SHORT).show();
                                             e.printStackTrace(System.out);
                                         }
                                     });
@@ -125,9 +131,9 @@ public class RestablecerContra extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         hideLoadingIndicator();
-        TransitionUI.destino = LoginUI.class;
+        TransitionUI.destino = MenuUI.class;
         Log.d("DEBUG", "FROM: " + RegistroUsuarioUI.class.getSimpleName());
-        startActivity(new Intent(RestablecerContra.this, TransitionUI.class));
+        startActivity(new Intent(RestablecerContraMenuUser.this, TransitionUI.class));
         finish();
     }
 
@@ -135,13 +141,13 @@ public class RestablecerContra extends AppCompatActivity {
      * Método para mostrar el indicador de carga.
      */
     private void showLoadingIndicator() {
-        InterfacesUtilities.showLoadingIndicator(RestablecerContra.this, loadingLayout, loadingIndicator);
+        InterfacesUtilities.showLoadingIndicator(RestablecerContraMenuUser.this, loadingLayout, loadingIndicator);
     }
 
     /**
      * Método para ocultar el indicador de carga.
      */
     public void hideLoadingIndicator() {
-        InterfacesUtilities.hideLoadingIndicator(RestablecerContra.this, loadingLayout, loadingIndicator);
+        InterfacesUtilities.hideLoadingIndicator(RestablecerContraMenuUser.this, loadingLayout, loadingIndicator);
     }
 }

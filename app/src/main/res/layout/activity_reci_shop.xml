@@ -141,6 +141,7 @@
                         android:backgroundTint="#7DC52B"
                         android:padding="8dp"
                         android:text="Canjear"
+                        android:textColor="#FFFFFF"
                         app:iconTint="#7CC429" />
 
                 </LinearLayout>
@@ -189,6 +190,7 @@
                         android:backgroundTint="#7DC52B"
                         android:padding="8dp"
                         android:text="Canjear"
+                        android:textColor="#FFFFFF"
                         app:iconTint="#7CC429" />
 
                 </LinearLayout>
@@ -237,6 +239,7 @@
                         android:backgroundTint="#7DC52B"
                         android:padding="8dp"
                         android:text="Canjear"
+                        android:textColor="#FFFFFF"
                         app:iconTint="#7CC429" />
 
                 </LinearLayout>
