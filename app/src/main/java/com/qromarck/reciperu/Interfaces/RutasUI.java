@@ -32,7 +32,6 @@ public class RutasUI extends AppCompatActivity {
         btnSendImage2 = findViewById(R.id.btnRuta2);
         btnSendImage3 = findViewById(R.id.btnRuta3);
         btnSendImage4 = findViewById(R.id.btnRuta4);
-        btnSendImage5 = findViewById(R.id.btnRuta5);
 
         btnSendImage1.setOnClickListener(new View.OnClickListener() {
             @Override
