@@ -29,6 +29,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".Interfaces.MapaRutasUI"
+            android:exported="false" />
+        <activity
             android:name=".Interfaces.ReportarUI"
             android:exported="false" />
         <activity
