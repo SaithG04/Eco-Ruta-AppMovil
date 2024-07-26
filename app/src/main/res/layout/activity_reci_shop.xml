@@ -30,7 +30,9 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingTop="30dp"
+        android:paddingBottom="30dp">
 
         <!-- Contenedor principal: LinearLayout vertical -->
         <LinearLayout
@@ -43,10 +45,6 @@
             <!-- Nombre de la tienda -->
 
             <!-- Descripción de la tienda -->
-            <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="match_parent"
-                android:layout_height="26dp" />
 
             <ImageView
                 android:id="@+id/store_image"
@@ -59,6 +57,7 @@
                 android:id="@+id/textView8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="casual"
                 android:text="ECOPoints"
                 android:textColor="#46780D"
                 android:textStyle="bold" />
@@ -67,11 +66,13 @@
                 android:id="@+id/txvEcoPoints"
                 android:layout_width="137dp"
                 android:layout_height="wrap_content"
+                android:fontFamily="casual"
                 android:textColor="#000000" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="casual"
                 android:padding="16dp"
                 android:text="ECOSHOP"
                 android:textColor="#48790F"
@@ -81,6 +82,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="casual"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:paddingBottom="8dp"
@@ -92,6 +94,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="casual"
                 android:padding="16dp"
                 android:text="Productos:"
                 android:textColor="#000000"
@@ -122,6 +125,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="casual"
                         android:text="2 x 1 en Entradas!!!"
                         android:textColor="#000000"
                         android:textSize="18sp"
@@ -130,6 +134,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="casual"
                         android:text="Dscto Entradas Cine. Precio: 5000 ptos."
                         android:textColor="#000000"
                         android:textSize="14sp" />
@@ -139,6 +144,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:backgroundTint="#7DC52B"
+                        android:fontFamily="casual"
                         android:padding="8dp"
                         android:text="Canjear"
                         android:textColor="#FFFFFF"
@@ -171,6 +177,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="casual"
                         android:text="2 x 1 en Hamburguesas!!"
                         android:textColor="#000000"
                         android:textSize="18sp"
@@ -179,6 +186,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="casual"
                         android:text="2x1 En Parilleras!!. Precio: 7000 ptos."
                         android:textColor="#000000"
                         android:textSize="14sp" />
@@ -188,6 +196,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:backgroundTint="#7DC52B"
+                        android:fontFamily="casual"
                         android:padding="8dp"
                         android:text="Canjear"
                         android:textColor="#FFFFFF"
@@ -220,6 +229,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="casual"
                         android:text="30% OFF en Ropa"
                         android:textColor="#000000"
                         android:textSize="18sp"
@@ -228,6 +238,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="casual"
                         android:text="Dscto 30% Marcas: Adidas, Nike, etc. Precio: 9000 ptos."
                         android:textColor="#000000"
                         android:textSize="14sp" />
@@ -237,6 +248,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:backgroundTint="#7DC52B"
+                        android:fontFamily="casual"
                         android:padding="8dp"
                         android:text="Canjear"
                         android:textColor="#FFFFFF"

@@ -8,96 +8,90 @@
     android:background="@color/white"
     tools:context=".Interfaces.MenuUI">
 
-
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white"
-    tools:context=".Interfaces.MenuUI">
-
-    <ImageView
-        android:id="@+id/userImageView"
-        android:layout_width="195dp"
-        android:layout_height="178dp"
-        app:layout_constraintBottom_toTopOf="@+id/txvUSERNAME"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.722"
-        app:srcCompat="@color/white" />
-
-    <TextView
-        android:id="@+id/txvReciPoints"
-        android:layout_width="243dp"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-light"
-        android:text=""
-        android:textAlignment="textStart"
-        android:textColor="#000000"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.483"
-        app:layout_constraintStart_toEndOf="@+id/lbl"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.382" />
-
-    <TextView
-        android:id="@+id/txvUSERNAME"
-        android:layout_width="280dp"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:textColor="#000000"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.307" />
-
-
-    <!-- Consejos sobre reciclaje -->
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnCamara"
-        app:layout_constraintTop_toBottomOf="@+id/textView9">
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        tools:context=".Interfaces.MenuUI">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <ImageView
+            android:id="@+id/userImageView"
+            android:layout_width="195dp"
+            android:layout_height="178dp"
+            app:layout_constraintBottom_toTopOf="@+id/txvUSERNAME"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.722"
+            app:srcCompat="@color/white" />
+
+        <TextView
+            android:id="@+id/txvReciPoints"
+            android:layout_width="243dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:fontFamily="casual"
+            android:text=""
+            android:textAlignment="textStart"
+            android:textColor="#000000"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.483"
+            app:layout_constraintStart_toEndOf="@+id/lbl"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.382" />
+
+        <TextView
+            android:id="@+id/txvUSERNAME"
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="casual"
+            android:textAlignment="center"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.496"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.307" />
+
+        <!-- Consejos sobre reciclaje -->
+        <HorizontalScrollView
+            android:id="@+id/horizontalScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:clipToPadding="false"
+            app:layout_constraintBottom_toTopOf="@+id/btnCamara"
+            app:layout_constraintTop_toBottomOf="@+id/textView9">
 
             <LinearLayout
-                android:layout_width="427dp"
-                android:layout_height="201dp"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- Imagen del consejo -->
-
-                <!-- Contenedor para título y descripción -->
-                <ImageView
-                    android:layout_width="96dp"
-                    android:layout_height="98dp"
-                    android:scaleType="centerCrop"
-                    app:srcCompat="@drawable/reducir_consumo_plastico" />
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <!-- Imagen del consejo -->
+                    <ImageView
+                        android:layout_width="100dp"
+                        android:layout_height="98dp"
+                        android:scaleType="centerCrop"
+                        app:srcCompat="@drawable/reducir_consumo_plastico" />
 
                     <!-- Título del consejo -->
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="400dp"
                         android:layout_height="wrap_content"
+                        android:fontFamily="casual"
                         android:text="Reduce el consumo de plástico:"
                         android:textColor="#000000"
                         android:textSize="18sp"
@@ -105,39 +99,32 @@
 
                     <!-- Descripción del consejo -->
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="casual"
                         android:text="Opta por productos reutilizables y evita el uso de botellas de plástico de un solo uso."
                         android:textColor="#6E6E6E"
                         android:textSize="16sp" />
-
                 </LinearLayout>
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="397dp"
-                android:layout_height="211dp"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- Imagen del consejo -->
-                <ImageView
-                    android:layout_width="176dp"
-                    android:layout_height="93dp"
-                    android:scaleType="centerCrop"
-                    app:srcCompat="@drawable/clasificacion_residuos" />
-
-                <!-- Contenedor para título y descripción -->
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <!-- Imagen del consejo -->
+                    <ImageView
+                        android:layout_width="180dp"
+                        android:layout_height="93dp"
+                        android:scaleType="centerCrop"
+                        app:srcCompat="@drawable/clasificacion_residuos" />
 
                     <!-- Título del consejo -->
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="400dp"
                         android:layout_height="wrap_content"
+                        android:fontFamily="casual"
                         android:text="Separa tus residuos:"
                         android:textColor="#000000"
                         android:textSize="18sp"
@@ -145,39 +132,32 @@
 
                     <!-- Descripción del consejo -->
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="57dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="casual"
                         android:text="Clasifica tus desechos en contenedores adecuados para reciclar papel, plástico, vidrio y metal."
                         android:textColor="#6E6E6E"
                         android:textSize="16sp" />
-
                 </LinearLayout>
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="397dp"
-                android:layout_height="211dp"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- Imagen del consejo -->
-                <ImageView
-                    android:layout_width="176dp"
-                    android:layout_height="93dp"
-                    android:scaleType="centerCrop"
-                    app:srcCompat="@drawable/ahorrar_agua" />
-
-                <!-- Contenedor para título y descripción -->
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <!-- Imagen del consejo -->
+                    <ImageView
+                        android:layout_width="176dp"
+                        android:layout_height="93dp"
+                        android:scaleType="centerCrop"
+                        app:srcCompat="@drawable/ahorrar_agua" />
 
                     <!-- Título del consejo -->
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="400dp"
                         android:layout_height="wrap_content"
+                        android:fontFamily="casual"
                         android:text="Ahorro de Agua"
                         android:textColor="#000000"
                         android:textSize="18sp"
@@ -185,39 +165,32 @@
 
                     <!-- Descripción del consejo -->
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="57dp"
+                        android:layout_width="400dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="casual"
                         android:text="Instala dispositivos de bajo flujo en grifos y duchas, y repara fugas de inmediato. "
                         android:textColor="#6E6E6E"
                         android:textSize="16sp" />
-
                 </LinearLayout>
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="397dp"
-                android:layout_height="211dp"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- Imagen del consejo -->
-                <ImageView
-                    android:layout_width="176dp"
-                    android:layout_height="93dp"
-                    android:scaleType="centerCrop"
-                    app:srcCompat="@drawable/transporte_ecologico" />
-
-                <!-- Contenedor para título y descripción -->
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <!-- Imagen del consejo -->
+                    <ImageView
+                        android:layout_width="176dp"
+                        android:layout_height="93dp"
+                        android:scaleType="centerCrop"
+                        app:srcCompat="@drawable/transporte_ecologico" />
 
                     <!-- Título del consejo -->
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="400dp"
                         android:layout_height="wrap_content"
+                        android:fontFamily="casual"
                         android:text="Transporte Sostenible"
                         android:textColor="#000000"
                         android:textSize="18sp"
@@ -225,165 +198,208 @@
 
                     <!-- Descripción del consejo -->
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="57dp"
+                        android:layout_width="400dp"
+                        android:layout_height="wrap_content"
                         android:text="Usa transporte público, bicicletas o camina siempre que sea posible."
                         android:textColor="#6E6E6E"
                         android:textSize="16sp" />
-
                 </LinearLayout>
-
             </LinearLayout>
-            <!-- Agrega más consejos de la misma manera -->
+        </HorizontalScrollView>
 
-        </LinearLayout>
-    </HorizontalScrollView>
+        <TextView
+            android:id="@+id/lbl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="casual"
+            android:text="EcoPoints:"
+            android:textColor="#589533"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.055"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.381" />
 
-    <TextView
-        android:id="@+id/lbl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-light"
-        android:text="EcoPoints:"
-        android:textColor="#589533"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.055"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.381" />
+        <Button
+            android:id="@+id/btnCerrarSesion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#589633"
+            android:fontFamily="casual"
+            android:text="Cerrar sesión"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.942"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.976" />
 
-    <Button
-        android:id="@+id/btnCerrarSesion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#589633"
-        android:text="Cerrar sesión"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.942"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.976" />
+        <Button
+            android:id="@+id/btnVerMapa"
+            android:layout_width="155dp"
+            android:layout_height="68dp"
+            android:backgroundTint="#589433"
+            android:fontFamily="casual"
+            android:text="Ver camión de la basura"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.132"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.877" />
 
-    <Button
-        android:id="@+id/btnVerMapa"
-        android:layout_width="155dp"
-        android:layout_height="68dp"
-        android:backgroundTint="#589433"
-        android:text="Ver camión de la basura"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.132"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.877" />
+        <Button
+            android:id="@+id/btnCamara"
+            android:layout_width="157dp"
+            android:layout_height="73dp"
+            android:backgroundTint="#589533"
+            android:fontFamily="casual"
+            android:text="Ganar puntos"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.846"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.876" />
 
-    <Button
-        android:id="@+id/btnCamara"
-        android:layout_width="157dp"
-        android:layout_height="73dp"
-        android:backgroundTint="#589533"
-        android:text="Ganar puntos"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.846"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.876" />
+        <ImageView
+            android:id="@+id/imgShop"
+            android:layout_width="38dp"
+            android:layout_height="34dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.997"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.022"
+            app:srcCompat="@drawable/icono_tienda" />
 
-    <ImageView
-        android:id="@+id/imgShop"
-        android:layout_width="38dp"
-        android:layout_height="34dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.997"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.022"
-        app:srcCompat="@drawable/icono_tienda" />
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="casual"
+            android:text="Consejos de Reciclaje"
+            android:textColor="#000000"
+            android:textStyle="bold|italic"
+            app:layout_constraintBottom_toTopOf="@+id/horizontalScrollView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txvReciPoints" />
 
-    <TextView
-        android:id="@+id/textView9"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:fontFamily="serif"
-        android:text="Consejos de Reciclaje"
-        android:textColor="#000000"
-        android:textStyle="bold|italic"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txvReciPoints" />
+        <!-- Botón de menú -->
+        <ImageButton
+            android:id="@+id/btn_menu"
+            android:layout_width="28dp"
+            android:layout_height="34dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="16dp"
+            android:src="@drawable/menu"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.015"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.022" />
 
+        <ImageView
+            android:id="@+id/btnSelectImage"
+            android:layout_width="73dp"
+            android:layout_height="49dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.775"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.256"
+            app:srcCompat="@drawable/camara" />
 
-    <!-- Botón de menú -->
-    <ImageButton
-        android:id="@+id/btn_menu"
-        android:layout_width="28dp"
-        android:layout_height="34dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:padding="16dp"
-        android:src="@drawable/menu"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.015"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.022" />
+        <ImageView
+            android:id="@+id/loading_profilegif"
+            android:layout_width="143dp"
+            android:layout_height="104dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/userImageView"
+            app:layout_constraintEnd_toEndOf="@+id/userImageView"
+            app:layout_constraintStart_toStartOf="@+id/userImageView"
+            app:layout_constraintTop_toTopOf="@+id/userImageView"
+            app:srcCompat="@drawable/loading" />
 
-    <ImageView
-        android:id="@+id/btnSelectImage"
-        android:layout_width="73dp"
-        android:layout_height="49dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.775"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.256"
-        app:srcCompat="@drawable/camara" />
+        <FrameLayout
+            android:id="@+id/loadingLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#BA939393"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone">
 
-    <ImageView
-        android:id="@+id/loading_profilegif"
-        android:layout_width="143dp"
-        android:layout_height="104dp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@+id/userImageView"
-        app:layout_constraintEnd_toEndOf="@+id/userImageView"
-        app:layout_constraintStart_toStartOf="@+id/userImageView"
-        app:layout_constraintTop_toTopOf="@+id/userImageView"
-        app:srcCompat="@drawable/loading" />
+            <ProgressBar
+                android:id="@+id/loadingIndicator"
+                style="@style/CustomProgressBar"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                android:padding="10dp"
+                android:visibility="gone" />
 
-    <FrameLayout
-        android:id="@+id/loadingLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#BA939393"
-        android:clickable="true"
-        android:focusable="true"
-        android:visibility="gone">
+        </FrameLayout>
+
+        <!-- Nuevo botón para verificar actualizaciones -->
+
+        <!-- Barra de progreso para la descarga -->
+
+        <Button
+            android:id="@+id/checkUpdateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#589533"
+            android:fontFamily="casual"
+            android:text="Check for Updates"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.138"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.976" />
 
         <ProgressBar
-            android:id="@+id/loadingIndicator"
-            style="@style/CustomProgressBar"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_gravity="center"
-            android:indeterminate="true"
-            android:padding="10dp"
-            android:visibility="gone" />
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/checkUpdateButton" />
 
-    </FrameLayout>
+        <!-- Texto de progreso para la descarga -->
+        <TextView
+            android:id="@+id/progressText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            android:text="Downloading update..."
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Menú desplegable -->
     <com.google.android.material.navigation.NavigationView
