@@ -11,7 +11,7 @@ public class SendEmail {
 
     // Credenciales y destinatario de correo electrónico
     private static String direccionCorreo = "reciperu4@gmail.com";
-    private static String contrasenyaCorreo = "teczkozufayrdnwj";
+    private static String contrasenyaCorreo = "qiclpocvpqvwryxx";
 
     public static void enviarMensaje(final String subject, final String content , String destinatarioCorreo) {
         AsyncTask.execute(new Runnable() {

@@ -2,19 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permisos de la aplicación -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32"
-        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 
     <application
         android:allowBackup="true"
@@ -28,70 +28,41 @@
         android:theme="@style/DarkTheme.ReciPeru"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity
-            android:name=".Interfaces.MapaRutasUI"
-            android:exported="false" />
-        <activity
-            android:name=".Interfaces.ReportarUI"
-            android:exported="false" />
-        <activity
-            android:name=".Interfaces.RutasUI"
-            android:exported="false" />
-        <activity
-            android:name=".Interfaces.RestablecerContraMenuUser"
-            android:exported="false" />
-        <activity
-            android:name=".Interfaces.ConductorUI"
-            android:exported="false" />
-        <activity
-            android:name=".Interfaces.RestablecerContra"
-            android:exported="false" />
-        <activity
-            android:name=".Interfaces.ReciShop"
-            android:exported="false"
-            android:label="@string/title_activity_reci_shop"
-            android:theme="@style/DarkTheme.ReciPeru.NoActionBar" />
 
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAq5z0qk55XkZdcc8FJbHywmXCcve4pkN4" />
-        <meta-data
-            android:name="asset_statements"
-            android:resource="@string/asset_statements" />
+        <!-- Configuración del FileProvider -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
-        <activity
-            android:name=".Interfaces.ValidacionUI"
-            android:exported="false" />
-        <activity
-            android:name=".Interfaces.ReciMapsUI"
-            android:exported="false"
-            android:label="@string/title_activity_reci_maps"
-            android:launchMode="singleTask" />
-        <activity
-            android:name=".Interfaces.MenuUI"
-            android:exported="false"
-            android:launchMode="singleTask" />
-        <activity
-            android:name=".Interfaces.RegistroUsuarioUI"
-            android:exported="false"
-            android:launchMode="singleTask" />
-        <activity
-            android:name=".Interfaces.TransitionUI"
-            android:exported="false"
-            android:launchMode="singleTask" />
-        <activity
-            android:name=".Interfaces.LoginUI"
-            android:exported="false"
-            android:launchMode="singleTask" />
-        <activity
-            android:name=".Interfaces.CargaInicialUI"
-            android:exported="true">
+        <!-- Otras actividades y componentes -->
+        <activity android:name=".Interfaces.MapaRutasUI" android:exported="false" />
+        <activity android:name=".Interfaces.ReportarUI" android:exported="false" />
+        <activity android:name=".Interfaces.RutasUI" android:exported="false" />
+        <activity android:name=".Interfaces.RestablecerContraMenuUser" android:exported="false" />
+        <activity android:name=".Interfaces.ConductorUI" android:exported="false" />
+        <activity android:name=".Interfaces.RestablecerContra" android:exported="false" />
+        <activity android:name=".Interfaces.ReciShop" android:exported="false" android:label="@string/title_activity_reci_shop" android:theme="@style/DarkTheme.ReciPeru.NoActionBar" />
+
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAq5z0qk55XkZdcc8FJbHywmXCcve4pkN4" />
+        <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
+
+        <activity android:name=".Interfaces.ValidacionUI" android:exported="false" />
+        <activity android:name=".Interfaces.ReciMapsUI" android:exported="false" android:label="@string/title_activity_reci_maps" android:launchMode="singleTask" />
+        <activity android:name=".Interfaces.MenuUI" android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".Interfaces.RegistroUsuarioUI" android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".Interfaces.TransitionUI" android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".Interfaces.LoginUI" android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".Interfaces.CargaInicialUI" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

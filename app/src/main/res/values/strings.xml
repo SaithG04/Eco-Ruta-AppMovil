@@ -98,4 +98,6 @@
     </string>
     <string name="action_settings">Settings</string>
     <string name="contra_olvidada">Olvidé mi contraseña</string>
+    <string name="clasifica_tus_desechos_en_contenedores_adecuados_para_reciclar_papel_pl_stico_vidrio_y_metal">Clasifica tus desechos en contenedores adecuados para reciclar papel, plástico, vidrio y metal.</string>
+    <string name="title_activity_update">UpdateActivity</string>
 </resources>
