@@ -732,36 +732,57 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                             Log.w("ERROR", "Suscripción fallida", task.getException());
                             Toast.makeText(getApplicationContext(), "Ha ocurrido un error inesperado reintente.", Toast.LENGTH_LONG).show();
                         }else{
-                            Usuario usuario = InterfacesUtilities.recuperarUsuario(MenuUI.this);
-                            usuario.setStatus("logged out");
-                            UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuario);
-                            usuarioDAO.updateOnFireStore(new DataAccessUtilities.OnUpdateListener() {
-                                @Override
-                                public void onUpdateComplete() {
-                                    FirebaseAuth.getInstance().signOut();
 
-                                    GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getApplicationContext());
-                                    if (account != null) {
-                                        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                                                .requestIdToken(getString(R.string.default_web_client_id))
-                                                .requestEmail()
-                                                .build();
-                                        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(getApplicationContext(), gso);
-                                        mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
-                                            // Cerrar sesión de Google completada
-                                            proceedToLogout();
-                                        });
-                                    } else {
-                                        // No hay cuenta de Google logueada
+                            Usuario usuarioLog = InterfacesUtilities.recuperarUsuario(getApplicationContext());
+                            UsuarioDAO usuarioDAO = new UsuarioDAOImpl(usuarioLog);
+
+                            // Buscar usuario en Firebase
+                            usuarioDAO.getUserOnFireBase(usuarioLog.getEmail(), new OnSuccessListener<List<Usuario>>() {
+                                @Override
+                                public void onSuccess(List<Usuario> usuarios) {
+                                    if (usuarios.isEmpty()) {
+                                        hideLoadingIndicator(); // Ocultar indicador de carga
+                                        Toast.makeText(getApplicationContext(), "Tu cuenta ha sido eliminada o deshabilitada.", Toast.LENGTH_LONG).show();
                                         proceedToLogout();
+                                    } else {
+                                        //Usuario usuario = InterfacesUtilities.recuperarUsuario(MenuUI.this);
+                                        usuarioLog.setStatus("logged out");
+                                        UsuarioDAO usuarioDAO2 = new UsuarioDAOImpl(usuarioLog);
+                                        usuarioDAO2.updateOnFireStore(new DataAccessUtilities.OnUpdateListener() {
+                                            @Override
+                                            public void onUpdateComplete() {
+                                                FirebaseAuth.getInstance().signOut();
+
+                                                GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getApplicationContext());
+                                                if (account != null) {
+                                                    GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                                                            .requestIdToken(getString(R.string.default_web_client_id))
+                                                            .requestEmail()
+                                                            .build();
+                                                    GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(getApplicationContext(), gso);
+                                                    mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
+                                                        // Cerrar sesión de Google completada
+                                                        proceedToLogout();
+                                                    });
+                                                } else {
+                                                    // No hay cuenta de Google logueada
+                                                    proceedToLogout();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onUpdateError(String errorMessage) {
+                                                Toast.makeText(getApplicationContext(), "Error al cerrar sesión.", Toast.LENGTH_SHORT).show();
+                                                hideLoadingIndicator();
+                                                Log.w("ERROR", errorMessage);
+                                            }
+                                        });
                                     }
                                 }
-
+                            }, new OnFailureListener() {
                                 @Override
-                                public void onUpdateError(String errorMessage) {
-                                    Toast.makeText(getApplicationContext(), "Error al cerrar sesión.", Toast.LENGTH_SHORT).show();
-                                    hideLoadingIndicator();
-                                    Log.w("ERROR", errorMessage);
+                                public void onFailure(@NonNull Exception e) {
+                                    e.printStackTrace(System.out);
                                 }
                             });
                         }
