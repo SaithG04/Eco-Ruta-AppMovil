@@ -3,4 +3,8 @@
     <style name="CustomProgressBar" parent="Widget.AppCompat.ProgressBar">
         <item name="android:indeterminateDrawable">@drawable/loading</item>
     </style>
+    <style name="NavigationViewItemTextStyle" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:fontFamily">casual</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
 </resources>

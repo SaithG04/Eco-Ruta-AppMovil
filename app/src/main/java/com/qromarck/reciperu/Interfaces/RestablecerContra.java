@@ -31,9 +31,11 @@ import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 import java.util.List;
 
 public class RestablecerContra extends AppCompatActivity {
+
     private FirebaseAuth mAuth;
     private FrameLayout loadingLayout;
     private ProgressBar loadingIndicator;
+    private Usuario userLoggedOnSystem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +48,18 @@ public class RestablecerContra extends AppCompatActivity {
             return insets;
         });
 
+        userLoggedOnSystem = InterfacesUtilities.recuperarUsuario(RestablecerContra.this);
+
+        EditText gmailEditText = findViewById(R.id.edtGmailUser);
         Button enviar = findViewById(R.id.btnEnviarGmailUser);
+
+        if(userLoggedOnSystem != null){
+            String email = userLoggedOnSystem.getEmail();
+            gmailEditText.setText(email);
+            gmailEditText.setKeyListener(null);
+            gmailEditText.setFocusable(false);
+        }
+
         mAuth = FirebaseAuth.getInstance();
         loadingLayout = findViewById(R.id.loadingLayout);
         loadingIndicator = findViewById(R.id.loadingIndicator);
@@ -55,8 +68,6 @@ public class RestablecerContra extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showLoadingIndicator();
-                // Obtén la referencia al EditText donde se ingresa el correo
-                EditText gmailEditText = findViewById(R.id.edtGmailUser);
 
                 // Obtiene el texto ingresado en el EditText
                 String email = gmailEditText.getText().toString().trim();
@@ -125,7 +136,7 @@ public class RestablecerContra extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         hideLoadingIndicator();
-        TransitionUI.destino = LoginUI.class;
+        TransitionUI.destino = userLoggedOnSystem != null ? MenuUI.class : LoginUI.class;
         Log.d("DEBUG", "FROM: " + RegistroUsuarioUI.class.getSimpleName());
         startActivity(new Intent(RestablecerContra.this, TransitionUI.class));
         finish();

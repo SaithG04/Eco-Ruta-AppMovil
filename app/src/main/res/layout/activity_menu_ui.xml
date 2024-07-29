@@ -233,7 +233,7 @@
             android:textColor="#FFFFFF"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.942"
+            app:layout_constraintHorizontal_bias="0.485"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.976" />
@@ -251,7 +251,7 @@
             app:layout_constraintHorizontal_bias="0.132"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.877" />
+            app:layout_constraintVertical_bias="0.87" />
 
         <Button
             android:id="@+id/btnCamara"
@@ -333,6 +333,8 @@
             app:layout_constraintTop_toTopOf="@+id/userImageView"
             app:srcCompat="@drawable/loading" />
 
+        <!-- Nuevo botón para verificar actualizaciones -->
+
         <FrameLayout
             android:id="@+id/loadingLayout"
             android:layout_width="match_parent"
@@ -354,51 +356,6 @@
 
         </FrameLayout>
 
-        <!-- Nuevo botón para verificar actualizaciones -->
-
-        <!-- Barra de progreso para la descarga -->
-
-        <Button
-            android:id="@+id/checkUpdateButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#589533"
-            android:fontFamily="casual"
-            android:text="Check for Updates"
-            android:textColor="#FFFFFF"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.138"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.976" />
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/checkUpdateButton" />
-
-        <!-- Texto de progreso para la descarga -->
-        <TextView
-            android:id="@+id/progressText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:visibility="gone"
-            android:text="Downloading update..."
-            android:textSize="16sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/progressBar" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Menú desplegable -->
@@ -411,6 +368,7 @@
         app:headerLayout="@layout/nav_header"
         app:itemTextColor="#FFFFFF"
         app:menu="@menu/nav_menu"
-        app:subheaderColor="#FFFFFF" />
+        app:subheaderColor="#FFFFFF"
+        app:itemTextAppearance="@style/NavigationViewItemTextStyle"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>
