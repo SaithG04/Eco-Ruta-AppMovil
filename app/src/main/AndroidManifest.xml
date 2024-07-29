@@ -13,8 +13,9 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
         android:allowBackup="true"
@@ -32,7 +33,7 @@
         <!-- Configuración del FileProvider -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
+            android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -40,11 +41,18 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- Otras actividades y componentes -->
+        <service
+            android:name=".Utilities.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Actividades y componentes -->
         <activity android:name=".Interfaces.MapaRutasUI" android:exported="false" />
         <activity android:name=".Interfaces.ReportarUI" android:exported="false" />
         <activity android:name=".Interfaces.RutasUI" android:exported="false" />
-        <activity android:name=".Interfaces.RestablecerContraMenuUser" android:exported="false" />
         <activity android:name=".Interfaces.ConductorUI" android:exported="false" />
         <activity android:name=".Interfaces.RestablecerContra" android:exported="false" />
         <activity android:name=".Interfaces.ReciShop" android:exported="false" android:label="@string/title_activity_reci_shop" android:theme="@style/DarkTheme.ReciPeru.NoActionBar" />
@@ -52,7 +60,6 @@
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAq5z0qk55XkZdcc8FJbHywmXCcve4pkN4" />
         <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
 
-        <activity android:name=".Interfaces.ValidacionUI" android:exported="false" />
         <activity android:name=".Interfaces.ReciMapsUI" android:exported="false" android:label="@string/title_activity_reci_maps" android:launchMode="singleTask" />
         <activity android:name=".Interfaces.MenuUI" android:exported="false" android:launchMode="singleTask" />
         <activity android:name=".Interfaces.RegistroUsuarioUI" android:exported="false" android:launchMode="singleTask" />

@@ -7,6 +7,7 @@ import android.os.Build;
 import android.util.Base64;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
@@ -97,6 +98,14 @@ public class InterfacesUtilities {
         loadingIndicator.setVisibility(View.GONE);
         loadingLayout.setVisibility(View.GONE);
         activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        View view = activity.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private static final String PREFERENCES_NAME = "usuario_preferences";
