@@ -12,6 +12,7 @@ public class Usuario {
     private String type;
     private int puntos;
     private Timestamp last_scan_date;
+    private String idDevice;
 
     // Constructores, getters y setters
 
@@ -30,7 +31,7 @@ public class Usuario {
         this.last_scan_date = last_scan_date;
     }
 
-    public Usuario(String full_name, String email) {
+    public Usuario(String full_name, String email, String idDevice) {
         this.full_name = full_name;
         this.email = email;
         this.type = "usuario";
@@ -38,6 +39,7 @@ public class Usuario {
         this.last_scan_date = null;
         this.registro_date = null;
         this.status = "logged out";
+        this.idDevice = idDevice;
     }
 // Getters y setters para todos los campos
 
@@ -105,6 +107,14 @@ public class Usuario {
         this.last_scan_date = last_scan_date;
     }
 
+    public String getIdDevice() {
+        return idDevice;
+    }
+
+    public void setIdDevice(String idDevice) {
+        this.idDevice = idDevice;
+    }
+
     @Override
     public String toString() {
         return "Usuario{" +
@@ -116,6 +126,7 @@ public class Usuario {
                 ", type='" + type + '\'' +
                 ", puntos=" + puntos +
                 ", last_scan_date=" + last_scan_date +
+                ", idDevice='" + idDevice + '\'' +
                 '}';
     }
 }

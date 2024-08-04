@@ -82,6 +82,7 @@ dependencies {
     implementation(libs.work.runtime)
 
     implementation(platform(libs.firebase.bom.v3280))
+    implementation(libs.preference)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

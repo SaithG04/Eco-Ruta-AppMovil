@@ -43,6 +43,7 @@ import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.DataAccessUtilities;
+import com.qromarck.reciperu.Utilities.DeviceUtils;
 import com.qromarck.reciperu.Utilities.DialogUtilities;
 import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 import com.qromarck.reciperu.Utilities.NetworkUtilities;
@@ -246,9 +247,10 @@ public class LoginUI extends AppCompatActivity {
                     Toast.makeText(LoginUI.this, "No hay ninguna cuenta asociada a este correo.", Toast.LENGTH_LONG).show();
                 } else {
                     Usuario usuario = usuarios.get(0);
-                    if (usuario.getStatus().equals("logged in")) {
+                    String androidID = DeviceUtils.getAndroidID(getApplicationContext());
+                    if (usuario.getStatus().equals("logged in") && !usuario.getIdDevice().equals(androidID)) {
                         hideLoadingIndicator();
-                        Toast.makeText(LoginUI.this, "Ya hay una sesión iniciada en este dispositivo.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(LoginUI.this, "Ya hay una sesión iniciada en otro dispositivo.", Toast.LENGTH_LONG).show();
                     } else {
                         logIn(usuario, password);
                     }
@@ -282,41 +284,48 @@ public class LoginUI extends AppCompatActivity {
                             mGoogleSignInClient.signOut();
                         } else {
 
-                            FirebaseMessaging.getInstance().subscribeToTopic("horarios")
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (!task.isSuccessful()) {
-                                                hideLoadingIndicator();
-                                                mAuth.signOut();
-                                                mGoogleSignInClient.signOut();
-                                                Log.w("ERROR", "Suscripción fallida", task.getException());
-                                                Toast.makeText(getApplicationContext(), "Ha ocurrido un error inesperado, reintente.", Toast.LENGTH_LONG).show();
-                                            }else{
-                                                Usuario userL = usuarios.get(0);
-                                                userL.setStatus("logged in");
-                                                UsuarioDAO usuarioDAO = new UsuarioDAOImpl(userL);
-                                                usuarioDAO.updateOnFireStore(new DataAccessUtilities.OnUpdateListener() {
-                                                    @Override
-                                                    public void onUpdateComplete() {
-                                                        //suscribirUser();
-                                                        InterfacesUtilities.guardarUsuario(LoginUI.this, userL);
-                                                        TransitionUI.destino = userL.getType().equals("conductor") ? ConductorUI.class : MenuUI.class;
-                                                        Log.d("DEBUG", "FROM: " + LoginUI.class.getSimpleName());
-                                                        hideLoadingIndicator();
-                                                        startActivity(new Intent(LoginUI.this, TransitionUI.class));
-                                                        finish();
-                                                    }
+                            Usuario usuario = usuarios.get(0);
+                            String androidID = DeviceUtils.getAndroidID(getApplicationContext());
+                            if (usuario.getStatus().equals("logged in") && !usuario.getIdDevice().equals(androidID)) {
+                                hideLoadingIndicator();
+                                Toast.makeText(LoginUI.this, "Ya hay una sesión iniciada en otro dispositivo.", Toast.LENGTH_LONG).show();
+                            } else {
+                                FirebaseMessaging.getInstance().subscribeToTopic("horarios")
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (!task.isSuccessful()) {
+                                                    hideLoadingIndicator();
+                                                    mAuth.signOut();
+                                                    mGoogleSignInClient.signOut();
+                                                    Log.w("ERROR", "Suscripción fallida", task.getException());
+                                                    Toast.makeText(getApplicationContext(), "Ha ocurrido un error inesperado, reintente.", Toast.LENGTH_LONG).show();
+                                                }else{
+                                                    Usuario userL = usuarios.get(0);
+                                                    userL.setStatus("logged in");
+                                                    UsuarioDAO usuarioDAO = new UsuarioDAOImpl(userL);
+                                                    usuarioDAO.updateOnFireStore(new DataAccessUtilities.OnUpdateListener() {
+                                                        @Override
+                                                        public void onUpdateComplete() {
+                                                            //suscribirUser();
+                                                            InterfacesUtilities.guardarUsuario(LoginUI.this, userL);
+                                                            TransitionUI.destino = userL.getType().equals("conductor") ? ConductorUI.class : MenuUI.class;
+                                                            Log.d("DEBUG", "FROM: " + LoginUI.class.getSimpleName());
+                                                            hideLoadingIndicator();
+                                                            startActivity(new Intent(LoginUI.this, TransitionUI.class));
+                                                            finish();
+                                                        }
 
-                                                    @Override
-                                                    public void onUpdateError(String errorMessage) {
-                                                        Log.w("ERROR", errorMessage);
-                                                        hideLoadingIndicator();
-                                                    }
-                                                });
+                                                        @Override
+                                                        public void onUpdateError(String errorMessage) {
+                                                            Log.w("ERROR", errorMessage);
+                                                            hideLoadingIndicator();
+                                                        }
+                                                    });
+                                                }
                                             }
-                                        }
-                                    });
+                                        });
+                            }
                         }
                     }
                 }, e -> e.printStackTrace(System.out));

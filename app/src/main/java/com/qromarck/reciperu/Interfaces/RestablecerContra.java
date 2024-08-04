@@ -68,20 +68,13 @@ public class RestablecerContra extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showLoadingIndicator();
-
+                InterfacesUtilities.hideKeyboard(RestablecerContra.this);
                 // Obtiene el texto ingresado en el EditText
                 String email = gmailEditText.getText().toString().trim();
 
                 // Verifica si el campo de correo electrónico no está vacío
                 if (email.isEmpty()) {
                     Toast.makeText(RestablecerContra.this, "Ingrese su correo, Por favor.", Toast.LENGTH_SHORT).show();
-                    hideLoadingIndicator();
-                    return;
-                }
-
-                // Validar el formato del correo electrónico usando una expresión regular
-                if (!InterfacesUtilities.isValidEmail(email)) {
-                    Toast.makeText(RestablecerContra.this, "Ingrese un correo válido.", Toast.LENGTH_SHORT).show();
                     hideLoadingIndicator();
                     return;
                 }
@@ -99,27 +92,32 @@ public class RestablecerContra extends AppCompatActivity {
                             hideLoadingIndicator(); // Ocultar indicador de carga
                             Toast.makeText(getApplicationContext(), "No hay ninguna cuenta asociada a este correo.", Toast.LENGTH_LONG).show();
                         } else {
-                            // Envía el correo de restablecimiento de contraseña
-                            mAuth.sendPasswordResetEmail(email)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                // Correo de restablecimiento enviado con éxito
-                                                Toast.makeText(RestablecerContra.this, "Se ha enviado un correo para restablecer tu contraseña", Toast.LENGTH_SHORT).show();
-                                                hideLoadingIndicator();
-                                                finish(); // Cierra la actividad actual
+                            if (InterfacesUtilities.isGoogleEmail(email)){
+                                hideLoadingIndicator();
+                                Toast.makeText(RestablecerContra.this, "Su correo pertenece a Google, contáctese con su proveedor.", Toast.LENGTH_LONG).show();
+                            }else{
+                                // Envía el correo de restablecimiento de contraseña
+                                mAuth.sendPasswordResetEmail(email)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    // Correo de restablecimiento enviado con éxito
+                                                    Toast.makeText(RestablecerContra.this, "Se ha enviado un correo para restablecer su contraseña", Toast.LENGTH_SHORT).show();
+                                                    hideLoadingIndicator();
+                                                    finish(); // Cierra la actividad actual
+                                                }
                                             }
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            // Error al enviar el correo de restablecimiento
-                                            hideLoadingIndicator();
-                                            Toast.makeText(RestablecerContra.this, "Error al enviar el correo de restablecimiento. ", Toast.LENGTH_SHORT).show();
-                                            e.printStackTrace(System.out);
-                                        }
-                                    });
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                // Error al enviar el correo de restablecimiento
+                                                hideLoadingIndicator();
+                                                Toast.makeText(RestablecerContra.this, "Error al enviar el correo de restablecimiento. ", Toast.LENGTH_SHORT).show();
+                                                e.printStackTrace(System.out);
+                                            }
+                                        });
+                            }
                         }
                     }
                 }, new OnFailureListener() {

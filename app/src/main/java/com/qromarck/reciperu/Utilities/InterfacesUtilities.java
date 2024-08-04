@@ -26,6 +26,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class InterfacesUtilities {
@@ -276,5 +277,83 @@ public class InterfacesUtilities {
             };
         }
         return null;
+    }
+
+    public static boolean isGoogleEmail(String email) {
+        // Lista de dominios conocidos de Google
+        List<String> googleDomains = Arrays.asList(
+                "gmail.com",
+                "googlemail.com",
+                "google.com",
+                "google.co.uk",
+                "google.ca",
+                "google.com.au",
+                "google.de",
+                "google.fr",
+                "google.it",
+                "google.es",
+                "google.nl",
+                "google.se",
+                "google.no",
+                "google.fi",
+                "google.dk",
+                "google.be",
+                "google.ch",
+                "google.at",
+                "google.ie",
+                "google.pt",
+                "google.pl",
+                "google.gr",
+                "google.cz",
+                "google.hu",
+                "google.ro",
+                "google.bg",
+                "google.lt",
+                "google.lv",
+                "google.ee",
+                "google.ru",
+                "google.ua",
+                "google.by",
+                "google.kz",
+                "google.co.in",
+                "google.com.pk",
+                "google.com.sa",
+                "google.ae",
+                "google.co.jp",
+                "google.com.hk",
+                "google.com.sg",
+                "google.com.my",
+                "google.com.ph",
+                "google.co.id",
+                "google.co.kr",
+                "google.co.th",
+                "google.com.vn",
+                "google.com.tw",
+                "google.co.za",
+                "google.co.ke",
+                "google.co.ug",
+                "google.co.tz",
+                "google.co.ma",
+                "google.co.ng",
+                "google.co.et",
+                "google.co.gh",
+                "google.co.tn",
+                "google.co.il",
+                "google.co.ir",
+                "google.com.br",
+                "google.com.ar",
+                "google.com.mx",
+                "google.cl",
+                "google.com.co",
+                "google.com.pe",
+                "google.com.uy",
+                "google.com.py",
+                "google.com.bo",
+                "google.com.ec",
+                "google.com.ve",
+                "ucvvirtual.edu.pe"
+        );
+        String domain = email.substring(email.indexOf("@") + 1).toLowerCase();
+        return googleDomains.contains(domain);
     }
 }

@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.provider.Settings;
 import android.view.Menu;
 
+import androidx.core.view.GravityCompat;
+
 import com.qromarck.reciperu.Interfaces.CargaInicialUI;
 import com.qromarck.reciperu.Interfaces.MenuUI;
 
@@ -119,6 +121,7 @@ public class DialogUtilities {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 MenuUI menuUI = (MenuUI) activity;
+                menuUI.drawerLayout.closeDrawer(GravityCompat.START);
                 menuUI.showLoadingIndicator();
                 if (NetworkUtilities.isNetworkAvailable(activity.getApplicationContext())) {
                     menuUI.cerrarSesion();

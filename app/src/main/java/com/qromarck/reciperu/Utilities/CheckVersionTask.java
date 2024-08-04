@@ -46,18 +46,36 @@ public class CheckVersionTask extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... urls) {
         StringBuilder result = new StringBuilder();
+        HttpURLConnection connection = null;
+        BufferedReader reader = null;
         try {
             URL url = new URL(urls[0]);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                result.append(line);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(15000);
+            connection.connect();
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+            } else {
+                return "Server returned HTTP " + responseCode;
             }
-            reader.close();
-            connection.disconnect();
         } catch (Exception e) {
-            e.printStackTrace(System.err);
+            e.printStackTrace();
+            return e.toString();
+        } finally {
+            try {
+                if (reader != null) reader.close();
+                if (connection != null) connection.disconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return result.toString();
     }
@@ -65,6 +83,10 @@ public class CheckVersionTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String result) {
         try {
+            if (result.startsWith("Server returned HTTP")) {
+                throw new Exception(result);
+            }
+
             JSONObject jsonObject = new JSONObject(result);
             String serverVersion = jsonObject.getString("version_name");
             String apkUrl = jsonObject.getString("apk_url");
@@ -76,33 +98,11 @@ public class CheckVersionTask extends AsyncTask<String, Void, String> {
             if (!currentVersion.equals(serverVersion)) {
                 showUpdateDialog(apkUrl);
             } else {
-                //Toast.makeText(activity, "Cuentas con la versión más reciente", Toast.LENGTH_SHORT).show();
-
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(!NotificationUtilities.areNotificationsEnabled(activity.getApplicationContext())){
-                            DialogUtilities.showNotificationSettingsDialog(activity);
-                        }else{
-                            Usuario usuario = InterfacesUtilities.recuperarUsuario(activity.getApplicationContext());
-                            if (usuario != null) {
-                                // El usuario está logueado
-                                activity.startActivity(new Intent(activity, MenuUI.class));
-                                activity.finish();
-                            } else {
-                                activity.startActivity(new Intent(activity, LoginUI.class));
-                                activity.finish();
-                            }
-                        }
-                    }
-                }, TransitionUI.SPLASH_SCREEN_TIMEOUT);
-
-
+                proceedToNextActivity();
             }
         } catch (Exception e) {
-            e.printStackTrace(System.err);
-            Toast.makeText(activity, "Ha ocurrido un error, intente nuevamente.", Toast.LENGTH_SHORT).show();
-            activity.finishAffinity();
+            e.printStackTrace();
+            handleError(e);
         }
     }
 
@@ -143,5 +143,27 @@ public class CheckVersionTask extends AsyncTask<String, Void, String> {
         if (downloadAPKTask != null) {
             downloadAPKTask.cancel(true);
         }
+    }
+
+    private void proceedToNextActivity() {
+        new Handler().postDelayed(() -> {
+            if (!NotificationUtilities.areNotificationsEnabled(activity.getApplicationContext())) {
+                DialogUtilities.showNotificationSettingsDialog(activity);
+            } else {
+                Usuario usuario = InterfacesUtilities.recuperarUsuario(activity.getApplicationContext());
+                if (usuario != null) {
+                    activity.startActivity(new Intent(activity, MenuUI.class));
+                } else {
+                    activity.startActivity(new Intent(activity, LoginUI.class));
+                }
+                activity.finish();
+            }
+        }, TransitionUI.SPLASH_SCREEN_TIMEOUT);
+    }
+
+    private void handleError(Exception e) {
+        String error = e.getMessage();
+        Toast.makeText(activity, error.contains("End of input at character 0 of") ? "Ha ocurrido un error de conexión." : "Ha ocurrido un error inesperado.", Toast.LENGTH_SHORT).show();
+        activity.finishAffinity();
     }
 }

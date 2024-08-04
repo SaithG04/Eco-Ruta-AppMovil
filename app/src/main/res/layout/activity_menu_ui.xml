@@ -76,7 +76,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="200dp"
                     android:orientation="vertical"
                     android:padding="10dp">
 
@@ -224,21 +224,6 @@
             app:layout_constraintVertical_bias="0.381" />
 
         <Button
-            android:id="@+id/btnCerrarSesion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#589633"
-            android:fontFamily="casual"
-            android:text="Cerrar sesión"
-            android:textColor="#FFFFFF"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.485"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.976" />
-
-        <Button
             android:id="@+id/btnVerMapa"
             android:layout_width="155dp"
             android:layout_height="68dp"
@@ -251,7 +236,7 @@
             app:layout_constraintHorizontal_bias="0.132"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.87" />
+            app:layout_constraintVertical_bias="0.911" />
 
         <Button
             android:id="@+id/btnCamara"
@@ -266,7 +251,7 @@
             app:layout_constraintHorizontal_bias="0.846"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.876" />
+            app:layout_constraintVertical_bias="0.917" />
 
         <ImageView
             android:id="@+id/imgShop"

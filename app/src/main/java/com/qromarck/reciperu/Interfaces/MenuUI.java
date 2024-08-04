@@ -99,13 +99,13 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     private FrameLayout loadingLayout;
     private ProgressBar loadingIndicator;
     private HorizontalScrollView horizontalScrollView;
-    private DrawerLayout drawerLayout;
+    public DrawerLayout drawerLayout;
     private ImageButton btnMenu;
     private ImageView imgUser, selectImageButton, imgloading;
     private Bitmap bitmap;
     private ProgressDialog progressDialog;
     private TextView reci;
-    private Button mapButton, logoutButton, pointsButton;
+    private Button mapButton, pointsButton;
     private NavigationView navigationView;
 
     private final Handler handler = new Handler();
@@ -143,6 +143,25 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         handleShopButton();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Load user information and images
+        loadUserInfo();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //imgUser.setImageBitmap(null);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //imgUser.setImageBitmap(null);
+    }
+
     //Método onDestroy
     @Override
     protected void onDestroy() {
@@ -155,7 +174,6 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     //Inicialización de componentes
     private void initializeUIComponents() {
         progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Subiendo imagen...");
         selectImageButton = findViewById(R.id.btnSelectImage);
         imgUser = findViewById(R.id.userImageView);
         imgloading = findViewById(R.id.loading_profilegif);
@@ -166,8 +184,9 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         loadingIndicator = findViewById(R.id.loadingIndicator);
         navigationView = findViewById(R.id.nav_view);
         mapButton = findViewById(R.id.btnVerMapa);
-        logoutButton = findViewById(R.id.btnCerrarSesion);
         pointsButton = findViewById(R.id.btnCamara);
+
+        progressDialog.setMessage("Subiendo imagen...");
         MenuUIManager.getInstance().setMenuUI(this);
     }
 
@@ -208,13 +227,6 @@ public class MenuUI extends AppCompatActivity implements Serializable {
             }
         });
 
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DialogUtilities.showLogoutConfirmationDialog(MenuUI.this);
-            }
-        });
-
         pointsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -228,6 +240,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
         Usuario usuarioLogged = InterfacesUtilities.recuperarUsuario(MenuUI.this);
         String id = usuarioLogged.getId();
 
+        imgUser.setImageBitmap(null);
         FirebaseAuth.getInstance().fetchSignInMethodsForEmail(usuarioLogged.getEmail()).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<String> signInMethods = task.getResult().getSignInMethods();
@@ -236,7 +249,7 @@ public class MenuUI extends AppCompatActivity implements Serializable {
                 if (signInMethods != null && signInMethods.contains(GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD)) {
                     try {
                         Glide.with(this).load(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).into(imgUser);
-                        selectImageButton.setEnabled(false);
+                        selectImageButton.setVisibility(View.GONE);
                     }catch (Exception exception){
                         exception.printStackTrace(System.err);
                         imgUser.setImageResource(R.drawable.vectorlogin);
@@ -337,14 +350,18 @@ public class MenuUI extends AppCompatActivity implements Serializable {
     private void handleNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_reportar) {
+        if(id == R.id.nav_miPerfil){
+            //VER PERFIL
+        } else if (id == R.id.nav_reportar) {
             startActivity(new Intent(MenuUI.this, ReportarUI.class));
             drawerLayout.closeDrawer(GravityCompat.START);
         } else if (id == R.id.nav_rutas) {
             startActivity(new Intent(MenuUI.this, RutasUI.class));
             drawerLayout.closeDrawer(GravityCompat.START);
-        } else if (id == R.id.nav_cambiarcontra) {
-            startActivity(new Intent(MenuUI.this, RestablecerContra.class));
+        } else if (id == R.id.nav_cerrarSesion){
+            DialogUtilities.showLogoutConfirmationDialog(MenuUI.this);
+        } else if (id == R.id.nav_configuracion) {
+            startActivity(new Intent(MenuUI.this, SettingsUI.class));
             drawerLayout.closeDrawer(GravityCompat.START);
         }
     }

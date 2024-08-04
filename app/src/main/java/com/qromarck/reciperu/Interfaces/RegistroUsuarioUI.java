@@ -34,6 +34,7 @@ import com.qromarck.reciperu.DAO.UsuarioDAO;
 import com.qromarck.reciperu.Entity.Usuario;
 import com.qromarck.reciperu.R;
 import com.qromarck.reciperu.Utilities.DataAccessUtilities;
+import com.qromarck.reciperu.Utilities.DeviceUtils;
 import com.qromarck.reciperu.Utilities.DialogUtilities;
 import com.qromarck.reciperu.Utilities.InterfacesUtilities;
 import com.qromarck.reciperu.Utilities.NetworkUtilities;
@@ -129,7 +130,7 @@ public class RegistroUsuarioUI extends AppCompatActivity {
     private void registrarUsuarioOnFireStore(Usuario usuario, String password) {
         showLoadingIndicator();
         if (NetworkUtilities.isNetworkAvailable(getApplicationContext())) {
-            if (isGoogleEmail(usuario.getEmail())) {
+            if (InterfacesUtilities.isGoogleEmail(usuario.getEmail())) {
                 hideLoadingIndicator();
                 Toast.makeText(getApplicationContext(), "Este correo pertenece a una cuenta de Google. Intente con otro.", Toast.LENGTH_LONG).show();
             } else {
@@ -191,85 +192,6 @@ public class RegistroUsuarioUI extends AppCompatActivity {
             DialogUtilities.showNoInternetDialog(RegistroUsuarioUI.this);
         }
     }
-
-    private boolean isGoogleEmail(String email) {
-        // Lista de dominios conocidos de Google
-        List<String> googleDomains = Arrays.asList(
-                "gmail.com",
-                "googlemail.com",
-                "google.com",
-                "google.co.uk",
-                "google.ca",
-                "google.com.au",
-                "google.de",
-                "google.fr",
-                "google.it",
-                "google.es",
-                "google.nl",
-                "google.se",
-                "google.no",
-                "google.fi",
-                "google.dk",
-                "google.be",
-                "google.ch",
-                "google.at",
-                "google.ie",
-                "google.pt",
-                "google.pl",
-                "google.gr",
-                "google.cz",
-                "google.hu",
-                "google.ro",
-                "google.bg",
-                "google.lt",
-                "google.lv",
-                "google.ee",
-                "google.ru",
-                "google.ua",
-                "google.by",
-                "google.kz",
-                "google.co.in",
-                "google.com.pk",
-                "google.com.sa",
-                "google.ae",
-                "google.co.jp",
-                "google.com.hk",
-                "google.com.sg",
-                "google.com.my",
-                "google.com.ph",
-                "google.co.id",
-                "google.co.kr",
-                "google.co.th",
-                "google.com.vn",
-                "google.com.tw",
-                "google.co.za",
-                "google.co.ke",
-                "google.co.ug",
-                "google.co.tz",
-                "google.co.ma",
-                "google.co.ng",
-                "google.co.et",
-                "google.co.gh",
-                "google.co.tn",
-                "google.co.il",
-                "google.co.ir",
-                "google.com.br",
-                "google.com.ar",
-                "google.com.mx",
-                "google.cl",
-                "google.com.co",
-                "google.com.pe",
-                "google.com.uy",
-                "google.com.py",
-                "google.com.bo",
-                "google.com.ec",
-                "google.com.ve",
-                "ucvvirtual.edu.pe"
-        );
-        String domain = email.substring(email.indexOf("@") + 1).toLowerCase();
-        return googleDomains.contains(domain);
-    }
-
 
     /**
      * Handle registration errors.
@@ -358,7 +280,8 @@ public class RegistroUsuarioUI extends AppCompatActivity {
     private Usuario crearUsuario() {
         String fullName = edtUsuario.getText().toString();
         String email = edtCorreo.getText().toString();
-        return new Usuario(fullName, email);
+        String idDevice = DeviceUtils.getAndroidID(getApplicationContext());
+        return new Usuario(fullName, email, idDevice);
     }
 
     /**
@@ -428,7 +351,8 @@ public class RegistroUsuarioUI extends AppCompatActivity {
                             if (usuarios.isEmpty()) {
                                 // El usuario no existe, es nuevo, así que procede con el registro
                                 Log.d(TAG, "signInWithCredential:success");
-                                Usuario nuevoUsuario = new Usuario(user.getDisplayName(), user.getEmail());
+                                String idDevice = DeviceUtils.getAndroidID(getApplicationContext());
+                                Usuario nuevoUsuario = new Usuario(user.getDisplayName(), user.getEmail(), idDevice);
                                 nuevoUsuario.setId(user.getUid());
                                 nuevoUsuario.setStatus("logged in");
 
